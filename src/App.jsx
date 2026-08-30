@@ -1,82 +1,165 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { Search, Moon, Sun, MapPin, ExternalLink, Share2, Download, Filter, ChevronRight, ShieldCheck, BookOpen, AlertTriangle, Activity, CalendarDays, Menu, X } from 'lucide-react'
-import { Button, Badge, Card, CardHeader, CardTitle, CardDescription, Sheet, Progress, EmptyState } from './components/ui.jsx'
+import React, { useEffect, useMemo, useState } from "react"
+import { Activity, CalendarDays, ChevronRight, Download, ExternalLink, Menu, Moon, Search, Share2, Sun, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Progress } from "@/components/ui/progress"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-const repoBase = import.meta.env.BASE_URL || './'
-const json = (p) => fetch(`${repoBase}${p}`.replace(/([^:]\/)\/+/g,'$1')).then(r=>{ if(!r.ok) throw new Error(`${p}: ${r.status}`); return r.json() })
-const tone = n => Number(n)>=76?'red':Number(n)>=41?'orange':Number(n)>=26?'yellow':'green'
-const toneLabel = n => ({red:'Critical',orange:'High',yellow:'Watch',green:'Low'})[tone(n)]
-const esc = (v) => v == null ? '' : String(v)
-
-const cityCoords = {
-  Tengger:[-7.942,112.953], Karanganyar:[-7.596,110.951], Banyumas:[-7.515,109.294], 'Barito Utara':[-0.78,114.74],
-  Tuban:[-6.897,112.064], Bangka:[-2.15,106.12], Medan:[3.595,98.672], Mempawah:[0.35,108.95],
-  'Palangka Raya':[-2.21,113.92], Cibubur:[-6.37,106.88], Dieng:[-7.21,109.92], Trenggalek:[-8.05,111.70], Indonesia:[-2.5,118]
+const cleanBase = (import.meta.env.BASE_URL || "/").replace(/\/+$/, "")
+const loadJson = async (path) => {
+  const response = await fetch(`${cleanBase}/${path}`.replace(/([^:]\/)\/+/g, "$1"))
+  if (!response.ok) throw new Error(`${path}: ${response.status}`)
+  return response.json()
 }
 
-function App(){
-  const [registry,setRegistry]=useState(null), [month,setMonth]=useState(null), [report,setReport]=useState(null), [issues,setIssues]=useState([]), [evidence,setEvidence]=useState([]), [revelation,setRevelation]=useState(null)
-  const [query,setQuery]=useState(''), [filter,setFilter]=useState('all'), [sheet,setSheet]=useState(null), [dark,setDark]=useState(()=>localStorage.getItem('wml-theme')==='dark'), [menu,setMenu]=useState(false), [installPrompt,setInstallPrompt]=useState(null)
+const risk = (value) => Number(value) >= 76 ? "critical" : Number(value) >= 41 ? "high" : Number(value) >= 26 ? "watch" : "low"
+const riskVariant = (value) => risk(value) === "critical" ? "destructive" : risk(value) === "high" ? "secondary" : "outline"
+const riskLabel = (value) => ({ critical: "Critical", high: "High", watch: "Watch", low: "Low" })[risk(value)]
 
-  useEffect(()=>{ document.documentElement.classList.toggle('dark',dark); localStorage.setItem('wml-theme',dark?'dark':'light') },[dark])
-  useEffect(()=>{
-    json('data/index.json').then(r=>{setRegistry(r); const m=r.months?.find(x=>x.id==='2026-08')||r.months?.[0]; setMonth(m)}).catch(()=>{})
-    const handler=e=>{e.preventDefault();setInstallPrompt(e)}; window.addEventListener('beforeinstallprompt',handler); return()=>window.removeEventListener('beforeinstallprompt',handler)
-  },[])
-  useEffect(()=>{ if(!month)return; Promise.all([json(month.path),json(month.issues),json(month.evidence),json(month.revelation)]).then(([a,b,c,d])=>{setReport(a);setIssues(b);setEvidence(c);setRevelation(d)}).catch(()=>{}) },[month])
+function ScoreBadge({ value }) {
+  return <Badge variant={riskVariant(value)}>{value}/100 · {riskLabel(value)}</Badge>
+}
+
+export default function App() {
+  const [registry, setRegistry] = useState(null)
+  const [month, setMonth] = useState(null)
+  const [report, setReport] = useState(null)
+  const [issues, setIssues] = useState([])
+  const [evidence, setEvidence] = useState([])
+  const [revelation, setRevelation] = useState(null)
+  const [monitor, setMonitor] = useState(null)
+  const [query, setQuery] = useState("")
+  const [filter, setFilter] = useState("all")
+  const [drawer, setDrawer] = useState(null)
+  const [dark, setDark] = useState(() => localStorage.getItem("wml-theme") === "dark")
+  const [menu, setMenu] = useState(false)
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark)
+    localStorage.setItem("wml-theme", dark ? "dark" : "light")
+  }, [dark])
+
+  useEffect(() => {
+    loadJson("data/index.json").then((data) => {
+      setRegistry(data)
+      setMonth(data.months?.find((entry) => entry.status === "final") || data.months?.[0] || null)
+    }).catch(() => setRegistry({ months: [] }))
+  }, [])
+
+  useEffect(() => {
+    if (!month) return
+    setReport(null)
+    loadJson(month.path).then(setReport).catch(() => setReport({ month: month.label, scope: "Indonesia", kpis: [], observations: [], causality: [] }))
+    loadJson(month.issues).then(setIssues).catch(() => setIssues([]))
+    loadJson(month.evidence).then(setEvidence).catch(() => setEvidence([]))
+    loadJson(month.revelation).then(setRevelation).catch(() => setRevelation({ traditions: [] }))
+  }, [month])
+
+  useEffect(() => {
+    loadJson("data/monitor/latest.json").then(setMonitor).catch(() => setMonitor(null))
+    const timer = setInterval(() => loadJson("data/monitor/latest.json").then(setMonitor).catch(() => {}), 5 * 60 * 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   const observations = report?.observations || []
-  const filtered = useMemo(()=>observations.filter(o=>{
-    const q=query.toLowerCase(); const hay=[o.date,o.location,o.actor,o.practice,o.summary].join(' ').toLowerCase();
-    return (!q||hay.includes(q)) && (filter==='all'||tone(o.tauhid_gap)===filter)
-  }),[observations,query,filter])
+  const filtered = useMemo(() => observations.filter((item) => {
+    const text = [item.date, item.location, item.actor, item.practice, item.summary].join(" ").toLowerCase()
+    return (!query || text.includes(query.toLowerCase())) && (filter === "all" || risk(item.tauhid_gap) === filter)
+  }), [observations, query, filter])
 
-  function refFor(o){return o?.revelation_refs || revelation?.default_row_refs || {Q:'112:1–4',I:'Mark 12:29–31',T:'Deut. 6:4–5',Z:'Ps. 86:10'}}
-  function openObservation(o){setSheet({kind:'observation',item:o})}
-  function openIssue(i){setSheet({kind:'issue',item:i})}
-  function openEvidence(i){setSheet({kind:'evidence',item:i})}
-  async function install(){ if(!installPrompt)return; await installPrompt.prompt(); setInstallPrompt(null) }
-  async function share(){ const data={title:'WHERE MYTH FADE TO LEGEND',text:`${month?.label||'Observatory'} — Indonesia Mythos & Ritual Observatory`,url:location.href}; try{ if(navigator.share) await navigator.share(data); else await navigator.clipboard.writeText(location.href) }catch{} }
-  function story(item,kind='Observation'){ const c=document.createElement('canvas'); c.width=1080;c.height=1920;const x=c.getContext('2d'); x.fillStyle=dark?'#0b0b0f':'#f8fafc';x.fillRect(0,0,c.width,c.height);x.fillStyle='#111827'; if(dark)x.fillStyle='#f4f4f5'; x.font='700 28px system-ui';x.fillText('WHERE MYTH FADE TO LEGEND',72,100);x.fillStyle='#6d28d9';x.font='800 64px system-ui';x.fillText(kind.toUpperCase(),72,210);x.fillStyle=dark?'#f4f4f5':'#111827';x.font='800 74px system-ui';wrap(x,esc(item?.practice||item?.issue||item?.title||'August 2026'),72,340,900,86,4);x.font='500 34px system-ui';x.fillStyle=dark?'#c5c7d0':'#4b5563';wrap(x,esc(item?.summary||item?.resolution||item?.description||'Evidence-first observatory snapshot.'),72,700,900,48,8); if(item?.tauhid_gap!=null){x.fillStyle=toneColor(item.tauhid_gap);x.font='800 52px system-ui';x.fillText(`Tauhid Gap ${item.tauhid_gap}/100`,72,1250)} x.fillStyle=dark?'#a1a1aa':'#64748b';x.font='500 26px system-ui';x.fillText(`${month?.label||'August 2026'} · Indonesia`,72,1820);const a=document.createElement('a');a.download='where-myth-fade-story.png';a.href=c.toDataURL('image/png');a.click() }
-  const toneColor=n=>tone(n)==='red'?'#c43b49':tone(n)==='orange'?'#bf641f':tone(n)==='yellow'?'#a97800':'#159a70'
-  const wrap=(ctx,text,x,y,maxWidth,lineHeight,maxLines)=>{const words=text.split(/\s+/);let line='',lines=0;for(let i=0;i<words.length;i++){const test=line?line+' '+words[i]:words[i];if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y+lines*lineHeight);line=words[i];lines++;if(lines>=maxLines)break}else line=test}if(lines<maxLines)ctx.fillText(line,x,y+lines*lineHeight)}
+  const open = (kind, item) => setDrawer({ kind, item })
+  const share = async () => {
+    const payload = { title: "WHERE MYTH FADE TO LEGEND", text: `${month?.label || "Observatory"} — Indonesia Mythos & Ritual Observatory`, url: window.location.href }
+    try { if (navigator.share) await navigator.share(payload); else await navigator.clipboard.writeText(window.location.href) } catch {}
+  }
+  const story = (title) => {
+    const canvas = document.createElement("canvas")
+    canvas.width = 1080; canvas.height = 1920
+    const ctx = canvas.getContext("2d")
+    ctx.fillStyle = dark ? "#09090b" : "#ffffff"; ctx.fillRect(0, 0, 1080, 1920)
+    ctx.fillStyle = dark ? "#fafafa" : "#09090b"; ctx.font = "700 30px system-ui"; ctx.fillText("WHERE MYTH FADE TO LEGEND", 72, 100)
+    ctx.font = "800 74px system-ui"; ctx.fillText(title || month?.label || "August 2026", 72, 230)
+    ctx.font = "500 34px system-ui"; ctx.fillStyle = dark ? "#a1a1aa" : "#52525b"; ctx.fillText("Indonesia Mythos & Ritual Observatory", 72, 290)
+    ctx.font = "700 30px system-ui"; ctx.fillStyle = dark ? "#fafafa" : "#09090b"; ctx.fillText(`${observations.length} observations · ${evidence.length} evidence · ${issues.length} issues`, 72, 410)
+    ctx.font = "500 26px system-ui"; ctx.fillStyle = dark ? "#a1a1aa" : "#71717a"; ctx.fillText("Evidence-first · specific practices, not communities", 72, 1810)
+    const link = document.createElement("a"); link.download = "where-myth-fade-to-legend.png"; link.href = canvas.toDataURL("image/png"); link.click()
+  }
 
-  if(!report) return <div className="app-loading"><div className="loading-mark">WM</div><p>Loading observatory…</p></div>
+  if (!report) return <main className="grid min-h-svh place-items-center bg-background text-foreground"><div className="flex flex-col items-center gap-3 text-center"><div className="grid size-12 place-items-center rounded-xl border bg-card font-bold">WM</div><p className="text-sm text-muted-foreground">Loading observatory…</p></div></main>
 
-  return <div className="app-shell">
-    <header className="site-header"><div className="header-inner"><a href="#top" className="brand"><span className="brand-icon">WM</span><span><b>WHERE MYTH FADE TO LEGEND</b><small>INDONESIA OBSERVATORY</small></span></a><nav className={menu?'nav mobile-open':'nav'}>{['dashboard','timeline','observations','issues','evidence','map','revelation'].map((x)=><a key={x} href={`#${x}`} onClick={()=>setMenu(false)}>{x}</a>)}</nav><div className="header-actions"><span className="status"><i/> LIVE</span><select value={month?.id||''} onChange={e=>setMonth(registry.months.find(m=>m.id===e.target.value))}>{(registry?.months||[]).map(m=><option key={m.id} value={m.id}>{m.label}</option>)}</select><Button variant="outline" size="icon" onClick={()=>setDark(v=>!v)} title="Toggle theme">{dark?<Sun size={16}/>:<Moon size={16}/>}</Button><Button variant="outline" size="icon" onClick={()=>setMenu(v=>!v)} className="menu-btn">{menu?<X size={16}/>:<Menu size={16}/>}</Button></div></div></header>
+  return (
+    <div className="min-h-svh bg-background text-foreground">
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="mx-auto flex min-h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
+          <a href="#top" className="flex min-w-0 items-center gap-3 no-underline">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">WM</span>
+            <span className="hidden min-w-0 sm:block"><span className="block truncate text-xs font-bold tracking-wide">WHERE MYTH FADE TO LEGEND</span><span className="block text-[10px] text-muted-foreground">INDONESIA OBSERVATORY</span></span>
+          </a>
+          <nav className={`${menu ? "absolute left-4 right-4 top-16 flex flex-col rounded-lg border bg-popover p-2 shadow-lg md:static md:flex md:flex-row md:border-0 md:bg-transparent md:p-0 md:shadow-none" : "hidden md:flex"} flex-1 items-start gap-1 md:items-center md:gap-4`}>
+            {['dashboard','timeline','observations','issues','evidence','map','revelation'].map((item) => <a key={item} href={`#${item}`} onClick={() => setMenu(false)} className="rounded-md px-2 py-1.5 text-xs font-medium capitalize text-muted-foreground hover:bg-accent hover:text-accent-foreground">{item}</a>)}
+          </nav>
+          <div className="ml-auto flex items-center gap-2">
+            <Badge variant="outline"><span className="mr-1 inline-block size-1.5 rounded-full bg-emerald-500" /> LIVE</Badge>
+            <select aria-label="Month" value={month?.id || ""} onChange={(e) => setMonth(registry.months.find((entry) => entry.id === e.target.value))} className="hidden h-9 rounded-md border bg-background px-2 text-xs md:block">
+              {(registry?.months || []).map((entry) => <option key={entry.id} value={entry.id}>{entry.label}</option>)}
+            </select>
+            <Button variant="outline" size="icon" onClick={() => setDark((value) => !value)} aria-label="Toggle theme">{dark ? <Sun /> : <Moon />}</Button>
+            <Button variant="outline" size="icon" onClick={() => setMenu((value) => !value)} className="md:hidden" aria-label="Menu">{menu ? <X /> : <Menu />}</Button>
+          </div>
+        </div>
+      </header>
 
-    <main id="top">
-      <section className="hero"><div><div className="eyebrow">MONTHLY OBSERVATORY · {month.label.toUpperCase()}</div><h1>Where <span>Myth</span><br/>Fade to Legend</h1><p>Evidence-first monitoring of mythos, ritual, religious context, revelation references, media and causality across Indonesia.</p><div className="hero-actions"><Button onClick={share}><Share2 size={15}/> Share dashboard</Button>{installPrompt&&<Button variant="outline" onClick={install}>Install app</Button>}<Button variant="ghost" onClick={()=>story({title:month.label},'Monthly')}><Download size={15}/> Story</Button></div></div><Card className="hero-summary"><div className="hero-summary-top"><span>BOARD STATUS</span><Badge tone="green">EVIDENCE-LED</Badge></div><strong>August 2026</strong><Progress value={88}/><div className="hero-summary-grid"><span><small>Observations</small><b>{observations.length}</b></span><span><small>Issues</small><b>{issues.length}</b></span><span><small>Evidence</small><b>{evidence.length}</b></span><span><small>Red</small><b>{observations.filter(o=>tone(o.tauhid_gap)==='red').length}</b></span></div></Card></section>
+      <main id="top" className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
+        <section className="grid gap-8 border-b py-10 md:grid-cols-[1.5fr_.5fr] md:py-16">
+          <div className="flex flex-col justify-center">
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">MONTHLY OBSERVATORY · {month?.label?.toUpperCase()}</div>
+            <h1 className="mt-4 text-5xl font-extrabold tracking-[-0.05em] sm:text-7xl lg:text-8xl">Where <span className="text-primary">Myth</span><br />Fade to Legend</h1>
+            <p className="mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">Evidence-first monitoring of mythos, ritual, religious context, revelation references, media and causality across Indonesia.</p>
+            <div className="mt-6 flex flex-wrap gap-2"><Button onClick={share}><Share2 /> Share dashboard</Button><Button variant="outline" onClick={() => story(month?.label)}><Download /> Generate Image</Button></div>
+          </div>
+          <Card className="self-end">
+            <CardHeader><CardDescription>BOARD STATUS</CardDescription><div className="flex items-center justify-between gap-3"><CardTitle>Evidence-led</CardTitle><Badge variant="secondary">{report.month}</Badge></div></CardHeader>
+            <CardContent className="space-y-4"><Progress value={88} /><div className="grid grid-cols-2 gap-4 text-sm"><div><div className="text-muted-foreground">Observations</div><div className="mt-1 text-2xl font-bold">{observations.length}</div></div><div><div className="text-muted-foreground">Evidence</div><div className="mt-1 text-2xl font-bold">{evidence.length}</div></div><div><div className="text-muted-foreground">Issues</div><div className="mt-1 text-2xl font-bold">{issues.length}</div></div><div><div className="text-muted-foreground">Critical</div><div className="mt-1 text-2xl font-bold">{observations.filter((o) => risk(o.tauhid_gap) === "critical").length}</div></div></div></CardContent>
+          </Card>
+        </section>
 
-      <section id="dashboard" className="section"><div className="section-heading"><div><div className="eyebrow">01 · LIVE OVERVIEW</div><h2>August at a glance</h2><p>Scores describe specific practices, not religions or people.</p></div></div><div className="kpi-grid">{(report.kpis||[]).map(k=><Card key={k.label}><div className="kpi-label">{k.label}</div><div className="kpi-value">{k.value}</div><div className="kpi-note">{k.note}</div></Card>)}</div></section>
+        <section id="dashboard" className="py-10"><SectionTitle eyebrow="01 · LIVE OVERVIEW" title="August at a glance" description="Scores describe specific practices, not religions or people." /><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{(report.kpis || []).slice(0, 8).map((kpi) => <Card key={kpi.label}><CardHeader className="pb-2"><CardDescription>{kpi.label}</CardDescription><CardTitle className="text-2xl">{kpi.value}</CardTitle></CardHeader><CardContent className="pt-0"><p className="text-xs text-muted-foreground">{kpi.note}</p></CardContent></Card>)}</div></section>
 
-      <section id="timeline" className="section"><div className="section-heading"><div><div className="eyebrow">02 · TIMELINE</div><h2>What happened, when</h2></div><Button variant="outline" onClick={()=>story(null,'Timeline')}><Download size={15}/> Generate Image</Button></div><div className="timeline-grid">{observations.map((o,i)=><button key={i} className="timeline-card" onClick={()=>openObservation(o)}><div className="timeline-top"><span>{o.date}</span><Badge tone={tone(o.tauhid_gap)}>{toneLabel(o.tauhid_gap)}</Badge></div><b>{o.location}</b><strong>{o.practice}</strong><small>Gap {o.tauhid_gap}/100</small></button>)}</div></section>
+        <section id="timeline" className="py-10"><SectionTitle eyebrow="02 · TIMELINE" title="What happened, when" description="Open any observation for its evidence context." /><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">{observations.map((item, index) => <button key={`${item.date}-${index}`} onClick={() => open("observation", item)} className="rounded-lg border bg-card p-4 text-left shadow-sm transition hover:bg-accent"><div className="flex items-center justify-between gap-2"><span className="text-xs text-muted-foreground">{item.date}</span><ScoreBadge value={item.tauhid_gap} /></div><div className="mt-3 text-sm font-medium">{item.location}</div><div className="mt-1 text-sm font-semibold">{item.practice}</div><div className="mt-2 text-xs text-muted-foreground line-clamp-2">{item.summary}</div></button>)}</div></section>
 
-      <section id="observations" className="section"><div className="section-heading"><div><div className="eyebrow">03 · OBSERVATIONS</div><h2>Live observation board</h2><p>Open a row to inspect evidence, scores, revelation references and source.</p></div><Button variant="outline" onClick={()=>story(null,'Observations')}><Download size={15}/> Generate Image</Button></div><div className="toolbar"><div className="search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search location, ritual, actor…"/></div><div className="filter"><Filter size={15}/><select value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">All levels</option><option value="red">Critical</option><option value="orange">High</option><option value="yellow">Watch</option><option value="green">Low</option></select></div></div><div className="table-wrap"><table><thead><tr><th>Date</th><th>Location</th><th>Practice</th><th>Evidence</th><th>Tauhid Gap</th><th>Causality</th><th>4 Revelation</th><th></th></tr></thead><tbody>{filtered.map((o,i)=><tr key={i}><td>{o.date}</td><td><b>{o.location}</b><div className="muted">{o.actor}</div></td><td><b>{o.practice}</b><div className="muted">{o.summary}</div></td><td><Badge tone={tone(o.evidence_score)}>{o.evidence_score}/100</Badge></td><td><Badge tone={tone(o.tauhid_gap)}>{o.tauhid_gap}/100</Badge></td><td><Badge tone={tone(o.causality)}>{o.causality}/100</Badge></td><td><div className="refs"><span>Q {refFor(o).Q}</span><span>I {refFor(o).I}</span><span>T {refFor(o).T}</span><span>Z {refFor(o).Z}</span></div></td><td><Button size="sm" variant="ghost" onClick={()=>openObservation(o)}>Open <ChevronRight size={14}/></Button></td></tr>)}</tbody></table></div></section>
+        <section id="observations" className="py-10"><div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><SectionTitle eyebrow="03 · OBSERVATIONS" title="Live observation board" description="Search and filter the verified monthly dataset." /><Button variant="outline" onClick={() => story("Observations")}><Download /> Generate Image</Button></div><div className="mb-3 flex flex-col gap-2 sm:flex-row"><div className="relative flex-1"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search location, ritual, actor…" className="pl-9" /></div><select aria-label="Risk filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="h-9 rounded-md border bg-background px-3 text-sm sm:w-40"><option value="all">All levels</option><option value="critical">Critical</option><option value="high">High</option><option value="watch">Watch</option><option value="low">Low</option></select></div><div className="rounded-lg border bg-card"><Table><TableHeader><TableRow><TableHead>Date</TableHead><TableHead>Location</TableHead><TableHead>Practice</TableHead><TableHead>Evidence</TableHead><TableHead>Tauhid Gap</TableHead><TableHead>Causality</TableHead><TableHead>4 Revelation</TableHead><TableHead /></TableRow></TableHeader><TableBody>{filtered.map((item, index) => <TableRow key={`${item.date}-${index}`}><TableCell>{item.date}</TableCell><TableCell><div className="font-medium">{item.location}</div><div className="text-xs text-muted-foreground">{item.actor}</div></TableCell><TableCell><div className="font-medium">{item.practice}</div><div className="max-w-xs whitespace-normal text-xs text-muted-foreground">{item.summary}</div></TableCell><TableCell><Badge variant="outline">{item.evidence_score}/100</Badge></TableCell><TableCell><ScoreBadge value={item.tauhid_gap} /></TableCell><TableCell><Badge variant="outline">{item.causality}/100</Badge></TableCell><TableCell><div className="grid gap-1 text-[10px]"><span>Q · {item.revelation_refs?.Q || "112:1–4"}</span><span>I · {item.revelation_refs?.I || "Mark 12:29–31"}</span><span>T · {item.revelation_refs?.T || "Deut. 6:4–5"}</span><span>Z · {item.revelation_refs?.Z || "Ps. 86:10"}</span></div></TableCell><TableCell><Button size="sm" variant="ghost" onClick={() => open("observation", item)}>Open <ChevronRight /></Button></TableCell></TableRow>)}</TableBody></Table></div></section>
 
-      <section className="section split"><Card><CardHeader><Badge tone="neutral">TAUHID GAP</Badge><CardTitle>Risk distribution</CardTitle><CardDescription>Current observation set by severity.</CardDescription></CardHeader><div className="bars">{[['green','Low'],['yellow','Watch'],['orange','High'],['red','Critical']].map(([t,l])=>{const count=observations.filter(o=>tone(o.tauhid_gap)===t).length;return <div key={t} className="bar-row"><div><span>{l}</span><b>{count}</b></div><div className="bar"><i className={`bar-${t}`} style={{width:`${Math.max(6,count/Math.max(1,observations.length)*100)}%`}}/></div></div>})}</div></Card><Card><CardHeader><Badge tone="neutral">CAUSALITY</Badge><CardTitle>Ritual → event</CardTitle><CardDescription>Timing is not treated as proof of causation.</CardDescription></CardHeader><div className="causal-list">{(report.causality||[]).map(c=><button key={c.name} onClick={()=>setSheet({kind:'causality',item:c})}><span>{c.name}</span><Badge tone={tone(c.score)}>{c.score}/100</Badge><small>{c.finding}</small></button>)}</div></Card></section>
+        <section className="grid gap-4 py-10 lg:grid-cols-2"><Card><CardHeader><CardTitle>Risk distribution</CardTitle><CardDescription>Current observation set by Tauhid Gap severity.</CardDescription></CardHeader><CardContent className="space-y-4">{["low","watch","high","critical"].map((level) => { const count = observations.filter((item) => risk(item.tauhid_gap) === level).length; return <div key={level}><div className="mb-2 flex justify-between text-sm"><span className="capitalize">{level}</span><span className="font-medium">{count}</span></div><Progress value={observations.length ? (count / observations.length) * 100 : 0} /></div> })}</CardContent></Card><Card><CardHeader><CardTitle>Causality review</CardTitle><CardDescription>Temporal proximity is not treated as causal proof.</CardDescription></CardHeader><CardContent className="space-y-1">{(report.causality || []).map((item) => <button key={item.name} onClick={() => open("causality", item)} className="flex w-full items-start justify-between gap-4 rounded-md px-2 py-3 text-left hover:bg-accent"><span><span className="block text-sm font-medium">{item.name}</span><span className="mt-1 block text-xs text-muted-foreground">{item.finding}</span></span><Badge variant={item.score >= 76 ? "destructive" : "outline"}>{item.score}/100</Badge></button>)}</CardContent></Card></section>
 
-      <section id="map" className="section"><div className="section-heading"><div><div className="eyebrow">04 · MAP</div><h2>Indonesia observation geography</h2></div><Button variant="outline" onClick={()=>story(null,'Map')}><Download size={15}/> Generate Image</Button></div><div className="map-panel"><div className="map-grid">{observations.map((o,i)=>{const c=cityCoords[o.location]||cityCoords.Indonesia;return <button key={i} className={`map-pin ${tone(o.tauhid_gap)}`} style={{left:`${((c[1]-95)/45)*100}%`,top:`${((6-c[0])/18)*100}%`}} title={`${o.location} · ${o.practice}`} onClick={()=>openObservation(o)}><span>{i+1}</span></button>})}<div className="map-label map-indonesia">INDONESIA</div></div><div className="map-legend"><span><i className="dot green"/> Low</span><span><i className="dot yellow"/> Watch</span><span><i className="dot orange"/> High</span><span><i className="dot red"/> Critical</span><small>Approximate city positions for orientation.</small></div></div></section>
+        <section id="map" className="py-10"><SectionTitle eyebrow="04 · GEOGRAPHY" title="Indonesia observation map" description="Approximate locations for orientation." /><Card><CardContent className="relative min-h-72 overflow-hidden p-0"><div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--muted)),transparent_65%)]" /><div className="relative grid min-h-72 place-items-center"><div className="rounded-full border border-dashed px-10 py-20 text-center text-muted-foreground"><CalendarDays className="mx-auto mb-2" /><div className="text-sm font-medium">Indonesia</div><div className="text-xs">{observations.length} documented observations</div></div>{observations.slice(0, 12).map((item, index) => <button key={`${item.location}-${index}`} onClick={() => open("observation", item)} className={`absolute grid size-7 place-items-center rounded-full border-2 border-background text-[10px] font-bold shadow-sm ${risk(item.tauhid_gap) === "critical" ? "bg-destructive text-destructive-foreground" : risk(item.tauhid_gap) === "high" ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"}`} style={{ left: `${18 + (index * 31) % 64}%`, top: `${20 + (index * 47) % 58}%` }}>{index + 1}</button>)}</div></CardContent></Card></section>
 
-      <section id="revelation" className="section"><div className="section-heading"><div><div className="eyebrow">05 · FOUR REVELATION LENS</div><h2>Reference the question back to God</h2><p>Cross-reference for theological comparison; not a claim that scripture predicts a modern event.</p></div></div><div className="revelation-grid">{(revelation?.traditions||[]).map(r=><Card key={r.key}><Badge tone="neutral">{r.key}</Badge><h3>{r.name}</h3><strong>{r.references.join(' · ')}</strong><p>{r.focus}</p><a href={r.url} target="_blank" rel="noreferrer">Open source <ExternalLink size={13}/></a></Card>)}</div></section>
+        <section id="revelation" className="py-10"><SectionTitle eyebrow="05 · FOUR REVELATION LENS" title="Reference the question back to God" description="Theological comparison, not a claim that scripture predicts modern events." /><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">{(revelation?.traditions || []).map((item) => <Card key={item.key}><CardHeader><Badge variant="outline">{item.key}</Badge><CardTitle className="text-base">{item.name}</CardTitle><CardDescription>{item.references?.join(" · ")}</CardDescription></CardHeader><CardContent><p className="text-sm text-muted-foreground">{item.focus}</p>{item.url && <a className="mt-4 inline-flex items-center gap-1 text-sm font-medium underline-offset-4 hover:underline" href={item.url} target="_blank" rel="noreferrer">Open source <ExternalLink className="size-3.5" /></a>}</CardContent></Card>)}</div></section>
 
-      <section id="issues" className="section"><div className="section-heading"><div><div className="eyebrow">06 · ISSUE CENTER</div><h2>Resolution queue</h2><p>Evidence → analysis → constructive clarification.</p></div><Button variant="outline" onClick={()=>story(null,'Issues')}><Download size={15}/> Generate Image</Button></div><div className="issue-grid">{issues.map(i=><button key={i.id} className={`issue-card ${tone(i.tauhid_gap||0)}`} onClick={()=>openIssue(i)}><div><Badge tone={i.priority==='CRITICAL'?'red':i.priority==='HIGH'?'orange':'yellow'}>{i.priority}</Badge><span>{i.id}</span></div><strong>{i.issue}</strong><p>{i.target}</p><small>{i.status}</small></button>)}</div></section>
+        <section id="issues" className="py-10"><div className="mb-4 flex items-end justify-between gap-3"><SectionTitle eyebrow="06 · ISSUE CENTER" title="Resolution queue" description="Evidence → analysis → constructive clarification." /><Button variant="outline" onClick={() => story("Issues")}><Download /> Generate Image</Button></div><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{issues.map((item) => <button key={item.id} onClick={() => open("issue", item)} className="rounded-lg border bg-card p-4 text-left shadow-sm hover:bg-accent"><div className="flex items-center justify-between gap-2"><Badge variant={item.priority === "CRITICAL" ? "destructive" : "secondary"}>{item.priority}</Badge><span className="text-xs text-muted-foreground">{item.status || "OPEN"}</span></div><div className="mt-3 text-sm font-semibold">{item.title || item.issue}</div><p className="mt-2 text-xs text-muted-foreground">{item.summary || item.description || item.resolution}</p></button>)}</div></section>
 
-      <section id="evidence" className="section"><div className="section-heading"><div><div className="eyebrow">07 · EVIDENCE</div><h2>Source trail</h2><p>Primary, official and media sources behind the observations.</p></div><Button variant="outline" onClick={()=>story(null,'Evidence')}><Download size={15}/> Generate Image</Button></div><div className="evidence-grid">{evidence.map((e,i)=><Card key={i}><div className="evidence-top"><Badge tone="neutral">{e.source_grade||'SOURCE'}</Badge><small>{e.published||''}</small></div><h3>{e.title}</h3><p>{e.description}</p><div className="card-actions"><Button size="sm" variant="outline" onClick={()=>openEvidence(e)}>View</Button><Button size="sm" variant="ghost" onClick={()=>window.open(e.url,'_blank','noopener,noreferrer')}>Source <ExternalLink size={13}/></Button></div></Card>)}</div></section>
+        <section id="evidence" className="py-10"><div className="mb-4 flex items-end justify-between gap-3"><SectionTitle eyebrow="07 · EVIDENCE LEDGER" title="Source trail" description="Primary, official and media sources tied to observations." /><Button variant="outline" onClick={() => story("Evidence") }><Download /> Generate Image</Button></div><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{evidence.map((item, index) => <Card key={item.id || item.url || index}><CardHeader><div className="flex items-center justify-between gap-2"><Badge variant="outline">{item.type || "SOURCE"}</Badge><span className="text-xs text-muted-foreground">{item.source || "Public source"}</span></div><CardTitle className="text-base">{item.title}</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground">{item.claim || item.description}</p>{item.url && <a className="mt-4 inline-flex items-center gap-1 text-sm font-medium underline-offset-4 hover:underline" href={item.url} target="_blank" rel="noreferrer">Open evidence <ExternalLink className="size-3.5" /></a>}</CardContent></Card>)}</div></section>
 
-      <section className="section"><Card className="method-card"><div><div className="eyebrow">08 · METHOD</div><h2>Evidence first. Context always.</h2><p>Evidence quality, religious context, revelation references, Tauhid Gap and causality are separate dimensions. Red marks a specific practice requiring attention—not a religion or people.</p></div><div className="method-list"><span><ShieldCheck size={16}/> Evidence</span><span><BookOpen size={16}/> Context</span><span><Activity size={16}/> Causality</span><span><AlertTriangle size={16}/> Issue / Resolution</span></div></Card></section>
-    </main>
+        <section className="py-10"><Card><CardHeader><CardTitle>Live monitoring</CardTitle><CardDescription>Background scans run every 6 hours. Detected signals remain unreviewed until verification.</CardDescription></CardHeader><CardContent><div className="grid gap-3 sm:grid-cols-4"><Metric label="New signals" value={monitor?.newItemCount ?? 0} /><Metric label="Mythos" value={monitor?.items?.filter((item) => /myth|legend|folklore|astrology|zodiac|supernatural/i.test(`${item.title} ${item.description}`)).length ?? 0} /><Metric label="Ritual" value={monitor?.items?.filter((item) => /worship|pray|offering|sacrifice|invoke|amulet|divination|spirit|ancestor/i.test(`${item.title} ${item.description}`)).length ?? 0} /><Metric label="Status" value={monitor ? "DETECTED" : "WAITING"} /></div><div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground"><Activity className="size-4" />{monitor?.collectedAt ? `Last scan ${new Date(monitor.collectedAt).toLocaleString()}` : "Waiting for first scan"}</div></CardContent></Card></section>
+      </main>
 
-    <Sheet open={!!sheet} title={sheet?.kind==='observation'?'Observation detail':sheet?.kind==='issue'?'Issue detail':sheet?.kind==='evidence'?'Evidence detail':'Causality detail'} onClose={()=>setSheet(null)}>
-      {sheet?.kind==='observation'&&<><div className="detail-badges"><Badge tone={tone(sheet.item.evidence_score)}>Evidence {sheet.item.evidence_score}/100</Badge><Badge tone={tone(sheet.item.tauhid_gap)}>Tauhid Gap {sheet.item.tauhid_gap}/100</Badge><Badge tone={tone(sheet.item.causality)}>Causality {sheet.item.causality}/100</Badge></div><div className="detail-grid"><span><small>Date</small><b>{sheet.item.date}</b></span><span><small>Location</small><b>{sheet.item.location}</b></span><span><small>Actor</small><b>{sheet.item.actor}</b></span><span><small>Practice</small><b>{sheet.item.practice}</b></span></div><div className="detail-copy"><small>Observation</small><p>{sheet.item.summary}</p></div><div className="detail-copy"><small>Four Revelation</small><div className="refs large"><span>Q {refFor(sheet.item).Q}</span><span>I {refFor(sheet.item).I}</span><span>T {refFor(sheet.item).T}</span><span>Z {refFor(sheet.item).Z}</span></div></div><div className="sheet-actions"><Button onClick={()=>story(sheet.item,'Observation')}><Download size={15}/> Generate Story</Button><Button variant="outline" onClick={()=>window.open(sheet.item.source,'_blank','noopener,noreferrer')}>Open source <ExternalLink size={14}/></Button></div></>}
-      {sheet?.kind==='issue'&&<><div className="detail-badges"><Badge tone={sheet.item.priority==='CRITICAL'?'red':sheet.item.priority==='HIGH'?'orange':'yellow'}>{sheet.item.priority}</Badge><Badge tone="neutral">{sheet.item.id}</Badge></div><div className="detail-copy"><small>Issue</small><p>{sheet.item.issue}</p></div><div className="detail-grid"><span><small>Target</small><b>{sheet.item.target}</b></span><span><small>Status</small><b>{sheet.item.status}</b></span></div><div className="detail-copy"><small>Resolution</small><p>{sheet.item.resolution}</p></div><Button onClick={()=>story(sheet.item,'Issue')}><Download size={15}/> Generate Story</Button></>}
-      {sheet?.kind==='evidence'&&<><div className="detail-copy"><small>Source</small><p>{sheet.item.title}</p></div><div className="detail-copy"><small>Description</small><p>{sheet.item.description}</p></div><div className="detail-grid"><span><small>Grade</small><b>{sheet.item.source_grade||'—'}</b></span><span><small>Published</small><b>{sheet.item.published||'—'}</b></span></div><div className="sheet-actions"><Button onClick={()=>window.open(sheet.item.url,'_blank','noopener,noreferrer')}>Open source <ExternalLink size={14}/></Button><Button variant="outline" onClick={()=>story(sheet.item,'Evidence')}><Download size={15}/> Generate Story</Button></div></>}
-      {sheet?.kind==='causality'&&<><div className="detail-badges"><Badge tone={tone(sheet.item.score)}>Causality {sheet.item.score}/100</Badge></div><div className="detail-copy"><small>Relationship</small><p>{sheet.item.name}</p></div><div className="detail-copy"><small>Finding</small><p>{sheet.item.finding}</p></div></>}
-    </Sheet>
+      <Sheet open={Boolean(drawer)} onOpenChange={(value) => !value && setDrawer(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
+          <SheetHeader><SheetTitle>{drawer?.kind === "observation" ? drawer.item?.practice : drawer?.kind === "issue" ? (drawer.item?.title || drawer.item?.issue) : drawer?.kind === "causality" ? drawer.item?.name : "Evidence detail"}</SheetTitle><SheetDescription>Evidence context and analysis. Scores apply to the specific item, not to people or communities.</SheetDescription></SheetHeader>
+          <div className="space-y-6 px-6 pb-8">
+            {drawer?.item && <><div className="rounded-lg border bg-muted/40 p-4 text-sm">{drawer.item.summary || drawer.item.finding || drawer.item.description || drawer.item.resolution || drawer.item.claim}</div>{drawer.kind === "observation" && <div className="grid gap-3 sm:grid-cols-3"><Card><CardHeader className="p-4"><CardDescription>Evidence</CardDescription><CardTitle className="text-lg">{drawer.item.evidence_score}/100</CardTitle></CardHeader></Card><Card><CardHeader className="p-4"><CardDescription>Tauhid Gap</CardDescription><CardTitle className="text-lg"><ScoreBadge value={drawer.item.tauhid_gap} /></CardTitle></CardHeader></Card><Card><CardHeader className="p-4"><CardDescription>Causality</CardDescription><CardTitle className="text-lg">{drawer.item.causality}/100</CardTitle></CardHeader></Card></div>}{drawer.item.source && <Button asChild variant="outline"><a href={drawer.item.source} target="_blank" rel="noreferrer">Open source <ExternalLink /></a></Button>}{drawer.item.url && <Button asChild variant="outline"><a href={drawer.item.url} target="_blank" rel="noreferrer">Open evidence <ExternalLink /></a></Button>}</>}
+          </div>
+        </SheetContent>
+      </Sheet>
 
-    <footer className="footer"><b>WHERE MYTH FADE TO LEGEND</b><span>Monthly observatory · August 2026 · Evidence-first · Mobile-first · Firm on Tauhid</span></footer>
-  </div>
+      <footer className="border-t py-8"><div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6"><span className="font-medium text-foreground">WHERE MYTH FADE TO LEGEND</span><span>Evidence-first · Mobile-first · Specific practices, not communities</span></div></footer>
+    </div>
+  )
 }
 
-export default App
+function SectionTitle({ eyebrow, title, description }) {
+  return <div className="mb-5"><div className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{eyebrow}</div><h2 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">{title}</h2>{description && <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>}</div>
+}
+function Metric({ label, value }) { return <div className="rounded-lg border bg-muted/30 p-3"><div className="text-xs text-muted-foreground">{label}</div><div className="mt-1 text-xl font-semibold">{value}</div></div> }
