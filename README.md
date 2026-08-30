@@ -1,39 +1,50 @@
 # WHERE MYTH FADE TO LEGEND
 
-## Indonesia Mythos & Ritual Observatory
+## MoonWitness Submodule · Counter-Mythos Observatory
 
-React + Vite observatory for monthly evidence, ritual context, Four Revelation cross-reference, Tauhid Gap and causality analysis.
+`WHERE MYTH FADE TO LEGEND` is a public MoonWitness submodule for evidence-first monitoring and clarification of mythos, ritual context, media narratives, Four Revelation references, Tauhid Gap and causality claims across Indonesia.
+
+The public interface is deliberately presented as a **counter-mythos observatory**, not as the main MoonWitness application.
 
 ### Stack
 
 - React + Vite
-- shadcn/ui components with Radix primitives and Tailwind CSS
+- Leaflet geography layer
 - Lucide icons
-- Leaflet-ready geography layer
-- PWA / installable app support
+- repository-backed JSON data
+- PWA / installable shell
 - GitHub Pages + Vercel deployment
-- Read-only Vercel JSON API
+- read-only Vercel JSON API
 
 ### Data architecture
 
-**GitHub is the current source of truth, not a traditional database.** Monthly observations, evidence, issues, analysis and resolutions are versioned as JSON under `data/YYYY/MM/`. Vercel Functions provide read-only API access to those files. This keeps historical snapshots reviewable and changes auditable in Git history.
+**GitHub is the current source of truth, not a traditional database.** Monthly observations, evidence, issues and theological comparison metadata are versioned as JSON under `data/YYYY/MM/`. Vercel Functions provide read-only API access to those files.
 
 There is currently **no PostgreSQL, MySQL, SQLite or other runtime database** in this project.
 
-The workflow is:
+### Public dashboard routes
+
+The current public presentation follows the August 2026 observatory poster system:
 
 ```text
-Evidence
-  → Observation
-  → Issue / Analysis
-  → Resolution
-  → Story export
-  → Archive
+#report        → August master report + complete observation ledger
+#spread-map    → repository-grounded mythos spread map
+#disaster-map  → August disaster context + causality overlay
+#review        → Tauhid Gap distribution + TAU issue register
+#evidence      → evidence ledger
+#revelation    → Four Revelation Lens
 ```
 
-### UI standard
+The presentation uses a black / observatory-gold visual system with explicit severity colors. Tauhid Gap is rendered as:
 
-The application uses shadcn/ui source components directly from `src/components/ui/*`. The application shell uses Tailwind utility classes and the shadcn theme tokens in `src/index.css`.
+```text
+LOW       0–25   green
+WATCH    26–40   yellow
+HIGH     41–75   orange
+CRITICAL 76–100  red
+```
+
+These bands apply to **specific observed practices or claims**, not to a religion, ethnicity, institution or community.
 
 ### Principles
 
@@ -46,27 +57,38 @@ The application uses shadcn/ui source components directly from `src/components/u
 - High Tauhid Gap flags a **practice for review and constructive clarification**, not a verdict on a person or community.
 - Automated monitoring produces **candidate signals only**. Verification remains a separate research step.
 
-### Product
+### August 2026 frozen baseline
 
-The application is mobile-first and designed as a live observatory with:
+The August report is loaded from:
 
-- monthly archive and month selector
-- observation timeline and searchable master table
-- observation detail sheet/drawer
-- evidence ledger and Evidence Explorer
-- Evidence Analysis workflow with TAU issue filtering
-- Resolution board with focused issue drill-down
-- 1080×1920 Story export/share
-- Four Revelation Lens: **Al-Qur'an, Injil/Gospel, Taurat/Torah, Zabur/Psalms**
-- Tauhid Gap severity system
-- causality dashboard
-- Indonesia observation map layer
-- light/dark mode
-- installable PWA shell
-- live six-hour monitoring status
-- candidate signal classification and alerts
-- source health monitoring
-- P4–P6 QA and E2E checks
+```text
+data/2026/08/report.json
+data/2026/08/issues.json
+data/2026/08/evidence.json
+data/2026/08/revelation.json
+```
+
+The current frozen dataset contains:
+
+- 8 dashboard KPIs
+- 17 observation rows
+- 7 causality findings
+- 12 TAU review issues
+- 15 evidence sources
+- 4 Revelation Lens traditions
+
+The Disaster Map only creates disaster context from repository causality findings. It must not visually or textually imply that a ritual caused a wildfire, earthquake, flood or other natural event merely because of temporal or geographic proximity.
+
+### Four Revelation Lens
+
+The current comparison surface includes:
+
+- **Al-Qur'an**
+- **Injil / Gospel**
+- **Taurat / Torah**
+- **Zabur / Psalms**
+
+References are theological comparison points for Tawhid, not evidence that a scripture directly describes a modern event.
 
 ### Public API (Vercel)
 
@@ -83,22 +105,9 @@ GET /api
 
 The API is read-only and does not assign theological verdicts automatically.
 
-### Monthly data
-
-```text
-data/index.json
-data/YYYY/MM/report.json
-data/YYYY/MM/issues.json
-data/YYYY/MM/evidence.json
-data/YYYY/MM/revelation.json
-data/monitor/latest.json
-data/monitor/signals.json
-data/monitor/review-queue.json
-```
-
 ### Monitoring
 
-The GitHub monitor runs every 6 hours (`0 */6 * * *`) and follows:
+The repository monitor follows:
 
 ```text
 source scan
@@ -109,11 +118,11 @@ source scan
 → verified observation
 ```
 
-Scheduled source health runs at `30 */6 * * *`.
+Monitor state is stored under `data/monitor/`. Candidate signals are not promoted to verified observations automatically.
 
 ### Quality gates
 
-Core JSON QA, P2 integrity checks, source-health checks and Playwright smoke tests are defined in `.github/workflows/`.
+Core JSON QA, source-health checks and Playwright smoke tests are defined in `.github/workflows/` and `e2e/`.
 
 ### Freeze policy
 
@@ -132,4 +141,4 @@ npm run build
 The same React/Vite source is designed for:
 
 - **GitHub Pages** via `.github/workflows/pages.yml`
-- **Vercel** via `vercel.json` and the Vercel project Git integration
+- **Vercel** via `vercel.json` and Git integration
