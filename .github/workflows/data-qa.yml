@@ -15,5 +15,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - name: Validate JSON datasets
         run: node qa/validate.mjs
+      - name: Validate P2 dataset integrity
+        run: node qa/validate-p2.mjs
