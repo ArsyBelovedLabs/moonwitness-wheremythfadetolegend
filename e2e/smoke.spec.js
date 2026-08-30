@@ -67,8 +67,9 @@ test('evidence and Four Revelation routes remain repository-grounded', async ({ 
 })
 
 test('September starts as an empty collecting pipeline, not published truth', async ({ page }) => {
-  await page.goto('/#pipeline')
-  await page.locator('.top-actions select').selectOption('2026-09')
+  await page.goto('/#report/2026-09')
+  await expect(page.locator('.page-title')).toContainText('September 2026 — Observatory Report')
+  await page.getByRole('button', { name: /Candidate Pipeline/i }).click()
   await expect(page.locator('.page-title')).toContainText('September 2026 — Candidate Pipeline')
   await expect(page.locator('.pipeline-flow')).toContainText('DISCOVERED')
   await expect(page.locator('.pipeline-flow')).toContainText('SOURCE_CHECK')
