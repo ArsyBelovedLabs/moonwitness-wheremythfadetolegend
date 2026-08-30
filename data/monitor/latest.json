@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "runId": null,
+  "collectedAt": null,
+  "windowHours": 72,
+  "queryCount": 0,
+  "newItemCount": 0,
+  "errorCount": 0,
+  "items": [],
+  "errors": [],
+  "status": "WAITING_FOR_FIRST_SCHEDULED_SCAN",
+  "reviewPolicy": "UNREVIEWED_SIGNALS_ONLY"
+}
