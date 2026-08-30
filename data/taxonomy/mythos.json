@@ -1,0 +1,15 @@
+{
+  "version":"1.0.0",
+  "scope":"Indonesia mythos and ritual monitoring",
+  "categories":[
+    {"id":"astrology","label":"Astrology / Zodiac","keywords":["astrolog","zodiac","ramalan bintang"]},
+    {"id":"divination","label":"Divination / Fortune telling","keywords":["ramalan","divination","fortune telling","tenung","paranormal"]},
+    {"id":"ancestor","label":"Ancestor / Spirit belief","keywords":["leluhur","ancestor","arwah","spirit","roh","hantu"]},
+    {"id":"sacred-object","label":"Sacred object / place","keywords":["keramat","sacred object","tempat keramat","benda keramat"]},
+    {"id":"offering","label":"Offering / Consecration","keywords":["sesajen","offering","persembahan","sacrifice"]},
+    {"id":"invocation","label":"Invocation / Prayer practice","keywords":["mantra","invocation","panggilan roh","meminta bantuan gaib"]},
+    {"id":"protective-ritual","label":"Protective ritual","keywords":["tolak bala","perlindungan gaib","amulet","jimat","azimat"]},
+    {"id":"folklore","label":"Folklore / Legend","keywords":["mitos","myth","legenda","folklore","cerita rakyat"]}
+  ],
+  "note":"Taxonomy is for discovery and indexing. Classification does not by itself establish theological error or a Tauhid verdict."
+}
