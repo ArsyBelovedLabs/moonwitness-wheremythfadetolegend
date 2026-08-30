@@ -1,7 +1,7 @@
 {
   "name": "where-myth-fade-to-legend",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,12 +10,21 @@
     "check": "vite build"
   },
   "dependencies": {
+    "@tailwindcss/vite": "latest",
     "@vitejs/plugin-react": "latest",
+    "class-variance-authority": "latest",
+    "clsx": "latest",
     "leaflet": "latest",
     "lucide-react": "latest",
+    "radix-ui": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "tailwind-merge": "latest",
+    "tailwindcss": "latest",
+    "tw-animate-css": "latest",
     "vite": "latest"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "shadcn": "latest"
+  }
 }
