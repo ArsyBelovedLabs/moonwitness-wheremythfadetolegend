@@ -5,9 +5,10 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const basePath = process.env.VITE_BASE_PATH || "/"
 
 export default defineConfig({
-  base: process.env.NODE_ENV === "production" ? "/moonwitness-wheremythfadetolegend/" : "/",
+  base: basePath.endsWith("/") ? basePath : `${basePath}/`,
   plugins: [react(), tailwindcss()],
   resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
 })
