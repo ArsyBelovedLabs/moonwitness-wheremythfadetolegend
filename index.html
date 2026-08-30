@@ -3,23 +3,43 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f7f8fb" />
-  <meta name="description" content="Where Myth Fade to Legend — August 2026 Indonesia Mythos, Ritual, Media, Tauhid and Causality Observatory." />
+  <meta name="theme-color" content="#f6f8fb" />
+  <meta name="description" content="Where Myth Fade to Legend — Indonesia Mythos & Ritual Observatory." />
   <title>WHERE MYTH FADE TO LEGEND — August 2026</title>
+  <link rel="preconnect" href="https://unpkg.com" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="revelation.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#top"><span class="brand-mark">WM</span><span><strong>WHERE MYTH FADE TO LEGEND</strong><small>INDONESIA OBSERVATORY</small></span></a>
-    <nav class="nav" aria-label="Primary navigation"><a href="#dashboard">Dashboard</a><a href="#observations">Observations</a><a href="#revelation">Revelation</a><a href="#issues">Issues</a><a href="#evidence">Evidence</a></nav>
-    <div class="top-actions"><span class="live-dot"></span><span class="live-label">LIVE BOARD</span><button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle dark mode">☾</button></div>
+    <a class="brand" href="#top" aria-label="Where Myth Fade to Legend home">
+      <span class="brand-mark">WM</span>
+      <span><strong>WHERE MYTH FADE TO LEGEND</strong><small>INDONESIA OBSERVATORY</small></span>
+    </a>
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="#dashboard">Dashboard</a><a href="#timeline">Timeline</a><a href="#observations">Observations</a><a href="#map">Map</a><a href="#revelation">Revelation</a><a href="#issues">Issues</a><a href="#evidence">Evidence</a>
+    </nav>
+    <div class="top-actions">
+      <span class="live-dot"></span><span class="live-label">LIVE BOARD</span>
+      <select id="monthSelect" class="month-select" aria-label="Select report month"></select>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle dark mode" title="Toggle light/dark mode">☾</button>
+    </div>
   </header>
 
   <main id="top">
     <section class="hero-shell">
-      <div class="hero-copy"><div class="eyebrow">AUGUST 2026 · MONTHLY OBSERVATORY</div><h1>Where <span>Myth</span><br>Fade to Legend</h1><p class="hero-lead">A clean, evidence-first view of mythos, rituals, religious practice, revelation references and causality across Indonesia.</p><div class="hero-meta"><span>Period <b>01–31 Aug 2026</b></span><span>Scope <b>Indonesia</b></span><span>Lens <b>Evidence + Tauhid</b></span></div></div>
-      <aside class="hero-card"><div class="hero-card-label">REPORT HEALTH</div><div class="health-value">Evidence-led</div><div class="health-track"><span style="width:88%"></span></div><div class="health-grid"><div><span>Source trail</span><strong>VERIFIED</strong></div><div><span>Red issues</span><strong>IDENTIFIED</strong></div><div><span>Causality</span><strong>TESTED</strong></div><div><span>Next</span><strong>RESOLUTION</strong></div></div></aside>
+      <div class="hero-copy">
+        <div class="eyebrow">MONTHLY OBSERVATORY · <span id="heroMonth">AUGUST 2026</span></div>
+        <h1>Where <span>Myth</span><br>Fade to Legend</h1>
+        <p class="hero-lead">An evidence-first live view of mythos, ritual, religious context, revelation references, media and causality across Indonesia.</p>
+        <div class="hero-meta"><span>Period <b id="heroPeriod">01–31 Aug 2026</b></span><span>Scope <b>Indonesia</b></span><span>Lens <b>Evidence + Tauhid</b></span><span>Mode <b>Observatory</b></span></div>
+      </div>
+      <aside class="hero-card">
+        <div class="hero-card-label">BOARD STATUS</div><div class="health-value">Evidence-led</div>
+        <div class="health-track"><span style="width:88%"></span></div>
+        <div class="health-grid"><div><span>Source trail</span><strong>VERIFIED</strong></div><div><span>Red issues</span><strong>IDENTIFIED</strong></div><div><span>Causality</span><strong>TESTED</strong></div><div><span>Next</span><strong>RESOLUTION</strong></div></div>
+      </aside>
     </section>
 
     <section id="dashboard" class="section">
@@ -27,35 +47,46 @@
       <div id="kpis" class="kpi-grid"></div>
     </section>
 
-    <section class="section section-tight"><div class="feature-grid">
-      <article class="feature-card feature-card-main"><div class="eyebrow">MONTHLY SIGNAL</div><h3>Mythos and ritual are active. Causality remains a separate question.</h3><p>Observation, religious context, revelation references and causal inference stay separated throughout the board.</p><div class="signal-line"><span>Focus</span><strong>Evidence → Context → Intent</strong></div></article>
-      <article class="feature-card"><div class="eyebrow">RED ISSUES</div><div class="feature-number red-text">12</div><h3>Review queue</h3><p>Specific practices requiring deeper Tauhid-focused review.</p></article>
-      <article class="feature-card"><div class="eyebrow">CAUSALITY</div><div class="feature-number">0–15</div><h3>Ritual → disaster</h3><p>No verified causal mechanism found in the August set.</p></article>
-    </div></section>
-
-    <section id="revelation" class="section section-tight">
-      <div class="section-head"><div><div class="eyebrow">02 · FOUR REVELATION LENS</div><h2>Reference the question back to God.</h2><p class="section-note">Cross-reference only; these are theological comparison points, not evidence that a scripture describes the modern event.</p></div></div>
-      <div id="revelationCards" class="revelation-grid"></div>
+    <section id="timeline" class="section section-tight">
+      <div class="section-head"><div><div class="eyebrow">02 · LIVE TIMELINE</div><h2>What happened when</h2><p class="section-note">A chronological view of the monthly observation set.</p></div><button class="secondary-btn" type="button" onclick="generateStory('timeline')">Generate Image · Story</button></div>
+      <div id="timelineRail" class="timeline-rail"></div>
     </section>
 
     <section id="observations" class="section section-tight">
-      <div class="section-head"><div><div class="eyebrow">03 · OBSERVATIONS</div><h2>Live observation board</h2><p class="section-note">Search by date, location, community, actor or practice.</p></div></div>
+      <div class="section-head"><div><div class="eyebrow">03 · OBSERVATIONS</div><h2>Live observation board</h2><p class="section-note">Search by date, location, community, actor or practice. Select a row for its full evidence chain.</p></div></div>
       <div class="table-tools"><label class="search-box"><span>⌕</span><input id="observationSearch" type="search" placeholder="Search observations…" aria-label="Search observations"></label><select id="gapFilter" class="select-box" aria-label="Filter by Tauhid Gap"><option value="all">All Tauhid levels</option><option value="red">Red · 76–100</option><option value="orange">Orange · 41–75</option><option value="yellow">Yellow · 26–40</option><option value="green">Green · 0–25</option></select></div>
       <div class="table-action-row"><span id="observationCount" class="count-label"></span><button class="secondary-btn" type="button" onclick="generateStory('observations')">Generate Image · Story</button></div>
-      <div class="enterprise-table-wrap"><table id="masterTable"><thead><tr><th>Date</th><th>Location</th><th>Community / Actor</th><th>Practice / Mythos</th><th>Evidence</th><th>Tauhid Gap</th><th>Causality</th><th>4-Revelation</th><th>Source</th></tr></thead><tbody></tbody></table></div>
+      <div class="enterprise-table-wrap"><table id="masterTable"><thead><tr><th>Date</th><th>Location</th><th>Community / Actor</th><th>Practice / Mythos</th><th>Evidence</th><th>Tauhid Gap</th><th>Causality</th><th>4-Revelation</th><th>Open</th></tr></thead><tbody></tbody></table></div>
     </section>
 
     <section class="section split-section section-tight"><div class="panel"><div class="inner-head"><span class="panel-badge">TAUHID GAP</span><h2>Risk distribution</h2></div><div id="gapBars"></div></div><div class="panel"><div class="inner-head"><span class="panel-badge muted-badge">CAUSALITY</span><h2>Ritual → event</h2></div><div id="causalList"></div></div></section>
 
-    <section id="issues" class="section section-tight"><div class="section-head"><div><div class="eyebrow">04 · ISSUE REGISTER</div><h2>Resolution queue</h2><p class="section-note">Issues are framed for investigation and constructive clarification.</p></div><div class="section-counter"><strong id="issueCount">0</strong><span>issues</span></div></div><div class="table-action-row"><span class="count-label">Evidence → Analysis → Resolution</span><button class="secondary-btn" type="button" onclick="generateStory('issues')">Generate Image · Story</button></div><div class="enterprise-table-wrap"><table id="issueTable"><thead><tr><th>ID</th><th>Issue</th><th>Priority</th><th>Target</th><th>Status</th></tr></thead><tbody></tbody></table></div></section>
+    <section id="map" class="section section-tight"><div class="section-head"><div><div class="eyebrow">04 · INDONESIA MAP</div><h2>Observation geography</h2><p class="section-note">Tap a marker to open the observation detail.</p></div><button class="secondary-btn" type="button" onclick="generateStory('map')">Generate Image · Story</button></div><div id="mapCanvas" class="map-canvas" role="application" aria-label="Observation map"></div></section>
 
-    <section id="evidence" class="section section-tight"><div class="section-head"><div><div class="eyebrow">05 · EVIDENCE REGISTER</div><h2>Source trail</h2><p class="section-note">Open the source behind each reported observation.</p></div><div class="section-counter"><strong id="evidenceCount">0</strong><span>sources</span></div></div><div class="table-action-row"><span class="count-label">Primary, official and media sources</span><button class="secondary-btn" type="button" onclick="generateStory('evidence')">Generate Image · Story</button></div><div id="evidenceCards" class="evidence-grid"></div></section>
+    <section id="revelation" class="section section-tight">
+      <div class="section-head"><div><div class="eyebrow">05 · FOUR REVELATION LENS</div><h2>Reference the question back to God.</h2><p class="section-note">Cross-reference only; these are theological comparison points, not claims that scripture describes a modern event.</p></div></div>
+      <div id="revelationCards" class="revelation-grid"></div>
+    </section>
 
-    <section class="section section-tight"><div class="methodology-shell"><div><div class="eyebrow">06 · METHOD</div><h2>Keep the signal. Drop the noise.</h2><p>Evidence Score measures documentation quality. Tauhid Gap is a comparative theological lens for a specific practice. Causality requires a plausible mechanism; timing alone is not proof.</p></div><div class="method-grid"><div><span class="method-index">01</span><strong>Evidence</strong><p>Date, place, actors, direct source.</p></div><div><span class="method-index">02</span><strong>Context</strong><p>Use the community's own explanation.</p></div><div><span class="method-index">03</span><strong>Revelation</strong><p>Compare the issue against the four-reference lens.</p></div><div><span class="method-index">04</span><strong>Causality</strong><p>Require mechanism and competing-cause checks.</p></div></div></div></section>
+    <section id="issues" class="section section-tight"><div class="section-head"><div><div class="eyebrow">06 · ISSUE REGISTER</div><h2>Resolution queue</h2><p class="section-note">Issues are framed for investigation and constructive clarification.</p></div><div class="section-counter"><strong id="issueCount">0</strong><span>issues</span></div></div><div class="table-action-row"><span class="count-label">Evidence → Analysis → Resolution</span><button class="secondary-btn" type="button" onclick="generateStory('issues')">Generate Image · Story</button></div><div class="enterprise-table-wrap"><table id="issueTable"><thead><tr><th>ID</th><th>Issue</th><th>Priority</th><th>Target</th><th>Status</th><th>Open</th></tr></thead><tbody></tbody></table></div></section>
+
+    <section id="evidence" class="section section-tight"><div class="section-head"><div><div class="eyebrow">07 · EVIDENCE REGISTER</div><h2>Source trail</h2><p class="section-note">Primary, official and media sources behind the observations.</p></div><div class="section-counter"><strong id="evidenceCount">0</strong><span>sources</span></div></div><div class="table-action-row"><span class="count-label">Every source should be auditable.</span><button class="secondary-btn" type="button" onclick="generateStory('evidence')">Generate Image · Story</button></div><div id="evidenceCards" class="evidence-grid"></div></section>
+
+    <section class="section section-tight"><div class="methodology-shell"><div><div class="eyebrow">08 · METHOD</div><h2>Keep the signal. Drop the noise.</h2><p>Evidence Score measures documentation quality. Tauhid Gap is a comparative theological lens for a specific practice. Causality requires a plausible mechanism; timing alone is not proof.</p></div><div class="method-grid"><div><span class="method-index">01</span><strong>Evidence</strong><p>Date, place, actors, direct source.</p></div><div><span class="method-index">02</span><strong>Context</strong><p>Use the community's own explanation.</p></div><div><span class="method-index">03</span><strong>Revelation</strong><p>Compare the issue against the four-reference lens.</p></div><div><span class="method-index">04</span><strong>Causality</strong><p>Require mechanism and competing-cause checks.</p></div></div></div></section>
 
     <section class="section section-tight"><div class="final-banner"><div><div class="eyebrow">FINAL POSITION</div><h2>Keep the good. Correct the source of power.</h2><p>Respect people. Preserve useful culture. Return ultimate prayer, protection and power to Allah.</p></div><div class="final-quote">“MYTHOS → BELIEF → RITUAL → OBJECT → INTENTION → REVELATION → EVIDENCE → TAUHID GAP → CAUSALITY”</div></div></section>
   </main>
-  <footer class="footer"><strong>WHERE MYTH FADE TO LEGEND</strong><span>August 2026 · Evidence-first · Mobile-first · Neutral toward people · Firm on Tauhid</span></footer>
+
+  <aside id="detailDrawer" class="detail-drawer" aria-hidden="true">
+    <div class="drawer-backdrop" onclick="closeDrawer()"></div>
+    <div class="drawer-panel"><div class="drawer-head"><div><div class="eyebrow">DETAIL VIEW</div><h2 id="drawerTitle">Observation</h2></div><button class="icon-btn" type="button" onclick="closeDrawer()" aria-label="Close detail">×</button></div><div id="drawerBody" class="drawer-body"></div></div>
+  </aside>
+
+  <div id="storyModal" class="story-modal" aria-hidden="true"><div class="story-backdrop" onclick="closeStoryModal()"></div><div class="story-panel"><div class="drawer-head"><div><div class="eyebrow">STORY EXPORT</div><h2>Shareable snapshot</h2></div><button class="icon-btn" type="button" onclick="closeStoryModal()">×</button></div><div class="story-preview-wrap"><canvas id="storyCanvas" width="540" height="960"></canvas></div><div class="story-actions"><button class="primary-btn" type="button" onclick="downloadStory()">Download PNG</button><button class="secondary-btn" type="button" onclick="closeStoryModal()">Close</button></div></div></div>
+
+  <footer class="footer"><strong>WHERE MYTH FADE TO LEGEND</strong><span>Monthly observatory · Evidence-first · Mobile-first · Neutral toward people · Firm on Tauhid</span></footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
