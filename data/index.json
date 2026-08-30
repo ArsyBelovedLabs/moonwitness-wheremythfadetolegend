@@ -1,0 +1,15 @@
+{
+  "project": "WHERE MYTH FADE TO LEGEND",
+  "description": "Monthly Indonesia mythos, ritual, evidence, Tauhid and causality observatory.",
+  "months": [
+    {
+      "id": "2026-08",
+      "label": "August 2026",
+      "path": "data/2026/08/report.json",
+      "issues": "data/2026/08/issues.json",
+      "evidence": "data/2026/08/evidence.json",
+      "revelation": "data/2026/08/revelation.json",
+      "status": "final"
+    }
+  ]
+}
