@@ -13,4 +13,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 queueMicrotask(() => {
   import("./fasttrack.js")
   import("./evidence-analysis.js")
+  import("./story-generator.js")
 })
