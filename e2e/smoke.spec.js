@@ -24,6 +24,16 @@ test('fast-track report, evidence, analysis and resolution routes load', async (
   await expect(page.locator('#mw-evidence-analysis')).toContainText('Generate Image · Story')
 })
 
+test('generate image story opens from a resolution item', async ({ page }) => {
+  await page.goto('/#resolution')
+  const button = page.locator('[data-generate="TAU-01"]').first()
+  await expect(button).toBeVisible()
+  await button.click()
+  await expect(page.locator('.mw-story-modal')).toBeVisible()
+  await expect(page.locator('.mw-story-modal')).toContainText('MOONWITNESS')
+  await expect(page.locator('.mw-story-modal')).toContainText('Dewi Sri')
+})
+
 test('observation search responds', async ({ page }) => {
   await page.goto('/#mythos')
   const search = page.locator('input[placeholder*="Search place"]')
