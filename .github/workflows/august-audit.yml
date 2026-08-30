@@ -1,0 +1,22 @@
+name: August 2026 Freeze Audit
+
+on:
+  push:
+    branches: [freeze/august-2026-v1.0.0]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Audit frozen dataset
+        run: node scripts/audit-august.mjs
