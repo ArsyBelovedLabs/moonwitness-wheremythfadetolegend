@@ -4,7 +4,7 @@ const EVIDENCE_URL = 'data/2026/08/evidence.json';
 
 const esc = (s='') => String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
 const tone = n => n >= 76 ? 'red' : n >= 41 ? 'orange' : n >= 26 ? 'yellow' : 'green';
-const pill = (n, label='') => `<span class="pill ${tone(n)}"><span class="dot"></span>${esc(label || n)}</span>`;
+const pill = (n, label='') => `<span class="pill ${tone(n)}"><span class="dot ${tone(n)}"></span>${esc(label || n)}</span>`;
 
 async function load() {
   const [report, issues, evidence] = await Promise.all([
