@@ -1,0 +1,49 @@
+{
+  "month":"August 2026",
+  "scope":"Indonesia",
+  "principle":"Allah is the theological reference point for the Tawhid lens. Specific practices are evaluated separately from people, religions and ethnic groups.",
+  "kpis":[
+    {"label":"Mythos Activity","value":"90/100","note":"Many supernatural and traditional narratives documented"},
+    {"label":"Ritual Activity","value":"90/100","note":"Many religious and cultural events documented"},
+    {"label":"Media Propagation","value":"95/100","note":"News, video, cultural and online content active"},
+    {"label":"Causal Proof","value":"0–15/100","note":"Ritual → disaster not established"},
+    {"label":"Global Eclipses","value":"2","note":"12 Aug solar; 28 Aug lunar"},
+    {"label":"Visible from Indonesia","value":"No","note":"BMKG: neither eclipse directly observable from Indonesia"},
+    {"label":"High Tauhid-Gap Practices","value":"Verified","note":"Specific practices only; not whole communities"},
+    {"label":"Mythos → Ritual","value":"80–95/100","note":"Often directly connected by source explanations"}
+  ],
+  "gap_distribution":[
+    {"label":"Green / low", "value":25},
+    {"label":"Yellow / watch", "value":15},
+    {"label":"Orange / high", "value":30},
+    {"label":"Red / critical", "value":70}
+  ],
+  "causality":[
+    {"name":"Gerhana → ritual Indonesia","score":5,"finding":"No direct causal evidence; many rituals follow their own calendars."},
+    {"name":"Chit Ngiat Pan → karhutla Bangka","score":10,"finding":"Temporal overlap exists, but fires were already reported around/before the ritual period and human/dry conditions are stronger explanations."},
+    {"name":"Chiong Si Ku → karhutla Mempawah","score":10,"finding":"Fire risk and hotspots were already present; no mechanism linking ritual to fire was found."},
+    {"name":"Ritual → gempa Flores","score":0,"finding":"BMKG identifies Flores Back-Arc Thrust and aftershock sequence as the mechanism."},
+    {"name":"Ritual → banjir","score":5,"finding":"Flood reports have hydrometeorological explanations; no ritual mechanism established."},
+    {"name":"Mythos → ritual behavior","score":90,"finding":"Sources frequently explain rituals through the associated belief or traditional narrative."},
+    {"name":"Media → mythos propagation","score":95,"finding":"News, video, podcasts, calendars and cultural coverage repeatedly reproduce narratives."}
+  ],
+  "observations":[
+    {"date":"5–6 Aug","location":"Tengger","actor":"Masyarakat Tengger","practice":"Nyadran / Karo","summary":"Penghormatan leluhur; relasi spiritual menurut sumber budaya-keagamaan.","evidence_score":92,"tauhid_gap":55,"causality":0,"source":"https://www.bimaispro.com/berita/puncak-hari-raya-karo-2026-tradisi-nyadran-perkokoh-ikatan-spiritual-dan-harmoni-masyarakat-tengger"},
+    {"date":"6 Aug","location":"Karanganyar","actor":"Umat Hindu, Pura Tunggal Ika","practice":"Tri Sandya + Pemujaan Dewi Sri","summary":"Sumber Bimas Hindu Kemenag secara eksplisit menggunakan istilah pemujaan Dewi Sri dan mencatat sesaji.","evidence_score":98,"tauhid_gap":90,"causality":0,"source":"https://bimashindu.kemenag.go.id/berita-daerah/sakralnya-pembauran-tradisi-umat-hindu-laksanakan-ritual-tri-sandya-dan-pemujaan-dewi-sri-8DefC"},
+    {"date":"10 Aug","location":"Banyumas","actor":"Paguyuban Pringgo Murti; Karsim","practice":"Wilujengan Selasa Kliwon","summary":"Laku manembah kepada Hyang Widhi Wasa menurut sumber pembinaan Hindu Jawa.","evidence_score":95,"tauhid_gap":20,"causality":0,"source":"https://bimashindu.kemenag.go.id/berita-daerah/wilujengan-selasa-kliwon-rawat-tradisi-hindu-jawa-di-banyumas-Bq50N"},
+    {"date":"11–12 Aug","location":"Berbagai daerah","actor":"Sebagian Muslim","practice":"Rebo Wekasan","summary":"Doa, zikir, sedekah dan tolak bala; perlu dibedakan antara doa kepada Allah dan keyakinan pada kekuatan hari.","evidence_score":90,"tauhid_gap":20,"causality":0,"source":"https://www.detik.com/hikmah/doa-dan-hadits/d-8614302/7-doa-tolak-bala-bulan-safar-bisa-dibaca-saat-rebo-wekasan"},
+    {"date":"13–27 Aug","location":"Indonesia","actor":"Komunitas Buddha","practice":"Ulambana / Patidana","summary":"Pelimpahan jasa untuk leluhur; perlu dibedakan dari pemujaan roh secara otomatis.","evidence_score":92,"tauhid_gap":30,"causality":0,"source":"https://www.buddhayana.or.id/berita/kegiatan/1341/ritual-ulambana-di-vihara-avalokitesvara-palangkaraya-berlangsung-khidmat-dan-penuh-makna"},
+    {"date":"18 Aug","location":"Barito Utara","actor":"Hindu Kaharingan; Wandi, Anti, Pisor Jeriweni","practice":"Basarah Ngelangkang / Pitra Yadnya","summary":"Mengenang dan mendoakan keluarga yang telah meninggal.","evidence_score":98,"tauhid_gap":30,"causality":0,"source":"https://bimashindu.kemenag.go.id/index.php/berita-daerah/basarah-ngelangkang-di-desa-jaman-bakti-kepada-leluhur-dan-tradisi-hindu-kaharingan-tetap-terjaga-61AII"},
+    {"date":"19 Aug","location":"Online","actor":"Podcast / narasumber","practice":"Pesugihan","summary":"Narasi pesugihan Gunung Kawi, ritual supernatural dan kawin jin; treated as media narrative unless independently verified.","evidence_score":65,"tauhid_gap":95,"causality":0,"source":"https://open.noice.id/catalog/episodes/10382399-0a91-4b1c-aabb-fdfbf6ebd737"},
+    {"date":"24 Aug","location":"Barito Utara","actor":"Hindu Kaharingan; Maya Aneka Rella","practice":"Wara / Basiwah","summary":"Bakti kepada leluhur dalam Pitra Yadnya.","evidence_score":98,"tauhid_gap":45,"causality":0,"source":"https://baritoutara.kemenag.go.id/berita/penyuluh-agama-hindu-hadiri-ritual-wara-dan-basiwah-wujud-bakti-kepada-leluhur"},
+    {"date":"25 Aug","location":"Tuban","actor":"Ratusan nelayan; Ahmad","practice":"Sedekah Laut","summary":"Sesaji dilarungkan; sumber menjelaskan syukur atas hasil laut dan pelestarian tradisi.","evidence_score":96,"tauhid_gap":35,"causality":5,"source":"https://rri.co.id/tuban/regional/2684012/wujud-syukur-atas-hasil-laut-nelayan-sidomulyo-tuban-gelar-tradisi-sedekah"},
+    {"date":"26–27 Aug","location":"Bangka","actor":"Warga Tionghoa; Bong Dan / Tomy","practice":"Chit Ngiat Pan / Sembahyang Rebut","summary":"Sembahyang, sesaji dan Thai Se Ja dalam tradisi komunitas Tionghoa.","evidence_score":98,"tauhid_gap":78,"causality":10,"source":"https://rri.co.id/sungailiat/regional/2687758/kelenteng-ho-hap-miaw-merawang-kembali-gelar-tradisi-chit-ngiat-pan"},
+    {"date":"27 Aug","location":"Medan","actor":"Warga Tionghoa; Vihara Gunung Timur; Riky","practice":"Hungry Ghost Festival","summary":"Sembahyang, persembahan makanan/kertas dan penghormatan kepada roh/arwah; direct video and photo documentation.","evidence_score":100,"tauhid_gap":90,"causality":0,"source":"https://www.antaranews.com/video/5714545/masyarakat-tionghoa-medan-rayakan-festival-hantu-lapar-2026"},
+    {"date":"27 Aug","location":"Mempawah","actor":"Warga Tionghoa; Then Sin Jung / Selamat","practice":"Chiong Si Ku","summary":"Sembahyang kubur / puncak rangkaian penghormatan arwah.","evidence_score":96,"tauhid_gap":70,"causality":10,"source":"https://www.suarakalbar.co.id/2026/08/sembahyang-rampas-chiong-si-ku-di-mempawah-tradisi-mengantar-arwah-ke-nirwana/"},
+    {"date":"27 Aug","location":"Palangka Raya","actor":"Umat Buddha; Bhante Nyana Dharma Maitri Mahathera","practice":"Ulambana","summary":"Pelimpahan jasa kepada leluhur menurut komunitas Buddhis.","evidence_score":98,"tauhid_gap":30,"causality":0,"source":"https://www.buddhayana.or.id/berita/kegiatan/1341/ritual-ulambana-di-vihara-avalokitesvara-palangkaraya-berlangsung-khidmat-dan-penuh-makna"},
+    {"date":"27 Aug","location":"Karanganyar","actor":"Umat Hindu","practice":"Purnama Katiga","summary":"Persembahyangan/pemujaan dalam konteks hari suci Hindu.","evidence_score":95,"tauhid_gap":85,"causality":0,"source":"https://radarsolo.jawapos.com/amp/karanganyar/2608230053/sambut-purnama-katiga-umat-hindu-gunung-lawu-gelar-ritual-agung-di-pura-sapta-pandita-karanganyar"},
+    {"date":"28 Aug","location":"Cibubur","actor":"Umat Hindu / PHDI","practice":"Pujawali Purnama Sasih Ketiga","summary":"Persembahyangan Purnama; official Hindu event documentation.","evidence_score":100,"tauhid_gap":85,"causality":0,"source":"https://bimashindu.kemenag.go.id/berita-pusat/makna-pengorbanan-sejati-di-balik-kisah-bisma-dirjen-sampaikan-lima-pilar-penghormatan-yang-paling-utama-D39iH"},
+    {"date":"29 Aug","location":"Dieng","actor":"13 anak + keluarga; Mbah Sumanto; Chaerudin; Alif Faozi","practice":"Ruwatan Anak Gimbal","summary":"Ruwatan, potong rambut dan pelarungan; dikaitkan dengan sukerta/marabahaya dalam tradisi lokal.","evidence_score":100,"tauhid_gap":50,"causality":0,"source":"https://www.antaranews.com/berita/5717681/ruwatan-anak-bajang-jadi-tradisi-yang-terus-hidup-di-dieng"},
+    {"date":"29 Aug","location":"Trenggalek","actor":"Pemerintah + tokoh adat","practice":"Jamasan Pusaka","summary":"Pembersihan dan pelestarian pusaka; no evidence found of worship or petition to objects.","evidence_score":90,"tauhid_gap":15,"causality":0,"source":"https://www.bioztv.id/news/2026/08/29/bukan-hanya-tombak-gamelan-hingga-prasasti-kamulan-dijamas-jelang-hari-jadi-ke-832-trenggalek/"}
+  ]
+}
