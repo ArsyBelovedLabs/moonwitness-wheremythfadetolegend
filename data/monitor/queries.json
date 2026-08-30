@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "region": "Indonesia",
+  "queries": [
+    "Indonesia ritual tradisi mitos",
+    "Indonesia ritual keagamaan tradisional",
+    "Indonesia mitos folklore tradisi",
+    "Indonesia upacara ritual 2026",
+    "Indonesia gerhana ritual tradisi",
+    "Indonesia ritual bulan purnama",
+    "Indonesia ritual tanggal 27",
+    "Indonesia bencana ritual tradisi",
+    "Indonesia tokoh spiritual ritual tradisional",
+    "Indonesia praktik perdukunan ritual"
+  ],
+  "source": "Google News RSS",
+  "windowHours": 72,
+  "maxItemsPerQuery": 25
+}
