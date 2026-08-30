@@ -14,9 +14,26 @@ React + Vite observatory for monthly evidence, ritual context, Four Revelation c
 - GitHub Pages + Vercel deployment
 - Read-only Vercel JSON API
 
+### Data architecture
+
+**GitHub is the current source of truth, not a traditional database.** Monthly observations, evidence, issues, analysis and resolutions are versioned as JSON under `data/YYYY/MM/`. Vercel Functions provide read-only API access to those files. This keeps historical snapshots reviewable and changes auditable in Git history.
+
+There is currently **no PostgreSQL, MySQL, SQLite or other runtime database** in this project.
+
+The workflow is:
+
+```text
+Evidence
+  → Observation
+  → Issue / Analysis
+  → Resolution
+  → Story export
+  → Archive
+```
+
 ### UI standard
 
-The application uses shadcn/ui source components directly from `src/components/ui/*`. The application shell uses Tailwind utility classes and the shadcn theme tokens in `src/index.css`. There is no legacy UI adapter or duplicate custom shadcn stylesheet.
+The application uses shadcn/ui source components directly from `src/components/ui/*`. The application shell uses Tailwind utility classes and the shadcn theme tokens in `src/index.css`.
 
 ### Principles
 
@@ -36,13 +53,14 @@ The application is mobile-first and designed as a live observatory with:
 - monthly archive and month selector
 - observation timeline and searchable master table
 - observation detail sheet/drawer
-- evidence ledger
-- issue center and resolution queue
+- evidence ledger and Evidence Explorer
+- Evidence Analysis workflow with TAU issue filtering
+- Resolution board with focused issue drill-down
+- 1080×1920 Story export/share
 - Four Revelation Lens: **Al-Qur'an, Injil/Gospel, Taurat/Torah, Zabur/Psalms**
 - Tauhid Gap severity system
 - causality dashboard
 - Indonesia observation map layer
-- 1080×1920 Story export/share
 - light/dark mode
 - installable PWA shell
 - live six-hour monitoring status
@@ -57,6 +75,8 @@ GET /api/health
 GET /api/observations?month=YYYY-MM
 GET /api/evidence?month=YYYY-MM
 GET /api/issues?month=YYYY-MM
+GET /api/analysis?month=YYYY-MM
+GET /api/resolution?month=YYYY-MM
 GET /api/search?q=...
 GET /api
 ```
