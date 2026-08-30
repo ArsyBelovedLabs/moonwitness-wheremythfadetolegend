@@ -1,7 +1,20 @@
 {
   "project": "WHERE MYTH FADE TO LEGEND",
-  "description": "Monthly Indonesia mythos, ritual, evidence, Tauhid and causality observatory.",
+  "description": "Monthly Indonesia counter-mythos, ritual, evidence, Tauhid, geography, disaster and causality observatory.",
   "months": [
+    {
+      "id": "2026-09",
+      "label": "September 2026",
+      "path": "data/2026/09/report.json",
+      "issues": "data/2026/09/issues.json",
+      "evidence": "data/2026/09/evidence.json",
+      "revelation": "data/2026/09/revelation.json",
+      "geography": "data/2026/09/observations.geo.json",
+      "disasters": "data/2026/09/disasters.json",
+      "correlations": "data/2026/09/correlations.json",
+      "candidates": "data/2026/09/candidates.json",
+      "status": "collecting"
+    },
     {
       "id": "2026-08",
       "label": "August 2026",
@@ -9,6 +22,9 @@
       "issues": "data/2026/08/issues.json",
       "evidence": "data/2026/08/evidence.json",
       "revelation": "data/2026/08/revelation.json",
+      "geography": "data/2026/08/observations.geo.json",
+      "disasters": "data/2026/08/disasters.json",
+      "correlations": "data/2026/08/correlations.json",
       "status": "final"
     }
   ]

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "1.0.0",
+  "month": "2026-08",
+  "principle": "Correlation records describe temporal/geographic proximity and reviewed evidence. Proximity score is not a causality score.",
+  "reviews": [
+    {
+      "id": "REL-2026-08-001",
+      "observation_id": "OBS-2026-08-010",
+      "disaster_id": "DIS-2026-08-BANGKA-002",
+      "relation": "Chit Ngiat Pan / Sembahyang Rebut ↔ Bangka karhutla",
+      "temporal_relation": "overlapping-window",
+      "delta_hours": 0,
+      "geographic_relation": "same-regency-context",
+      "proximity_score": 78,
+      "repository_causality_score": 10,
+      "competing_explanations": ["Karhutla incidents were recorded before and during the ritual window", "Dry-season fire risk", "Human ignition and land-management risk"],
+      "status": "REVIEWED_NO_CAUSAL_LINK",
+      "finding": "Strong temporal/geographic proximity exists, but the reviewed evidence does not establish a ritual-to-fire mechanism."
+    },
+    {
+      "id": "REL-2026-08-002",
+      "observation_id": "OBS-2026-08-012",
+      "disaster_id": "DIS-2026-08-MEMPAWAH-003",
+      "relation": "Chiong Si Ku ↔ Mempawah karhutla",
+      "temporal_relation": "same-day",
+      "delta_hours": 0,
+      "geographic_relation": "same-regency-context",
+      "proximity_score": 82,
+      "repository_causality_score": 10,
+      "competing_explanations": ["Fire points were already present and under government monitoring", "Regional karhutla season", "No ritual-to-fire mechanism identified"],
+      "status": "REVIEWED_NO_CAUSAL_LINK",
+      "finding": "Same-day proximity is visible on the timeline, but government fire monitoring provides an independent disaster context and no causal mechanism is established."
+    },
+    {
+      "id": "REL-2026-08-003",
+      "observation_id": null,
+      "disaster_id": "DIS-2026-08-FLORES-004",
+      "relation": "Ritual claim ↔ Flores earthquake",
+      "temporal_relation": "not-a-specific-observation-pair",
+      "delta_hours": null,
+      "geographic_relation": "not-established",
+      "proximity_score": 0,
+      "repository_causality_score": 0,
+      "competing_explanations": ["Flores Back-arc Thrust", "Shallow thrust-fault mechanism", "Documented aftershock sequence"],
+      "status": "NATURAL_MECHANISM_ESTABLISHED",
+      "finding": "BMKG identifies the tectonic mechanism; the repository contains no evidence supporting ritual causation."
+    },
+    {
+      "id": "REL-2026-08-004",
+      "observation_id": null,
+      "disaster_id": "DIS-2026-08-ACEH-005",
+      "relation": "Ritual claim ↔ flood reports",
+      "temporal_relation": "not-a-specific-observation-pair",
+      "delta_hours": null,
+      "geographic_relation": "not-established",
+      "proximity_score": 0,
+      "repository_causality_score": 5,
+      "competing_explanations": ["Hydrometeorological conditions", "Rainfall and river response", "No ritual mechanism identified"],
+      "status": "REVIEWED_NO_CAUSAL_LINK",
+      "finding": "Flood events have hydrometeorological explanations; temporal proximity to unrelated rituals is insufficient."
+    }
+  ]
+}

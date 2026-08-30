@@ -1,37 +1,132 @@
 # Observatory Data Model
 
-MoonWitness is currently a **static, Git-backed data observatory**. GitHub is the source of truth for the monthly datasets; Vercel serves the same files and exposes read-only API endpoints. There is no PostgreSQL/MySQL/SQLite database in the current architecture.
+`WHERE MYTH FADE TO LEGEND` is a MoonWitness **counter-mythos submodule** and a static, Git-backed research observatory. GitHub remains the source of truth; Vercel serves the React app and read-only API. There is no runtime SQL database in the current architecture.
 
-## Data flow
-
-`Evidence -> Observation -> Issue / Analysis -> Resolution -> Story -> Archive`
-
-Each month lives under `data/YYYY/MM/` and should contain:
-
-- `report.json` — KPIs, observations, causality and monthly summary data.
-- `issues.json` — issue register with priority, status and resolution/next action.
-- `evidence.json` — auditable source records and links.
-- `revelation.json` — four-reference theological comparison lens.
-
-## Runtime architecture
+## Research flow
 
 ```text
-GitHub repository
-      │
-      ├── data/YYYY/MM/*.json      ← source of truth
-      │
-      ├── React + Vite             ← browser UI
-      │
-      └── /api/*.js                 ← Vercel read-only facade
-                    │
-                    └── reads the same repository files
+PUBLIC-SOURCE MONITOR
+        ↓
+DISCOVERED
+        ↓ source verification
+SOURCE_CHECK
+        ↓
+VERIFIED
+        ↓ practice/evidence analysis
+ANALYZED
+        ↓ explicit publication decision
+PUBLISHED
+        ↓
+OBSERVATION LEDGER
+        ├── GEOGRAPHY
+        ├── TAUHID REVIEW
+        ├── EVIDENCE
+        └── CORRELATION REVIEW ← DISASTER LEDGER
 ```
 
-The browser may read `/data/...json` directly for the static app. Vercel Functions under `/api/` provide stable API surfaces for external readers and integrations.
+**Automated monitoring is allowed to create `DISCOVERED` candidates only.** It must not promote a candidate to `VERIFIED`, `ANALYZED` or `PUBLISHED` by itself.
 
-## API surfaces
+## Monthly files
+
+Each month under `data/YYYY/MM/` may contain:
+
+- `report.json` — published observation ledger, KPI summary and reviewed causality statements.
+- `issues.json` — practice-level clarification issues.
+- `evidence.json` — auditable evidence/source records.
+- `revelation.json` — Four Revelation comparison lens.
+- `observations.geo.json` — repository-owned geographic metadata for observations.
+- `disasters.json` — independently sourced disaster events and disaster-context signals.
+- `correlations.json` — reviewed observation ↔ disaster relation records.
+- `candidates.json` — monitoring pipeline records before publication.
+
+`data/index.json` registers the paths and lifecycle state for each month.
+
+## Geography contract
+
+Coordinates do **not** live in the React UI. `observations.geo.json` assigns a stable observation ID and geography metadata to a published report row using an exact date/location/practice match.
+
+Important fields:
+
+- `id`: stable `OBS-YYYY-MM-NNN` identifier.
+- `date_start`, `date_end`: normalized ISO dates used by the timeline engine.
+- `geography.map_enabled`: whether the record is genuinely geolocatable.
+- `lat`, `lon`: repository-owned mapping coordinate.
+- `precision`: e.g. `city-centroid`, `regency-centroid`, `locality-centroid`.
+- `province`, `island`: geographic grouping metadata.
+
+National, multi-region and online observations remain **non-local** instead of receiving invented coordinates.
+
+## Disaster contract
+
+`disasters.json` is intentionally separate from the ritual/observation ledger. A disaster record contains:
+
+- stable `DIS-*` ID;
+- start/end timestamp;
+- locality and administrative area;
+- repository coordinate + precision;
+- disaster type and severity/context;
+- evidence score;
+- independent disaster source;
+- natural/human cause or official mechanism summary;
+- explicit related observation IDs, if any;
+- reviewed causality score/status/finding.
+
+A disaster may exist with no related observation. This is normal and important for baseline context.
+
+## Correlation / Timeline Engine
+
+The browser engine in `src/lib/correlation.js` computes **proximity**, not causality.
+
+```text
+OBSERVATION WINDOW + LOCATION
+             ×
+DISASTER WINDOW + LOCATION
+             ↓
+        ΔT + DISTANCE
+             ↓
+      PROXIMITY SCORE
+             ↓
+  SEPARATE CAUSALITY REVIEW
+```
+
+The automatic engine may surface pairs within a bounded time/distance window as `AUTO_PROXIMITY_ONLY`. These rows are discovery aids and never causal conclusions.
+
+Reviewed relation rows in `correlations.json` retain a separate `repository_causality_score`, competing explanations and a human-readable finding. High proximity can therefore coexist with low causality.
+
+## Scoring dimensions
+
+- **Evidence Score** — documentation quality, not truth of a supernatural claim.
+- **Tauhid Gap** — comparative theological lens applied to a specific practice, never to an ethnicity, religion or person as a whole.
+- **Proximity Score** — temporal/geographic closeness calculated by the engine.
+- **Causality Score** — reviewed strength of an asserted cause-effect relationship.
+
+Never substitute proximity for causality.
+
+## Candidate-state contract
+
+Allowed lifecycle:
+
+`DISCOVERED → SOURCE_CHECK → VERIFIED → ANALYZED → PUBLISHED`
+
+Expected meaning:
+
+- `DISCOVERED`: automated or manual lead; not verified.
+- `SOURCE_CHECK`: source identity, date, locality and primary evidence are being checked.
+- `VERIFIED`: occurrence/source basis confirmed to the required research standard.
+- `ANALYZED`: practice, evidence, Tauhid and causality dimensions have been reviewed.
+- `PUBLISHED`: explicitly promoted into the monthly observation/evidence/issue ledgers.
+
+Skipping directly from `DISCOVERED` to `PUBLISHED` violates the contract.
+
+## Public API
+
+Read-only endpoints include:
 
 - `GET /api/observations?month=YYYY-MM`
+- `GET /api/geography?month=YYYY-MM`
+- `GET /api/disasters?month=YYYY-MM`
+- `GET /api/correlations?month=YYYY-MM`
+- `GET /api/candidates?month=YYYY-MM`
 - `GET /api/evidence?month=YYYY-MM`
 - `GET /api/issues?month=YYYY-MM`
 - `GET /api/analysis?month=YYYY-MM`
@@ -39,28 +134,8 @@ The browser may read `/data/...json` directly for the static app. Vercel Functio
 - `GET /api/search?q=...`
 - `GET /api/health`
 
-The analysis and resolution APIs are read-only projections of the issue register. They do not write conclusions back to the dataset.
-
-## Scoring
-
-- Evidence Score: documentation quality, not truth of a supernatural claim.
-- Tauhid Gap: comparative theological lens applied to a specific practice, never to an ethnicity, religion or person as a whole.
-- Causality Score: strength of a claimed cause-effect relationship. Temporal overlap alone is not causality.
-
-## Evidence grades
-
-A = primary/official/direct documentation
-B = reputable journalism
-C = secondary media
-D = social/unverified content
-E = rumor/folklore claim
-
-## Review workflow
-
-`COLLECT -> VERIFY -> CLASSIFY -> SCORE -> MAP -> CROSS-CHECK -> ISSUE -> ANALYZE -> RESOLVE -> STORY -> ARCHIVE`
-
-Automated monitoring produces candidate signals only. Verification and resolution remain explicit research steps.
-
 ## Freeze policy
 
-August 2026 is preserved as a historical baseline. Corrections must be versioned; historical data must not be silently edited.
+August 2026 remains the historical published baseline. `report.json`, `issues.json`, `evidence.json` and `revelation.json` are not silently rewritten by the geography/disaster upgrade. New files provide versioned metadata and independent disaster/correlation context around the frozen report.
+
+September 2026 starts in `collecting` state with empty published ledgers and an explicit candidate pipeline.

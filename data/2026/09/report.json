@@ -1,0 +1,24 @@
+{
+  "month": "September 2026",
+  "scope": "Indonesia",
+  "status": "collecting",
+  "principle": "Candidate signals are not observations. Only verified items may enter the published observation ledger.",
+  "kpis": [
+    {"label":"Candidate Signals","value":"0","note":"Discovered items awaiting source check"},
+    {"label":"Verified Observations","value":"0","note":"No verified September observations published yet"},
+    {"label":"Published","value":"0","note":"No September items have reached PUBLISHED"},
+    {"label":"Disasters","value":"0","note":"Dedicated disaster ledger is ready for verified events"},
+    {"label":"Evidence","value":"0","note":"Evidence ledger starts empty"},
+    {"label":"Issues","value":"0","note":"No practice-level issues created yet"},
+    {"label":"Causal Reviews","value":"0","note":"No reviewed correlation pairs yet"},
+    {"label":"Month Status","value":"COLLECTING","note":"DISCOVERED → SOURCE_CHECK → VERIFIED → ANALYZED → PUBLISHED"}
+  ],
+  "gap_distribution": [
+    {"label":"Green / low","value":0},
+    {"label":"Yellow / watch","value":0},
+    {"label":"Orange / high","value":0},
+    {"label":"Red / critical","value":0}
+  ],
+  "causality": [],
+  "observations": []
+}

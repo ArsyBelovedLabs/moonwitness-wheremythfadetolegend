@@ -1,0 +1,7 @@
+{
+  "schemaVersion":"1.0.0",
+  "month":"2026-09",
+  "workflow":["DISCOVERED","SOURCE_CHECK","VERIFIED","ANALYZED","PUBLISHED"],
+  "policy":"Automated monitoring may create DISCOVERED candidates only. Human/source verification is required before VERIFIED. Only VERIFIED/ANALYZED records may be promoted to the published observation ledger.",
+  "candidates":[]
+}

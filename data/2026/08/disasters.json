@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "1.0.0",
+  "month": "2026-08",
+  "scope": "Indonesia",
+  "principle": "Disaster events are recorded independently from mythos and ritual observations. Temporal or geographic proximity is never treated as proof of causation.",
+  "events": [
+    {
+      "id": "DIS-2026-08-BABEL-001",
+      "date_start": "2026-08-02T12:20:00+07:00",
+      "date_end": "2026-08-02T23:59:00+07:00",
+      "location": "Belitung Timur",
+      "admin_area": "Desa Air Kelik, Kecamatan Damar",
+      "province": "Bangka Belitung Islands",
+      "island": "Belitung",
+      "coordinates": {"lat": -2.821, "lon": 108.126, "precision": "district-centroid"},
+      "type": "wildfire",
+      "label": "Karhutla / land fire",
+      "severity": "local",
+      "evidence_score": 98,
+      "natural_or_human_cause": "Vegetation fire during the dry-season karhutla period; no ritual mechanism is reported by the disaster source.",
+      "source": {
+        "publisher": "BNPB",
+        "source_type": "official",
+        "published": "2026-08-03",
+        "title": "Perkembangan Situasi dan Penanganan Bencana di Tanah Air 3 Agustus 2026",
+        "url": "https://www.bnpb.go.id/berita/perkembangan-situasi-dan-penanganan-bencana-di-tanah-air-3-agustus-2026"
+      },
+      "related_observations": [],
+      "causality": {"score": 0, "status": "NO_RITUAL_RELATION_REVIEWED", "finding": "This event predates the late-August Bangka ritual window and is retained as a seasonal baseline."}
+    },
+    {
+      "id": "DIS-2026-08-BANGKA-002",
+      "date_start": "2026-08-26T10:00:00+07:00",
+      "date_end": "2026-08-27T23:59:00+07:00",
+      "location": "Bangka",
+      "admin_area": "Pemali / Sungailiat / Riau Silip, Kabupaten Bangka",
+      "province": "Bangka Belitung Islands",
+      "island": "Bangka",
+      "coordinates": {"lat": -1.876, "lon": 106.105, "precision": "regency-centroid"},
+      "type": "wildfire",
+      "label": "Karhutla / multiple local fire reports",
+      "severity": "local-multi-point",
+      "evidence_score": 100,
+      "natural_or_human_cause": "Official Pusdalops records show multiple land-fire reports during 26–27 August. The repository review treats dry conditions and human fire risk as stronger explanations than ritual causation.",
+      "source": {
+        "publisher": "Pusdalops BPBD Kepulauan Bangka Belitung",
+        "source_type": "official",
+        "published": "2026-08-27",
+        "title": "Karhutla incident log — Kabupaten Bangka, 26–27 August 2026",
+        "url": "https://www.pusdalops.bpbd.babelprov.go.id/"
+      },
+      "related_observations": ["OBS-2026-08-010"],
+      "causality": {"score": 10, "status": "NOT_ESTABLISHED", "finding": "Temporal overlap exists, but fires were already reported around/before the ritual period and human/dry conditions are stronger explanations."}
+    },
+    {
+      "id": "DIS-2026-08-MEMPAWAH-003",
+      "date_start": "2026-08-27T00:00:00+07:00",
+      "date_end": "2026-08-28T23:59:00+07:00",
+      "location": "Mempawah",
+      "admin_area": "Desa Sekabuk, Kecamatan Sadaniang",
+      "province": "West Kalimantan",
+      "island": "Kalimantan",
+      "coordinates": {"lat": 0.54, "lon": 109.02, "precision": "subdistrict-centroid"},
+      "type": "wildfire",
+      "label": "Karhutla / detected fire points",
+      "severity": "local",
+      "evidence_score": 100,
+      "natural_or_human_cause": "Mempawah government reporting identified three fire points and an active 24-hour response operation. The source does not identify any ritual mechanism.",
+      "source": {
+        "publisher": "Diskominfo Kabupaten Mempawah",
+        "source_type": "official-local-government",
+        "published": "2026-08-27",
+        "title": "Posko Karhutla Mempawah Siaga 24 Jam, Tiga Titik Api Terdeteksi di Kecamatan Sadaniang",
+        "url": "https://diskominfo.mempawahkab.go.id/detail/posko-karhutla-mempawah-siaga-24-jam-tiga-titik-api-terdeteksi-di-kecamatan-sadaniang"
+      },
+      "related_observations": ["OBS-2026-08-012"],
+      "causality": {"score": 10, "status": "NOT_ESTABLISHED", "finding": "Fire risk and hotspots were already present; no mechanism linking the ritual to fire was found."}
+    },
+    {
+      "id": "DIS-2026-08-FLORES-004",
+      "date_start": "2026-08-15T05:58:23+08:00",
+      "date_end": "2026-08-31T23:59:00+08:00",
+      "location": "Flores",
+      "admin_area": "Offshore northeast of Nagekeo, Flores",
+      "province": "East Nusa Tenggara",
+      "island": "Flores",
+      "coordinates": {"lat": -8.55, "lon": 121.45, "precision": "regional-epicentral-approximation"},
+      "type": "earthquake",
+      "label": "M7.7 earthquake + aftershock sequence",
+      "severity": "major",
+      "evidence_score": 100,
+      "natural_or_human_cause": "BMKG identifies a shallow thrust-fault earthquake sourced from the Flores Back-arc Thrust, followed by thousands of aftershocks.",
+      "source": {
+        "publisher": "BMKG",
+        "source_type": "official-scientific",
+        "published": "2026-08-20",
+        "title": "Dinamika Gempa Flores M7,7: Sebaran dan Klaster Gempa Susulan di Zona Flores Back-arc Thrust",
+        "url": "https://www.bmkg.go.id/artikel/dinamika-gempa-flores-m77-sebaran-dan-klaster-gempa-susulan-di-zona-flores-back-arc-thrust"
+      },
+      "related_observations": [],
+      "causality": {"score": 0, "status": "NATURAL_MECHANISM_ESTABLISHED", "finding": "BMKG identifies Flores Back-Arc Thrust and the aftershock sequence as the mechanism."}
+    },
+    {
+      "id": "DIS-2026-08-ACEH-005",
+      "date_start": "2026-08-13T00:00:00+07:00",
+      "date_end": "2026-08-14T07:00:00+07:00",
+      "location": "Aceh Barat Daya",
+      "admin_area": "Aceh Barat Daya",
+      "province": "Aceh",
+      "island": "Sumatra",
+      "coordinates": {"lat": 3.74, "lon": 96.83, "precision": "regency-centroid"},
+      "type": "flood",
+      "label": "Flood / hydrometeorological",
+      "severity": "local",
+      "evidence_score": 100,
+      "natural_or_human_cause": "BNPB reported flooding during a period when wet hydrometeorological events continued to occur alongside dry-season hazards.",
+      "source": {
+        "publisher": "BNPB",
+        "source_type": "official",
+        "published": "2026-08-14",
+        "title": "Perkembangan Situasi dan Penanganan Bencana di Tanah Air 14 Agustus 2026",
+        "url": "https://www.bnpb.go.id/index.php/berita/perkembangan-situasi-dan-penanganan-bencana-di-tanah-air-14-agustus-2026"
+      },
+      "related_observations": [],
+      "causality": {"score": 5, "status": "NOT_ESTABLISHED", "finding": "Hydrometeorological explanations prevail; no ritual mechanism is established."}
+    }
+  ],
+  "context_signals": [
+    {
+      "id": "CTX-2026-08-KARHUTLA-NATIONAL",
+      "date": "2026-08-28",
+      "type": "wildfire-season",
+      "title": "National hotspot escalation",
+      "finding": "Kementerian Kehutanan reported a sharp increase in hotspot detections across Sumatra and Kalimantan and explicitly cautioned that a hotspot is an indication of surface-temperature anomaly, not automatically a confirmed fire incident.",
+      "url": "https://www.kehutanan.go.id/news/hotspot-meningkat-kemenhut-perkuat-operasi-karhutla-dan-pemantauan-dampak-asap"
+    }
+  ]
+}
