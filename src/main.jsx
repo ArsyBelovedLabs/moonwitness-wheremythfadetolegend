@@ -1,13 +1,16 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
+import P2Hub from './P2Hub.jsx'
 import MonitorWidget from './components/MonitorWidget.jsx'
 import './shadcn.css'
 import './index.css'
+import './p2.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
+    <P2Hub />
     <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 px-4 sm:px-6">
       <div className="pointer-events-auto mx-auto max-w-2xl">
         <MonitorWidget />
