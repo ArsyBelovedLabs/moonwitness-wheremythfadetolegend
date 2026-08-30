@@ -1,0 +1,14 @@
+{
+  "name":"WHERE MYTH FADE TO LEGEND",
+  "short_name":"Myth Observatory",
+  "description":"Indonesia Mythos, Ritual, Evidence, Tauhid and Causality Observatory.",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#f6f8fb",
+  "theme_color":"#6f52c9",
+  "orientation":"portrait-primary",
+  "icons":[
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
