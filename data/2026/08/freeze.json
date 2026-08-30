@@ -1,0 +1,22 @@
+{
+  "dataset": "2026-08",
+  "status": "FROZEN",
+  "baselineBranch": "freeze/august-2026-v1.0.0",
+  "baselineCommit": "e04039b0b5fe7bc0b7fa92ea9abb3045198d6fda",
+  "frozenAt": "2026-08-30T16:28:20Z",
+  "scope": [
+    "observations",
+    "evidence",
+    "issues",
+    "revelation",
+    "causality",
+    "media context"
+  ],
+  "rules": {
+    "noSilentEdits": true,
+    "monitoringDoesNotAutoVerdict": true,
+    "causalityRequiresMechanism": true,
+    "scoresApplyToSpecificPractices": true,
+    "correctionsRequireVersionedAmendment": true
+  }
+}
