@@ -1,0 +1,7 @@
+{
+  "practice_types":["Religious practice","Cultural tradition","Mythos / legend","Media narrative","Natural event"],
+  "severity":[{"id":"green","min":0,"max":25},{"id":"yellow","min":26,"max":40},{"id":"orange","min":41,"max":75},{"id":"red","min":76,"max":100}],
+  "evidence_grades":["A — direct/primary","B — official/reputable media","C — secondary media","D — social/unverified","E — rumor/folklore claim"],
+  "statuses":["Verified","Review","Open","Resolved","Not established"],
+  "source_types":["Primary text","Official","Religious organization","Reputable media","Local media","Video","Photo","Academic","Social media","Narrative"]
+}
