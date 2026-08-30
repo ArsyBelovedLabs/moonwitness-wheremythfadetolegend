@@ -1,0 +1,14 @@
+[
+  {"id":"TAU-01","issue":"Dewi Sri: symbol, manifestation, or worship object?","priority":"HIGH","target":"Dewi Sri / Karanganyar","status":"Verified practice; theological clarification required"},
+  {"id":"TAU-02","issue":"Ancestors: remembrance/benefit or petition/offering to spirits?","priority":"CRITICAL","target":"Hungry Ghost / Medan","status":"Verified event; direct practice documented"},
+  {"id":"TAU-03","issue":"Thai Se Ja: cultural symbol or supernatural entity with agency?","priority":"HIGH","target":"Chit Ngiat Pan / Bangka","status":"Verified event; terminology review needed"},
+  {"id":"TAU-04","issue":"Chiong Si Ku: who is the final recipient of prayer/offering?","priority":"HIGH","target":"Mempawah","status":"Verified event; intent/object review needed"},
+  {"id":"TAU-05","issue":"Sedekah Laut: gratitude to God or offering to a sea entity?","priority":"MEDIUM","target":"Tuban","status":"Source states gratitude; object needs direct verification"},
+  {"id":"TAU-06","issue":"Sukerta: cultural symbolism or supernatural cause of danger?","priority":"MEDIUM","target":"Ruwatan Dieng","status":"Verified tradition; belief layer needs clarification"},
+  {"id":"TAU-07","issue":"Weton/Kliwon: calendar tradition or independent supernatural power?","priority":"MEDIUM","target":"Java","status":"Belief mapping"},
+  {"id":"TAU-08","issue":"Rebo Wekasan: protection sought from Allah or attributed to the date itself?","priority":"MEDIUM","target":"Muslim tradition","status":"Mostly Allah-directed prayer; belief boundary needs clarity"},
+  {"id":"TAU-09","issue":"Nyi Roro Kidul: legend, belief, or verified current worship?","priority":"MEDIUM","target":"Southern Java","status":"Mythos documented; current ritual evidence needs verification"},
+  {"id":"TAU-10","issue":"Pesugihan: media narrative or verifiable practitioner/event?","priority":"HIGH","target":"Online media","status":"Narrative found; practitioner evidence insufficient"},
+  {"id":"TAU-11","issue":"Blood Moon/eclipses: astronomy or added supernatural interpretation?","priority":"MEDIUM","target":"Eclipse narratives","status":"Separate astronomy from mythos"},
+  {"id":"TAU-12","issue":"Ritual → disaster: correlation or causation?","priority":"HIGH","target":"Bangka / Mempawah / other regions","status":"Causality not established"}
+]
