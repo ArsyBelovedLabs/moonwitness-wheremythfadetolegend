@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#f6f8fb" />
   <meta name="description" content="Where Myth Fade to Legend — Indonesia Mythos & Ritual Observatory." />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>WHERE MYTH FADE TO LEGEND — August 2026</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://unpkg.com" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="revelation.css" />
@@ -23,6 +28,7 @@
     <div class="top-actions">
       <span class="live-dot"></span><span class="live-label">LIVE BOARD</span>
       <select id="monthSelect" class="month-select" aria-label="Select report month"></select>
+      <button id="installBtn" class="icon-btn install-btn" type="button" hidden aria-label="Install app" title="Install app">＋</button>
       <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle dark mode" title="Toggle light/dark mode">☾</button>
     </div>
   </header>
@@ -82,11 +88,23 @@
     <div class="drawer-panel"><div class="drawer-head"><div><div class="eyebrow">DETAIL VIEW</div><h2 id="drawerTitle">Observation</h2></div><button class="icon-btn" type="button" onclick="closeDrawer()" aria-label="Close detail">×</button></div><div id="drawerBody" class="drawer-body"></div></div>
   </aside>
 
-  <div id="storyModal" class="story-modal" aria-hidden="true"><div class="story-backdrop" onclick="closeStoryModal()"></div><div class="story-panel"><div class="drawer-head"><div><div class="eyebrow">STORY EXPORT</div><h2>Shareable snapshot</h2></div><button class="icon-btn" type="button" onclick="closeStoryModal()">×</button></div><div class="story-preview-wrap"><canvas id="storyCanvas" width="540" height="960"></canvas></div><div class="story-actions"><button class="primary-btn" type="button" onclick="downloadStory()">Download PNG</button><button class="secondary-btn" type="button" onclick="closeStoryModal()">Close</button></div></div></div>
+  <div id="storyModal" class="story-modal" aria-hidden="true"><div class="story-backdrop" onclick="closeStoryModal()"></div><div class="story-panel"><div class="drawer-head"><div><div class="eyebrow">STORY EXPORT</div><h2>Shareable snapshot</h2></div><button class="icon-btn" type="button" onclick="closeStoryModal()">×</button></div><div class="story-preview-wrap"><canvas id="storyCanvas" width="540" height="960"></canvas></div><div class="story-actions"><button class="primary-btn" type="button" onclick="downloadStory()">Download PNG</button><button id="shareStoryBtn" class="secondary-btn" type="button" onclick="shareStory()">Share</button><button class="secondary-btn" type="button" onclick="closeStoryModal()">Close</button></div></div></div>
 
   <footer class="footer"><strong>WHERE MYTH FADE TO LEGEND</strong><span>Monthly observatory · Evidence-first · Mobile-first · Neutral toward people · Firm on Tauhid</span></footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    let deferredInstallPrompt;
+    window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); deferredInstallPrompt = event; const b = document.getElementById('installBtn'); if (b) b.hidden = false; });
+    document.getElementById('installBtn')?.addEventListener('click', async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt = null; document.getElementById('installBtn').hidden = true; });
+    async function shareStory() {
+      const canvas = document.getElementById('storyCanvas'); if (!canvas) return;
+      if (!navigator.share || !canvas.toBlob) { downloadStory(); return; }
+      canvas.toBlob(async blob => { if (!blob) return; const file = new File([blob], 'where-myth-fade-story.png', {type:'image/png'}); try { await navigator.share({title:'WHERE MYTH FADE TO LEGEND',text:'August 2026 Observatory',files:[file]}); } catch (_) {} });
+    }
+    window.shareStory = shareStory;
+  </script>
 </body>
 </html>
