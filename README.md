@@ -7,11 +7,12 @@ React + Vite observatory for monthly evidence, ritual context, Four Revelation c
 ### Stack
 
 - React + Vite
-- shadcn/ui-style component primitives and design tokens
+- shadcn/ui components with Radix primitives and Tailwind design tokens
 - Lucide icons
 - Leaflet-ready geography layer
 - PWA / installable app support
 - GitHub Pages + Vercel deployment
+- Read-only Vercel JSON API
 
 ### Principles
 
@@ -22,6 +23,7 @@ React + Vite observatory for monthly evidence, ritual context, Four Revelation c
 - Evidence quality is independent from Tauhid Gap.
 - Temporal proximity is never treated as proof of causation.
 - High Tauhid Gap flags a **practice for review and constructive clarification**, not a verdict on a person or community.
+- Automated monitoring produces **candidate signals only**. Verification remains a separate research step.
 
 ### Product
 
@@ -39,6 +41,23 @@ The application is mobile-first and designed as a live observatory with:
 - 1080×1920 Story export/share
 - light/dark mode
 - installable PWA shell
+- live six-hour monitoring widget
+- candidate signal classification and alerts
+- source health monitoring
+- P4–P6 QA and E2E checks
+
+### Public API (Vercel)
+
+```text
+GET /api/health
+GET /api/observations?month=YYYY-MM
+GET /api/evidence?month=YYYY-MM
+GET /api/issues?month=YYYY-MM
+GET /api/search?q=...
+GET /api
+```
+
+The API is read-only and does not assign theological verdicts automatically.
 
 ### Monthly data
 
@@ -48,13 +67,33 @@ data/YYYY/MM/report.json
 data/YYYY/MM/issues.json
 data/YYYY/MM/evidence.json
 data/YYYY/MM/revelation.json
+data/monitor/latest.json
+data/monitor/signals.json
+data/monitor/review-queue.json
 ```
 
-Shared taxonomy lives at `data/taxonomy.json`.
+### Monitoring
 
-### Quality gate
+The GitHub monitor runs every 6 hours (`0 */6 * * *`) and follows:
 
-Every push and pull request runs `qa/validate.mjs` to validate the core registry and monthly JSON datasets before deployment.
+```text
+source scan
+→ deduplicate
+→ candidate classification
+→ alert summary
+→ review queue
+→ verified observation
+```
+
+Scheduled source health runs at `30 */6 * * *`.
+
+### Quality gates
+
+Core JSON QA, P2 integrity checks, source-health checks and Playwright smoke tests are defined in `.github/workflows/`.
+
+### Freeze policy
+
+August 2026 is preserved as a historical baseline. Corrections must be versioned; historical data must not be silently edited.
 
 ### Local development
 
@@ -66,12 +105,7 @@ npm run build
 
 ### Deployment
 
-The same app source is designed for:
+The same React/Vite source is designed for:
 
 - **GitHub Pages** via `.github/workflows/pages.yml`
-- **Vercel** via `vercel.json`
-
-Suggested public URLs:
-
-- `https://arsybelovedlabs.github.io/moonwitness-wheremythfadetolegend/`
-- `https://moonwitness-wheremythfadetolegend.vercel.app/`
+- **Vercel** via `vercel.json` and the Vercel project Git integration
