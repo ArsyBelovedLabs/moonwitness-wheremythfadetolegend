@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "purpose": "Continuous discovery of mythos, rituals and religious-practice signals in Indonesia.",
+  "stages": ["COLLECTED","DETECTED","REVIEWING","VERIFIED","OBSERVATION","ISSUE","RESOLUTION","REJECTED"],
+  "signal_types": ["MYTHOS","RITUAL","RELIGIOUS_PRACTICE_SIGNAL","GENERAL_CONTEXT"],
+  "scores": {
+    "evidence_confidence": "0-100",
+    "media_propagation": "0-100",
+    "causality_confidence": "0-100",
+    "doctrinal_gap": "reviewed observations only"
+  },
+  "rules": [
+    "Never infer a religious verdict from a keyword alone.",
+    "Never infer causality from temporal proximity.",
+    "Never score a religion or people as a group.",
+    "Preserve source URL, publication time and raw title for auditability.",
+    "Use representative community context before doctrinal analysis."
+  ],
+  "ranking": {
+    "source_quality": 0.35,
+    "directness": 0.25,
+    "recency": 0.15,
+    "independent_confirmation": 0.15,
+    "specificity": 0.10
+  }
+}
