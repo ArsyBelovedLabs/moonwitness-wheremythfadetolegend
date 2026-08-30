@@ -29,10 +29,13 @@ jobs:
       - name: Run public-source monitor
         run: node scripts/monitor.mjs
 
-      - name: Build intelligence signals
-        run: node scripts/intelligence.mjs
+      - name: Classify candidate signals
+        run: node scripts/classify-signals.mjs
 
-      - name: Commit monitoring and intelligence snapshot
+      - name: Run source health check
+        run: node qa/source-health.mjs
+
+      - name: Commit new monitoring data
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -41,5 +44,5 @@ jobs:
             echo 'No monitoring changes.'
             exit 0
           fi
-          git commit -m "chore(monitor): refresh six-hour signal intelligence"
+          git commit -m "chore(monitor): refresh six-hour signals and health"
           git push
