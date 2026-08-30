@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "windows": ["7d", "30d"],
+  "metrics": [
+    "new_signals",
+    "verified_observations",
+    "mythos_count",
+    "ritual_count",
+    "religious_practice_signal_count",
+    "unique_sources",
+    "media_propagation",
+    "evidence_confidence",
+    "causality_confidence"
+  ],
+  "source_reliability": {
+    "A": "Primary or official source",
+    "B": "Established media / organization",
+    "C": "Secondary or local media",
+    "D": "Narrative / unverified social or promotional source"
+  },
+  "alerts": {
+    "new_signal_threshold": 5,
+    "duplicate_burst_threshold": 3,
+    "source_concentration_threshold_percent": 70,
+    "causality_requires_review": true
+  },
+  "dedupe_keys": ["canonical_url", "normalized_title", "published_date", "location"]
+}
