@@ -7,12 +7,16 @@ React + Vite observatory for monthly evidence, ritual context, Four Revelation c
 ### Stack
 
 - React + Vite
-- shadcn/ui components with Radix primitives and Tailwind design tokens
+- shadcn/ui components with Radix primitives and Tailwind CSS
 - Lucide icons
 - Leaflet-ready geography layer
 - PWA / installable app support
 - GitHub Pages + Vercel deployment
 - Read-only Vercel JSON API
+
+### UI standard
+
+The application uses shadcn/ui source components directly from `src/components/ui/*`. The application shell uses Tailwind utility classes and the shadcn theme tokens in `src/index.css`. There is no legacy UI adapter or duplicate custom shadcn stylesheet.
 
 ### Principles
 
@@ -41,7 +45,7 @@ The application is mobile-first and designed as a live observatory with:
 - 1080×1920 Story export/share
 - light/dark mode
 - installable PWA shell
-- live six-hour monitoring widget
+- live six-hour monitoring status
 - candidate signal classification and alerts
 - source health monitoring
 - P4–P6 QA and E2E checks
