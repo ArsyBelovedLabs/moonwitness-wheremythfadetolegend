@@ -1,38 +1,96 @@
 const DATA_URL = 'data/2026/08/report.json';
 const ISSUE_URL = 'data/2026/08/issues.json';
 const EVIDENCE_URL = 'data/2026/08/evidence.json';
+const REVELATION_URL = 'data/2026/08/revelation.json';
 
 const esc = (s='') => String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
 const tone = n => n >= 76 ? 'red' : n >= 41 ? 'orange' : n >= 26 ? 'yellow' : 'green';
 const pill = (n, label='') => `<span class="pill ${tone(n)}"><span class="dot"></span>${esc(label || n)}</span>`;
-let reportCache = null;
 
-async function load() {
-  const [report, issues, evidence] = await Promise.all([
-    fetch(DATA_URL, {cache:'no-store'}).then(r => r.json()),
-    fetch(ISSUE_URL, {cache:'no-store'}).then(r => r.json()),
-    fetch(EVIDENCE_URL, {cache:'no-store'}).then(r => r.json())
-  ]);
-  reportCache = report;
-  render(report, issues, evidence);
-  bindFilters();
-  restoreTheme();
+let reportCache = null;
+let STATE_ISSUES = [];
+let STATE_EVIDENCE = [];
+let REVELATION = null;
+
+async function getJson(url) {
+  const response = await fetch(url, {cache:'no-store'});
+  if (!response.ok) throw new Error(`Failed to load ${url}: ${response.status}`);
+  return response.json();
 }
 
-function render(report, issues, evidence) {
-  document.querySelector('#kpis').innerHTML = report.kpis.map(k => `<article class="kpi"><div class="label">${esc(k.label)}</div><div class="value">${esc(k.value)}</div><div class="note">${esc(k.note)}</div></article>`).join('');
+async function boot() {
+  const [report, issues, evidence, revelation] = await Promise.all([
+    getJson(DATA_URL),
+    getJson(ISSUE_URL),
+    getJson(EVIDENCE_URL),
+    getJson(REVELATION_URL)
+  ]);
+  reportCache = report;
+  STATE_ISSUES = issues;
+  STATE_EVIDENCE = evidence;
+  REVELATION = revelation;
+  render(report, issues, evidence, revelation);
+  bindFilters();
+  restoreTheme();
+  document.querySelector('#themeToggle')?.addEventListener('click', toggleTheme);
+}
+
+function render(report, issues, evidence, revelation) {
+  document.querySelector('#kpis').innerHTML = (report.kpis || []).map(k => `
+    <article class="kpi"><div class="label">${esc(k.label)}</div><div class="value">${esc(k.value)}</div><div class="note">${esc(k.note)}</div></article>`).join('');
+
   renderObservations(report.observations || []);
-  document.querySelector('#gapBars').innerHTML = report.gap_distribution.map(g => `<div class="bar-row"><div class="bar-head"><span>${esc(g.label)}</span><strong>${g.value}%</strong></div><div class="bar-track"><div class="bar-fill ${tone(g.value)}" style="width:${Math.min(100,Math.max(0,g.value))}%"></div></div></div>`).join('');
-  document.querySelector('#causalList').innerHTML = report.causality.map(c => `<div class="causal-item"><strong><span>${esc(c.name)}</span>${pill(c.score, `${c.score}/100`)}</strong><span>${esc(c.finding)}</span></div>`).join('');
-  document.querySelector('#issueTable tbody').innerHTML = issues.map(i => `<tr><td><strong>${esc(i.id)}</strong></td><td>${esc(i.issue)}</td><td>${esc(i.priority)}</td><td>${esc(i.target)}</td><td>${esc(i.status)}</td></tr>`).join('');
+
+  document.querySelector('#gapBars').innerHTML = (report.gap_distribution || []).map(g => `
+    <div class="bar-row"><div class="bar-head"><span>${esc(g.label)}</span><strong>${g.value}%</strong></div><div class="bar-track"><div class="bar-fill ${tone(g.value)}" style="width:${Math.min(100,Math.max(0,g.value))}%"></div></div></div>`).join('');
+
+  document.querySelector('#causalList').innerHTML = (report.causality || []).map(c => `
+    <div class="causal-item"><strong><span>${esc(c.name)}</span>${pill(c.score, `${c.score}/100`)}</strong><span>${esc(c.finding)}</span></div>`).join('');
+
+  document.querySelector('#issueTable tbody').innerHTML = issues.map(i => `
+    <tr><td><strong>${esc(i.id)}</strong></td><td>${esc(i.issue)}</td><td>${esc(i.priority)}</td><td>${esc(i.target)}</td><td>${esc(i.status)}</td></tr>`).join('');
   document.querySelector('#issueCount').textContent = issues.length;
-  document.querySelector('#evidenceCards').innerHTML = evidence.map(e => `<article class="evidence-card"><div class="eyebrow">${esc(e.type)}</div><h3>${esc(e.title)}</h3><p>${esc(e.description)}</p><a href="${esc(e.url)}" target="_blank" rel="noreferrer noopener">Open evidence ↗</a></article>`).join('');
+
+  document.querySelector('#evidenceCards').innerHTML = evidence.map(e => `
+    <article class="evidence-card"><div class="eyebrow">${esc(e.type)}</div><h3>${esc(e.title)}</h3><p>${esc(e.description)}</p><a href="${esc(e.url)}" target="_blank" rel="noreferrer noopener">Open evidence ↗</a></article>`).join('');
   document.querySelector('#evidenceCount').textContent = evidence.length;
+
+  renderRevelationCards(revelation);
+}
+
+function revelationCell() {
+  const refs = REVELATION?.default_row_refs || {Q:'112:1-4', I:'Mark 12:29-31', T:'Deut. 6:4-5', Z:'Ps. 86:10'};
+  return `<div class="revelation-mini"><span class="ref-q">Q ${esc(refs.Q)}</span><span class="ref-i">I ${esc(refs.I)}</span><span class="ref-t">T ${esc(refs.T)}</span><span class="ref-z">Z ${esc(refs.Z)}</span></div>`;
+}
+
+function renderRevelationCards(revelation) {
+  const target = document.querySelector('#revelationCards');
+  if (!target) return;
+  target.innerHTML = (revelation?.traditions || []).map(r => `
+    <article class="revelation-card">
+      <div class="revelation-key">${esc(r.key)}</div>
+      <div><div class="eyebrow">${esc(r.name)}</div><h3>${esc(r.references.join(' · '))}</h3><p>${esc(r.focus)}</p></div>
+      <a href="${esc(r.url)}" target="_blank" rel="noreferrer noopener">Open reference ↗</a>
+    </article>
+  `).join('');
 }
 
 function renderObservations(observations) {
   const tbody = document.querySelector('#masterTable tbody');
-  tbody.innerHTML = observations.map(o => `<tr><td><strong>${esc(o.date)}</strong></td><td>${esc(o.location)}</td><td>${esc(o.actor)}</td><td><strong>${esc(o.practice)}</strong><div class="cell-note">${esc(o.summary)}</div></td><td>${pill(o.evidence_score, `${o.evidence_score}/100`)}</td><td>${pill(o.tauhid_gap, `${o.tauhid_gap}/100`)}</td><td>${pill(o.causality, `${o.causality}/100`)}</td><td><a href="${esc(o.source)}" target="_blank" rel="noreferrer noopener">Open ↗</a></td></tr>`).join('');
+  tbody.innerHTML = observations.map(o => `
+    <tr>
+      <td><strong>${esc(o.date)}</strong></td>
+      <td>${esc(o.location)}</td>
+      <td>${esc(o.actor)}</td>
+      <td><strong>${esc(o.practice)}</strong><div class="cell-note">${esc(o.summary)}</div></td>
+      <td>${pill(o.evidence_score, `${o.evidence_score}/100`)}</td>
+      <td>${pill(o.tauhid_gap, `${o.tauhid_gap}/100`)}</td>
+      <td>${pill(o.causality, `${o.causality}/100`)}</td>
+      <td>${revelationCell()}</td>
+      <td><a href="${esc(o.source)}" target="_blank" rel="noreferrer noopener">Open ↗</a></td>
+    </tr>`).join('');
+  const count = document.querySelector('#observationCount');
+  if (count) count.textContent = `${observations.length} observations`;
 }
 
 function bindFilters() {
@@ -99,12 +157,10 @@ function generateStory(kind) {
   const link=document.createElement('a'); link.download=`where-myth-fade-${kind}-august-2026.png`; link.href=canvas.toDataURL('image/png'); link.click();
 }
 
-let STATE_ISSUES=[]; let STATE_EVIDENCE=[];
-const originalLoad = load;
-async function boot() {
-  const [report, issues, evidence] = await Promise.all([fetch(DATA_URL,{cache:'no-store'}).then(r=>r.json()),fetch(ISSUE_URL,{cache:'no-store'}).then(r=>r.json()),fetch(EVIDENCE_URL,{cache:'no-store'}).then(r=>r.json())]);
-  STATE_ISSUES=issues; STATE_EVIDENCE=evidence; reportCache=report; render(report,issues,evidence); bindFilters(); restoreTheme();
-  document.querySelector('#themeToggle')?.addEventListener('click',toggleTheme);
-}
-window.generateStory=generateStory;
-boot().catch(err=>{console.error(err);document.querySelector('main').insertAdjacentHTML('afterbegin','<section class="section"><div class="panel"><strong>Data load error.</strong><p class="section-note">Check the monthly JSON files and GitHub Pages path.</p></div></section>');});
+window.generateStory = generateStory;
+window.toggleTheme = toggleTheme;
+
+boot().catch(err=>{
+  console.error(err);
+  document.querySelector('main').insertAdjacentHTML('afterbegin','<section class="section"><div class="panel"><strong>Data load error.</strong><p class="section-note">Check the monthly JSON files and GitHub Pages path.</p></div></section>');
+});
