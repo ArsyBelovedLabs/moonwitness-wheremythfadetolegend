@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080612" />
+  <meta name="description" content="Where Myth Fade to Legend — August 2026 Indonesia Mythos, Ritual, Media, Tauhid and Causality Observatory." />
+  <title>Where Myth Fade to Legend — August 2026</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">INDONESIA OBSERVATORY · AUGUST 2026</div>
+      <h1>WHERE MYTH FADE TO LEGEND</h1>
+      <p class="subtitle">MYTHOS · RITUAL · RELIGIOUS PRACTICE · MEDIA · TAUHID · CAUSALITY</p>
+      <p class="intro">Evidence-first monthly reporting. Religions and communities are not scored; specific practices are examined separately.</p>
+      <div class="hero-actions">
+        <a href="#dashboard">Dashboard</a>
+        <a href="#issues">Issue List</a>
+        <a href="#evidence">Evidence</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="dashboard" class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">01 · EXECUTIVE DASHBOARD</div>
+          <h2>August 2026</h2>
+        </div>
+        <div class="legend"><span class="dot green"></span> low <span class="dot yellow"></span> watch <span class="dot orange"></span> high <span class="dot red"></span> critical</div>
+      </div>
+      <div id="kpis" class="kpi-grid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><div class="eyebrow">02 · MASTER MAP</div><h2>Observed activity</h2></div></div>
+      <div class="table-wrap"><table id="masterTable"><thead><tr><th>Date</th><th>Location</th><th>Community / Actor</th><th>Practice / Mythos</th><th>Evidence</th><th>Tauhid Gap</th><th>Causality</th><th>Details</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <section class="section grid-two">
+      <div class="panel">
+        <div class="eyebrow">03 · TAUHID GAP</div>
+        <h2>Risk distribution</h2>
+        <div id="gapBars"></div>
+      </div>
+      <div class="panel">
+        <div class="eyebrow">04 · CAUSALITY</div>
+        <h2>Ritual → event</h2>
+        <div id="causalList"></div>
+      </div>
+    </section>
+
+    <section id="issues" class="section">
+      <div class="section-head"><div><div class="eyebrow">05 · ISSUE REGISTER</div><h2>Resolution queue</h2></div></div>
+      <div class="table-wrap"><table id="issueTable"><thead><tr><th>ID</th><th>Issue</th><th>Priority</th><th>Target</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <section id="evidence" class="section">
+      <div class="section-head"><div><div class="eyebrow">06 · EVIDENCE REGISTER</div><h2>Source trail</h2></div></div>
+      <div id="evidenceCards" class="evidence-grid"></div>
+    </section>
+
+    <section class="section panel methodology">
+      <div class="eyebrow">07 · METHODOLOGY</div>
+      <h2>How to read the colors</h2>
+      <p><strong>Evidence Score</strong> measures documentation quality. <strong>Tauhid Gap</strong> is a comparative theological lens for a specific practice, not a verdict on a person, ethnicity, or religion. <strong>Causality Score</strong> measures cause-and-effect evidence; temporal coincidence is not causation.</p>
+      <div class="method-grid">
+        <div><strong>🟢 0–25</strong><span>tradition / symbol / direct God-oriented prayer</span></div>
+        <div><strong>🟡 26–40</strong><span>supernatural or intermediary concept appears</span></div>
+        <div><strong>🟠 41–75</strong><span>spiritual function or offering needs clarification</span></div>
+        <div><strong>🔴 76–100</strong><span>explicit non-God entity worship / offering / petition</span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>WHERE MYTH FADE TO LEGEND · AUGUST 2026</div>
+    <div>Evidence-first · Neutral toward people · Firm on Tawhid</div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
