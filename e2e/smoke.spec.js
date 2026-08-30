@@ -9,15 +9,19 @@ test('dashboard loads and exposes the MoonWitness navigation', async ({ page }) 
   await expect(page.locator('.rail-nav')).toContainText('Revelation')
 })
 
-test('fast-track report, evidence and methodology routes load', async ({ page }) => {
+test('fast-track report, evidence, analysis and resolution routes load', async ({ page }) => {
   await page.goto('/#reports')
   await expect(page.locator('#mw-fasttrack')).toContainText('Monthly')
   await expect(page.locator('#mw-fasttrack')).toContainText('Observatory Report')
   await page.goto('/#evidence')
   await expect(page.locator('#mw-fasttrack')).toContainText('Evidence Explorer')
-  await page.goto('/#about')
-  await expect(page.locator('#mw-fasttrack')).toContainText('Observe.')
-  await expect(page.locator('#mw-fasttrack')).toContainText('Purify.')
+  await page.goto('/#analysis')
+  await expect(page.locator('#mw-evidence-analysis')).toContainText('Evidence Analysis')
+  await expect(page.locator('#mw-evidence-analysis')).toContainText('TAU-01')
+  await expect(page.locator('#mw-evidence-analysis')).toContainText('TAU-08')
+  await page.goto('/#resolution')
+  await expect(page.locator('#mw-evidence-analysis')).toContainText('Resolution Board')
+  await expect(page.locator('#mw-evidence-analysis')).toContainText('Generate Image · Story')
 })
 
 test('observation search responds', async ({ page }) => {
