@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import {
-  AlertTriangle, ArrowUpRight, BookOpen, CalendarDays, ChevronRight, CircleDot, Database,
-  FileSearch, Flame, GitCompareArrows, Globe2, MapPinned, Menu, Moon, Radio, Search,
-  ShieldCheck, Sparkles, Waves, X, Zap, Workflow,
+  AlertTriangle, ArrowUpRight, BookOpen, CalendarDays, CircleDot, Database,
+  FileSearch, Flame, GitCompareArrows, Globe2, MapPinned, Moon, Radio,
+  ShieldCheck, Waves, Zap, Workflow,
 } from 'lucide-react'
 import { buildCorrelationRows, proximityBand, workflowCounts, WORKFLOW } from './lib/correlation.js'
 import { createStaticDataAdapter, describeMonthSource } from './lib/static-data-adapter.js'
@@ -31,9 +31,7 @@ const KPI_TONES = ['green', 'amber', 'violet', 'red', 'violet', 'blue', 'cyan', 
 const scoreBand = value => Number(value) >= 76 ? 'critical' : Number(value) >= 41 ? 'high' : Number(value) >= 26 ? 'watch' : 'low'
 const priorityBand = p => String(p || '').toUpperCase() === 'CRITICAL' ? 'critical' : String(p || '').toUpperCase() === 'HIGH' ? 'high' : String(p || '').toUpperCase() === 'MEDIUM' ? 'watch' : 'low'
 const evidenceTone = score => Number(score) >= 95 ? 'excellent' : Number(score) >= 85 ? 'strong' : Number(score) >= 70 ? 'moderate' : 'weak'
-const REVELATION_KEYS = ['Q', 'I', 'T', 'Z']
 const routeRoot = route => route.split('/')[0]
-const reportRoute = month => `report/${month?.id || '2026-08'}`
 const observationKey = item => `${item.date}|${item.location}|${item.practice}`
 
 function enrichObservations(report, geography) {
@@ -50,8 +48,6 @@ function enrichObservations(report, geography) {
   })
 }
 
-function go(route) { window.location.hash = route }
-
 export default function App() {
   const [registry, setRegistry] = useState({ months: [] })
   const [month, setMonth] = useState(null)
@@ -63,10 +59,7 @@ export default function App() {
   const [disasters, setDisasters] = useState({ events: [], context_signals: [] })
   const [correlations, setCorrelations] = useState({ reviews: [] })
   const [candidates, setCandidates] = useState({ candidates: [] })
-  const [monitor, setMonitor] = useState(null)
   const [route, setRoute] = useState(() => window.location.hash.slice(1) || 'report/2026-08')
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [query, setQuery] = useState('')
 
   useEffect(() => {
     const onHash = () => {
@@ -74,7 +67,6 @@ export default function App() {
       const nextMonthId = nextRoute.match(/report\/(\d{4}-\d{2})/)?.[1]
       const nextMonth = registry.months.find(item => item.id === nextMonthId)
       setRoute(nextRoute)
-      setMenuOpen(false)
       if (nextMonth) setMonth(current => current?.id === nextMonth.id ? current : nextMonth)
       window.scrollTo({ top: 0, behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
     }
@@ -88,7 +80,6 @@ export default function App() {
       const requested = window.location.hash.match(/report\/(\d{4}-\d{2})/)?.[1]
       setMonth(data.months?.find(x => x.id === requested) || data.months?.find(x => x.id === '2026-08') || data.months?.[0] || null)
     }).catch(console.error)
-    dataAdapter.readMonitor(null).then(setMonitor)
   }, [])
 
   useEffect(() => {
@@ -101,38 +92,12 @@ export default function App() {
 
   const observations = useMemo(() => enrichObservations(report, geography), [report, geography])
   const relationRows = useMemo(() => buildCorrelationRows(observations, disasters.events || [], correlations.reviews || []), [observations, disasters, correlations])
-  const searchResults = useMemo(() => {
-    const q = query.trim().toLowerCase(); if (!q) return []
-    return observations.filter(x => [x.date,x.location,x.actor,x.practice,x.summary].join(' ').toLowerCase().includes(q)).slice(0,8)
-  }, [query, observations])
-
   const root = routeRoot(route)
   if (root === 'research-run') return null
   if (!report) return <div className="wm-loading"><div className="loading-orbit"><Moon size={30}/><span>Synchronizing research instrument…</span></div></div>
-  const source = describeMonthSource(month)
 
-  return <div className="wm-app research-app">
-    <div className="cosmic-noise"/>
-    <aside className={`wm-sidebar ${menuOpen ? 'open' : ''}`}>
-      <button className="sidebar-close" onClick={()=>setMenuOpen(false)} aria-label="Close navigation"><X size={20}/></button>
-      <button className="wm-brand" onClick={()=>go(reportRoute(month))}><span className="brand-orbit"><Moon size={23}/></span><span className="brand-copy"><small>MOONWITNESS SUBMODULE</small><strong>WHERE MYTH FADE TO LEGEND</strong><em>COUNTER-MYTHOS OBSERVATORY</em></span></button>
-      <div className="brand-rule"/>
-      <nav className="wm-nav">{NAV.map(([key,label,Icon],i)=><button key={key} className={root===key?'active':''} onClick={()=>go(key==='report'?reportRoute(month):key)}><span className="nav-index">{String(i+1).padStart(2,'0')}</span><Icon size={17}/><span>{label}</span><ChevronRight className="nav-arrow" size={14}/></button>)}</nav>
-      <div className="sidebar-doctrine"><Sparkles size={16}/><div><strong>COUNTER-MYTHOS MISSION</strong><span>Observe patterns. Verify claims. Clarify context. Purify unsupported certainty.</span></div></div>
-      <div className="sidebar-status"><span className="pulse-dot"/><div><strong>{source.label}</strong><small>{monitor?.status || source.detail}</small></div></div>
-    </aside>
-
+  return <div className="research-app">
     <main className="wm-main">
-      <header className="wm-topbar">
-        <button className="menu-button" onClick={()=>setMenuOpen(true)} aria-label="Open navigation"><Menu size={19}/></button>
-        <div className="top-context"><span>WHERE MYTH FADE TO LEGEND</span><i>•</i><strong>{month.label}</strong></div>
-        <div className="top-actions">
-          <div className="wm-search"><Search size={15}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search observation…" aria-label="Search observation"/>{searchResults.length>0&&<div className="search-popover">{searchResults.map(item=><button key={item._id} onClick={()=>{setQuery('');go(reportRoute(month))}}><span>{item.location}</span><b>{item.practice}</b><small>{item.date} · Gap {item.tauhid_gap}</small></button>)}</div>}</div>
-          <select value={month.id} onChange={e=>{const next=registry.months.find(x=>x.id===e.target.value);setMonth(next);go(reportRoute(next))}}>{registry.months.map(item=><option key={item.id} value={item.id}>{item.label}{item.status==='collecting'?' · Collecting':''}</option>)}</select>
-          <div className="repo-chip"><CircleDot size={13}/>{source.label}</div>
-        </div>
-      </header>
-
       <div className="wm-content">
         {root==='report'&&<UnifiedReport month={month} report={report} observations={observations} issues={issues} evidence={evidence} revelation={revelation} disasters={disasters} relationRows={relationRows}/>} 
         {root==='spread-map'&&<SpreadMapPage month={month} observations={observations}/>} 
@@ -144,7 +109,6 @@ export default function App() {
         {root==='pipeline'&&<PipelinePage month={month} candidates={candidates.candidates||[]}/>} 
         {!NAV.some(([key])=>key===root)&&<UnifiedReport month={month} report={report} observations={observations} issues={issues} evidence={evidence} revelation={revelation} disasters={disasters} relationRows={relationRows}/>} 
       </div>
-      <footer className="wm-footer"><div><strong>WHERE MYTH FADE TO LEGEND</strong><span>MoonWitness submodule · counter-mythos observatory</span></div><div className="footer-doctrine">OBSERVE • VERIFY • CLARIFY • PURIFY</div><div className="footer-guardrail">Temporal/geographic proximity does not establish causation. Practices are reviewed separately from people or communities.</div></footer>
     </main>
   </div>
 }

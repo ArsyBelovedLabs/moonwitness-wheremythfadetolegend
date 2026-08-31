@@ -78,7 +78,6 @@
 .shared-instrument-layer .mw-revelation-lens__item{min-height:260px}
 .shared-instrument-layer .mw-witness-thread{border-color:color-mix(in srgb,var(--mw-accent-secondary) 34%,#26313a)}
 .shared-correlation-stack>.mw-chronology-track{margin-top:4px}
-.research-app>.wm-sidebar,.research-app .wm-topbar,.research-app .wm-footer{display:none!important}
 .research-app{display:block!important;min-height:0!important}
 .research-app .wm-main{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
 .research-app .wm-content{max-width:none!important;padding:18px 22px 48px!important}
