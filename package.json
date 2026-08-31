@@ -12,7 +12,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "vite build"
+    "check": "vite build",
+    "qa:live": "node qa/live-release-audit.mjs"
   },
   "dependencies": {
     "@arsybelovedlabs/moonwitness-design-system": "github:ArsyBelovedLabs/moonwitness-design-system#b18c637",
