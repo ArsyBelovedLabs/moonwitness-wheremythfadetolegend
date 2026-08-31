@@ -54,6 +54,18 @@ const PAGE = {
 
 const rootOf = route => String(route || '').split('/')[0]
 const clamp = value => Math.max(5, Math.min(95, value))
+const observationKey = item => `${item?.date || ''}|${item?.location || ''}|${item?.practice || ''}`
+const enrichObservations = (report, geography) => {
+  const geoByMatch = new Map((geography?.observations || []).map(item => [observationKey(item.match || {}), item]))
+  return (report?.observations || []).map(item => {
+    const meta = geoByMatch.get(observationKey(item))
+    return {
+      ...item,
+      _date_start: meta?.date_start || null,
+      _date_end: meta?.date_end || meta?.date_start || null,
+    }
+  })
+}
 const projectIndonesia = coordinates => {
   const lon = Number(coordinates?.lon)
   const lat = Number(coordinates?.lat)
@@ -151,6 +163,7 @@ export default function SharedInstrumentLayer() {
     if (!state) return null
     const { month, report, issues, evidence, revelation, geography, disasters, correlations, candidates } = state
     const observations = report?.observations || []
+    const chronologyObservations = enrichObservations(report, geography)
     const reviewed = correlations?.reviews || []
     const causal = kpiScore(report)
     const observationPoints = (geography?.observations || []).map(item => {
@@ -172,7 +185,7 @@ export default function SharedInstrumentLayer() {
             id: event.id,
             ...projected,
             label: `${event.location} · ${event.label}`,
-            tone: event.causality?.score > 15 ? 'warning' : 'danger',
+            tone: event.severity === 'major' ? 'danger' : event.type === 'wildfire' ? 'warning' : 'active',
             size: event.severity === 'major' ? 16 : 11,
           }
         : null
@@ -199,10 +212,11 @@ export default function SharedInstrumentLayer() {
         { id: 'review', x: 84, y: 60, label: 'REVIEWED', value: reviewed.length, tone: 'success' },
       ]
       const chronology = [
-        ...observations.map((item, index) => ({
+        ...chronologyObservations.map((item, index) => ({
           id: `obs-${index}`,
           label: item.practice || item.location || 'Observation',
           date: item.date,
+          sortDate: item._date_start || item.date,
           detail: item.location || 'Observation',
           tone: 'active',
         })),
@@ -210,10 +224,11 @@ export default function SharedInstrumentLayer() {
           id: event.id,
           label: event.label || event.type || 'Disaster context',
           date: event.date_start,
+          sortDate: event.date_start,
           detail: event.location,
           tone: 'danger',
         })),
-      ].sort((a, b) => dateValue(a.date) - dateValue(b.date)).slice(0, 9)
+      ].sort((a, b) => dateValue(a.sortDate) - dateValue(b.sortDate)).slice(0, 9)
 
       return <div className="shared-correlation-stack">
         <div className="shared-instrument-grid is-correlation">
