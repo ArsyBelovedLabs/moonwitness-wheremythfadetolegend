@@ -1,24 +1,69 @@
 version: 1
 work_item: W0-11
 repository: ArsyBelovedLabs/moonwitness-wheremythfadetolegend
-status: in_progress
+status: PASS_WITH_NOTES
+completion: blocked_external
+pr: 10
+architecture_change: false
 visual_track:
   issue: 9
-  fidelity_checklist: docs/VISUAL-FIDELITY-CHECKLIST-V1.md
-  golden_screen_queue: docs/GOLDEN-SCREEN-QUEUE-V1.md
   component_owner: ArsyBelovedLabs/moonwitness-frontend-platform
   figma_master: pending_verification
-  result: pending
-package_distribution:
-  canonical_package: '@arsybelovedlabs/moonwitness-frontend-platform'
-  target_version: 0.3.0
-  result: pending
-docker: pending
-vercel: pending
-runtime_smoke: pending
-ci: pending
-architecture:
+  executable_contract: PASS
+canonical_frontend_package:
+  name: '@arsybelovedlabs/moonwitness-frontend-platform'
+  version: 0.3.2
+  owner_commit: 2d724018fcd57fccbf1510555b1cc462db2d8c7d
+  publish_run: 33448374250
+  publish_result: SUCCESS
+registry_lock:
+  resolver_repository: ArsyBelovedLabs/moonwitness-frontend-platform
+  resolver_run: 33448728493
+  resolver_result: SUCCESS
+  lockfile_sha256: b4bc5325ce09aa6c249608afa3396237fe07dfd019c138943a91a402b3ba55e7
+  package_shasum: a59a9f41ccfd80537bd9551f19a956f9f097ca1c
+  private_git_dependency_present: false
+  showcase_mirror_dependency_present: false
+checks:
+  data_qa:
+    run: 33449095297
+    result: SUCCESS
+  visual_contract:
+    run: 33449095307
+    result: PASS
+    notes:
+      - exactly eight canonical public task surfaces
+      - reusable production UI owner is moonwitness-frontend-platform
+      - frozen-baseline, practice-scope, causality and four-lens guardrails present
+  e2e:
+    run: 33449095307
+    result: BLOCKED_EXTERNAL
+    stopped_at: pnpm install --frozen-lockfile
+    reason: GitHub Packages returned HTTP 403 for the repository GITHUB_TOKEN despite packages:read
+  docker:
+    run: 33449095312
+    result: BLOCKED_EXTERNAL
+    stopped_at: BuildKit-secret package install
+    reason: same GitHub Packages repository access grant is missing
+  vercel:
+    project: prj_uDdDsQ4BEjBUEH8IUWT7gNEYjGsQ
+    latest_verified_failed_deployment: dpl_ED5gpjiQcbruHYicvbqqEA5NDwoA
+    result: BLOCKED_EXTERNAL
+    reason: private GitHub Packages read credential is not configured; connector exposes no environment-variable mutation
+security:
   direct_database_access: forbidden
   live_data_boundary: sdk_api_only
   historical_baseline: frozen_versioned
-closeout: blocked_until_all_evidence_passes
+  committed_package_token: false
+  docker_build_arg_token: false
+  docker_env_token: false
+  buildkit_secret_used: true
+  vercel_installer_uses_temporary_0600_npmrc: true
+external_actions_required:
+  - Grant moonwitness-wheremythfadetolegend read access under the package Manage Actions access setting, or configure a least-privilege read:packages classic PAT as MOONWITNESS_PACKAGES_TOKEN in GitHub Actions.
+  - Configure the same least-privilege package-read credential as an encrypted Vercel environment variable, preferably MOONWITNESS_PACKAGES_TOKEN.
+closeout: blocked_until_github_actions_docker_and_vercel_package_consumption_pass
+notes:
+  - PR #10 must not merge until E2E and Docker are green under repository policy.
+  - W0-11 and UI-DIST-01 must remain open until GitHub Actions, Docker and Vercel package consumption are proven.
+  - Global protected-branch certification remains a separate governance blocker and is not asserted complete here.
