@@ -17,6 +17,7 @@ import {
   WitnessThread,
 } from '@arsybelovedlabs/moonwitness-design-system'
 import { createStaticDataAdapter, describeMonthSource } from './lib/static-data-adapter.js'
+import LiveResearchRun from './LiveResearchRun.jsx'
 import './shared-instrument-layer.css'
 
 const dataAdapter = createStaticDataAdapter()
@@ -30,6 +31,7 @@ const NAV = [
   { id: 'evidence', label: 'Evidence', meta: 'source provenance' },
   { id: 'revelation', label: 'Revelation Lens', meta: 'four-source lens' },
   { id: 'pipeline', label: 'Candidate Pipeline', meta: 'collect → verify' },
+  { id: 'research-run', label: 'Live ResearchRun', meta: 'operational API' },
 ]
 
 const PAGE = {
@@ -41,6 +43,7 @@ const PAGE = {
   evidence: ['06 / 08', 'Evidence Ledger', 'Publisher, provenance and the claim being documented remain independently inspectable.'],
   revelation: ['07 / 08', 'Four Revelation Lens', 'Al-Qur’an, Injil/Gospel, Taurat/Torah and Zabur/Psalms remain four distinct comparison lenses.'],
   pipeline: ['08 / 08', 'Candidate Pipeline', 'Candidate signals remain unpublished until source checks, verification and analysis are complete.'],
+  'research-run': ['LIVE / 01', 'ResearchRun Operations', 'Operational API state is separate from the frozen historical observatory.'],
 }
 
 const rootOf = route => String(route || '').split('/')[0]
@@ -215,6 +218,7 @@ export default function SharedInstrumentLayer() {
   }, [query, state])
 
   const view = useMemo(() => {
+    if (root === 'research-run') return <LiveResearchRun />
     if (!state) return null
     const { month, report, issues, evidence, revelation, geography, disasters, correlations, candidates } = state
     const observations = report?.observations || []
@@ -461,6 +465,7 @@ export default function SharedInstrumentLayer() {
     </div>
   }, [root, state])
 
+  if (!state && root === 'research-run') return <LiveResearchRun />
   if (!state) return null
 
   const { registry, month, report, evidence, disasters, correlations } = state
