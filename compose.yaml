@@ -1,0 +1,21 @@
+services:
+  myth-fade:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: moonwitness/wheremythfadetolegend:local
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+    ports:
+      - "${MOONWITNESS_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true

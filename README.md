@@ -123,8 +123,10 @@ All APIs are read-only.
 - Leaflet / CARTO dark map tiles
 - Lucide icons
 - existing shadcn/Radix component layer
+- canonical MoonWitness observatory component layer
 - GitHub Actions monitoring + QA
 - Vercel + GitHub Pages deployment
+- Docker / Docker Compose portable runtime
 
 ## Local development
 
@@ -134,6 +136,29 @@ npm run dev
 npm run build
 ```
 
+## Docker Compose
+
+The Docker runtime serves both the built Vite application and the same read-only `/api/*` handlers used by Vercel.
+
+```bash
+docker compose up --build -d
+curl http://127.0.0.1:8080/api/health
+```
+
+Open `http://127.0.0.1:8080/`. To use another host port:
+
+```bash
+MOONWITNESS_PORT=8088 docker compose up --build -d
+```
+
+Stop and remove the runtime with:
+
+```bash
+docker compose down
+```
+
+The container runs as the non-root Node user and includes a healthcheck against `/api/health`. The `Docker Runtime` GitHub workflow validates Compose, builds the image, starts the service, and smoke-tests the web surface plus representative API endpoints.
+
 ## Quality gates
 
-GitHub workflows cover data QA, source health and Playwright smoke tests. The E2E suite checks frozen August counts, Disaster Map, Correlation Engine, unified monthly reporting and the September candidate-state UI.
+GitHub workflows cover data QA, source health, Docker runtime verification and Playwright smoke tests. The E2E suite checks frozen August counts, Disaster Map, Correlation Engine, unified monthly reporting and the September candidate-state UI.
