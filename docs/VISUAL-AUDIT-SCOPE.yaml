@@ -1,0 +1,15 @@
+phase: evidence
+issue: 9
+scope:
+  - routes
+  - canonical_package_usage
+  - canonical_icons
+  - eight_active_surfaces
+  - inspectors
+  - frozen_vs_live
+  - causality_guardrail
+  - four_lens_rule
+  - practice_level_wording
+  - responsive
+  - accessibility
+  - figma
