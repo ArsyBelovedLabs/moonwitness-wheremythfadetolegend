@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Audit frozen visual contract
+        run: node qa/visual-contract-audit.mjs
       - name: Install app dependencies
         run: npm install
       - name: Install Playwright for CI only
