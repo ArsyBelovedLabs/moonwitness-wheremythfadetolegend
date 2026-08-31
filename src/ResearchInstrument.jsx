@@ -20,6 +20,7 @@ const NAV = [
   ['revelation', 'Four Revelation Lens', BookOpen],
   ['pipeline', 'Candidate Pipeline', Workflow],
 ]
+const REVELATION_KEYS = ['Q', 'I', 'T', 'Z']
 
 const BAND = {
   low: { label: 'LOW', range: '0–25', color: '#79f264' },
