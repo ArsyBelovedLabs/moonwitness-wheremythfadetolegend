@@ -32,7 +32,7 @@ GitHub repository JSON is the versioned source of truth. Vercel serves the stati
 - Temporal proximity is not evidence of causation.
 
 ## Deployment
-Production domain: `myth.moonwitness.biz.id`
+Production domains: `moonwitness.biz.id` (canonical) and `myth.moonwitness.biz.id` (same application alias)
 Vercel project: `moonwitness-wheremythfadetolegend`
 Node: 24.x
 Build: `npm run build`

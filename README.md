@@ -4,7 +4,7 @@
 
 Public research observatory for repository-grounded mythos/ritual observations, evidence, Tauhid-gap review, geography, disasters and causality analysis across Indonesia.
 
-Production: `https://myth.moonwitness.biz.id/`
+Production: `https://moonwitness.biz.id/` (canonical) · `https://myth.moonwitness.biz.id/` (legacy alias)
 
 ## What the app is
 
