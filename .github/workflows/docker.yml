@@ -1,0 +1,58 @@
+name: Docker Runtime
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  docker-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate Compose
+        run: docker compose config
+
+      - name: Build runtime
+        run: docker compose build
+
+      - name: Start runtime
+        run: docker compose up -d
+
+      - name: Wait for health
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8080/api/health >/tmp/health.json; then
+              cat /tmp/health.json
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose ps
+          docker compose logs
+          exit 1
+
+      - name: Smoke web and API
+        run: |
+          curl --fail --silent http://127.0.0.1:8080/ >/dev/null
+          curl --fail --silent 'http://127.0.0.1:8080/api/observations?month=2026-08' >/dev/null
+          curl --fail --silent 'http://127.0.0.1:8080/api/evidence?month=2026-08' >/dev/null
+
+      - name: Container status
+        run: docker compose ps
+
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop runtime
+        if: always()
+        run: docker compose down --remove-orphans
