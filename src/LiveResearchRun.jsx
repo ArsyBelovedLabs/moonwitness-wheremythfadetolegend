@@ -10,12 +10,13 @@ export default function LiveResearchRun() {
   const [runs, setRuns] = useState([])
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
+  const [eventText, setEventText] = useState('')
 
   useEffect(() => {
     let active = true
     moonClient.listResearchRuns({ limit: 8 }).then(page => {
       if (active) setRuns(page.items || [])
-    }).catch(() => { /* live surface remains useful in offline mode */ })
+    }).catch(cause => { if (active) { setStatus(cause instanceof MoonClientError ? 'offline' : 'error'); setError(cause.message || 'Live API is unavailable.') } })
     return () => { active = false }
   }, [])
 
@@ -32,6 +33,7 @@ export default function LiveResearchRun() {
       setRun(next)
       setRuns(current => [next, ...current.filter(item => item.id !== next.id)].slice(0, 8))
       setStatus(next.status || 'queued')
+      setEventText('')
     } catch (cause) {
       setStatus(cause instanceof MoonClientError ? 'offline' : 'error')
       setError(cause.message || 'Unable to create ResearchRun.')
@@ -45,10 +47,22 @@ export default function LiveResearchRun() {
       const next = await moonClient.getResearchRun(id)
       setRun(next)
       setStatus(next.status || 'queued')
+      const eventText = await moonClient.getResearchRunEvents(id)
+      setEventText(eventText)
     } catch (cause) {
       setStatus('error')
       setError(cause.message || 'Unable to load ResearchRun.')
     }
+  }
+
+  const cancel = async () => {
+    if (!run || !['queued', 'running'].includes(run.status)) return
+    setStatus('cancelling')
+    setError('')
+    try {
+      const next = await moonClient.cancelResearchRun(run.id, crypto.randomUUID())
+      setRun(next); setRuns(current => current.map(item => item.id === next.id ? next : item)); setStatus(next.status)
+    } catch (cause) { setStatus('error'); setError(cause.message || 'Unable to cancel ResearchRun.') }
   }
 
   const activeStage = run?.status || status
@@ -62,7 +76,7 @@ export default function LiveResearchRun() {
         <label>CASE ID<input name="caseId" value={form.caseId} onChange={update} placeholder="optional case identifier" /></label>
         <label>CORRELATION ID<input name="correlationId" value={form.correlationId} onChange={update} placeholder="optional correlation id" /></label>
         <label>TRACE ID<input name="traceId" value={form.traceId} onChange={update} placeholder="optional trace id" /></label>
-        <button type="submit" disabled={status === 'creating'}>{status === 'creating' ? 'Submitting…' : 'Create ResearchRun'}</button>
+        <button type="submit" disabled={status === 'creating' || status === 'cancelling'}>{status === 'creating' ? 'Submitting…' : 'Create ResearchRun'}</button>
         {error ? <p role="alert" className="live-research-error">{error}</p> : null}
       </form>
       <div className="live-research-state">
@@ -75,6 +89,6 @@ export default function LiveResearchRun() {
       <ObservationShard eyebrow="LIVE / RESEARCH RUNS" title="Operational state, not historical evidence" meta="Runs come from moonwitness-api and never overwrite frozen repository data." />
       {runs.length ? <div className="live-research-run-list">{runs.map(item => <button type="button" key={item.id} onClick={() => load(item.id)}><strong>{item.id}</strong><span>{item.status}</span><small>{item.createdAt || 'timestamp unavailable'}</small></button>)}</div> : <p className="live-research-empty">No live runs available. The historical observatory remains available offline.</p>}
     </div>
-    {run ? <InspectorRows rows={[{ label: 'RUN ID', value: run.id, tone: 'active' }, { label: 'STATUS', value: run.status, tone: run.status === 'failed' ? 'danger' : 'success' }, { label: 'CASE', value: run.caseId || 'not supplied', tone: 'neutral' }, { label: 'CORRELATION', value: run.correlationId || 'not supplied', tone: 'neutral' }]} /> : null}
+    {run ? <><div className="live-research-actions"><button type="button" onClick={cancel} disabled={!['queued', 'running'].includes(run.status) || status === 'cancelling'}>{status === 'cancelling' ? 'Cancelling…' : 'Cancel ResearchRun'}</button></div><InspectorRows rows={[{ label: 'RUN ID', value: run.id, tone: 'active' }, { label: 'STATUS', value: run.status, tone: run.status === 'failed' ? 'danger' : 'success' }, { label: 'CASE', value: run.caseId || 'not supplied', tone: 'neutral' }, { label: 'CORRELATION', value: run.correlationId || 'not supplied', tone: 'neutral' }]} />{eventText ? <pre className="live-research-events" aria-label="ResearchRun event stream">{eventText}</pre> : null}</> : null}
   </section>
 }

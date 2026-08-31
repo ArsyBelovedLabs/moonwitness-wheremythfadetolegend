@@ -16,8 +16,17 @@ async function readError(response) {
   let body = null
   try { body = await response.clone().json() } catch { /* Problem Details is optional */ }
   const detail = body && typeof body === 'object' ? body : {}
+  const safeMessage = response.status === 503
+    ? 'Live API is temporarily degraded.'
+    : response.status === 404
+      ? 'The requested live resource was not found.'
+      : response.status === 403
+        ? 'This live operation is not authorized.'
+        : response.status >= 500
+          ? 'Live API is temporarily unavailable.'
+          : 'The live request could not be completed.'
   return new MoonClientError(
-    detail.detail || detail.title || `MoonWitness API request failed (${response.status})`,
+    safeMessage,
     { status: response.status, requestId: detail.requestId || response.headers.get('x-request-id'), code: detail.code },
   )
 }
@@ -49,6 +58,10 @@ export function createMoonClient({ baseUrl = apiUrl(), fetcher = globalThis.fetc
       body: JSON.stringify(payload),
     })).json(),
     getResearchRun: async id => (await request(`/v1/research-runs/${encodeURIComponent(id)}`)).json(),
+    cancelResearchRun: async (id, idempotencyKey) => (await request(`/v1/research-runs/${encodeURIComponent(id)}/cancel`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'idempotency-key': idempotencyKey },
+    })).json(),
     listResearchRuns: async ({ limit, cursor } = {}) => {
       const query = new URLSearchParams()
       if (limit !== undefined) query.set('limit', String(limit))
