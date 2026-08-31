@@ -76,10 +76,18 @@ export default function App() {
   const [query, setQuery] = useState('')
 
   useEffect(() => {
-    const onHash = () => { setRoute(window.location.hash.slice(1) || 'report/2026-08'); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+    const onHash = () => {
+      const nextRoute = window.location.hash.slice(1) || 'report/2026-08'
+      const nextMonthId = nextRoute.match(/report\/(\d{4}-\d{2})/)?.[1]
+      const nextMonth = registry.months.find(item => item.id === nextMonthId)
+      setRoute(nextRoute)
+      setMenuOpen(false)
+      if (nextMonth) setMonth(current => current?.id === nextMonth.id ? current : nextMonth)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
     addEventListener('hashchange', onHash)
     return () => removeEventListener('hashchange', onHash)
-  }, [])
+  }, [registry.months])
 
   useEffect(() => {
     get('data/index.json').then(data => {

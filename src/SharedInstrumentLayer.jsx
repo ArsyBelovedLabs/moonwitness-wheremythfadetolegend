@@ -384,12 +384,14 @@ export default function SharedInstrumentLayer() {
       />
 
       <div className="canonical-control-grid">
-        <div className="canonical-search-shell">
+        <div className="canonical-search-shell" aria-expanded={searchResults.length > 0} aria-controls="canonical-search-results">
           <ArchiveGate
             label="ARCHIVE GATE"
             placeholder="Search observation, location, actor, practice…"
             value={query}
             onChange={setQuery}
+            aria-expanded={searchResults.length > 0}
+            aria-controls="canonical-search-results"
             trailing={
               <select
                 aria-label="Research month"
@@ -405,9 +407,11 @@ export default function SharedInstrumentLayer() {
             }
           />
           {searchResults.length
-            ? <div className="canonical-search-results" role="listbox" aria-label="Observation search results">
+            ? <div id="canonical-search-results" className="canonical-search-results" role="listbox" aria-label="Observation search results">
                 {searchResults.map((item, index) => <button
                   type="button"
+                  role="option"
+                  aria-selected="false"
                   key={`${item.date}-${item.location}-${item.practice}-${index}`}
                   onClick={() => {
                     setQuery('')

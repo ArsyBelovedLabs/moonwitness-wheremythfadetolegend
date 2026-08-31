@@ -133,7 +133,7 @@ body::before {
 .data-table td { padding: 10px; border-bottom: 1px solid rgba(215,168,93,.12); border-right: 1px solid rgba(215,168,93,.09); color: #bdb7ac; vertical-align: top; font-size: 10px; line-height: 1.35; }
 .data-table tr:hover td { background: rgba(215,168,93,.025); }
 .data-table td strong { color: #e5ded1; font-weight: 700; }
-.data-table td small { display: block; margin-top: 3px; color: #777; }
+.data-table td small { display: block; margin-top: 3px; color: #a7b0a9; }
 .observation-table .actor-cell { max-width: 210px; }
 .practice-cell { min-width: 390px; }
 .practice-cell strong { display: block; margin-bottom: 4px; }
@@ -179,8 +179,8 @@ body::before {
 .map-ribbon span:first-child, .map-ribbon strong { color: var(--gold); }
 .leaflet-stage { width: 100%; height: 700px; background: #071013; }
 .leaflet-container { font-family: inherit; background: #061013 !important; }
-.leaflet-control-attribution { background: rgba(2,7,8,.6) !important; color: #59605d !important; font-size: 7px !important; }
-.leaflet-control-attribution a { color: #7d827c !important; }
+.leaflet-control-attribution { background: rgba(2,7,8,.92) !important; color: #a7b0a9 !important; font-size: 8px !important; }
+.leaflet-control-attribution a { color: #c0d7c8 !important; }
 .leaflet-bar a { background: #091417 !important; color: var(--gold) !important; border-color: rgba(215,168,93,.2) !important; }
 .leaflet-tooltip { padding: 0 !important; border: 1px solid rgba(215,168,93,.45) !important; border-radius: 8px !important; background: rgba(4,10,12,.95) !important; color: #ddd !important; box-shadow: 0 12px 30px rgba(0,0,0,.35) !important; }
 .leaflet-tooltip::before { border-top-color: rgba(215,168,93,.45) !important; }
