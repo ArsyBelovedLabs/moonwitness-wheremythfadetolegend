@@ -1,0 +1,3 @@
+allowBuilds:
+  '@arsybelovedlabs/moonwitness-frontend-platform@git+https://github.com/ArsyBelovedLabs/moonwitness-frontend-platform.git#11e2a05d6684b94f48a9b4d61b3642ad1804560a': true
+  '@arsybelovedlabs/moonwitness-frontend-platform@git+https://github.com/ArsyBelovedLabs/moonwitness-frontend-platform.git#55ff81b52ee17873dae981e900349cfbbfe8c459': set this to true or false

@@ -16,6 +16,7 @@ import {
   TruthAperture,
   WitnessThread,
 } from '@arsybelovedlabs/moonwitness-design-system'
+import { SearchResultList } from '@arsybelovedlabs/moonwitness-frontend-platform'
 import { createStaticDataAdapter, describeMonthSource } from './lib/static-data-adapter.js'
 import LiveResearchRun from './LiveResearchRun.jsx'
 import './shared-instrument-layer.css'
@@ -516,23 +517,20 @@ export default function SharedInstrumentLayer() {
               </select>
             }
           />
-          <div id="canonical-search-results" className="canonical-search-results" role="listbox" aria-label="Observation search results" hidden={!searchResults.length}>
-                {searchResults.map((item, index) => <button
-                  type="button"
-                  role="option"
-                  aria-selected="false"
-                  key={`${item.date}-${item.location}-${item.practice}-${index}`}
-                  onClick={() => {
-                    setQuery('')
-                    window.location.hash = `report/${month.id}`
-                    setTimeout(() => document.querySelector('.observation-table')?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' }), 120)
-                  }}
-                >
-                  <span>{item.location || 'Unknown location'}</span>
-                  <strong>{item.practice || item.summary || 'Observation'}</strong>
-                  <small>{item.date || 'Undated'}{item.actor ? ` · ${item.actor}` : ''}</small>
-                </button>)}
-              </div>
+          {searchResults.length ? <SearchResultList
+            className="canonical-search-results"
+            label="Observation search results"
+            results={searchResults.map((item, index) => ({
+              id: `${item.date}-${item.location}-${item.practice}-${index}`,
+              label: item.practice || item.summary || 'Observation',
+              detail: `${item.location || 'Unknown location'} · ${item.date || 'Undated'}${item.actor ? ` · ${item.actor}` : ''}`,
+              onSelect: () => {
+                setQuery('')
+                window.location.hash = `report/${month.id}`
+                setTimeout(() => document.querySelector('.observation-table')?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' }), 120)
+              },
+            }))}
+          /> : null}
         </div>
 
         <InspectorDock title="RESEARCH STATE" eyebrow={`${source.storage.toUpperCase()} DATA / ${source.lifecycle.toUpperCase()}`}>

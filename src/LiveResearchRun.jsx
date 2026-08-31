@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { CausalityGuardrail, InspectorRows, InstrumentHeader, MetricRail, ObservationShard, SignalBeacon, WitnessThread } from '@arsybelovedlabs/moonwitness-design-system'
+import { ActionCluster, StatePanel } from '@arsybelovedlabs/moonwitness-frontend-platform'
 import { MoonClientError, moonClient } from './lib/moon-client.js'
 
 const stages = ['queued', 'running', 'succeeded', 'failed', 'cancelled']
@@ -77,7 +78,7 @@ export default function LiveResearchRun() {
         <label>CORRELATION ID<input name="correlationId" value={form.correlationId} onChange={update} placeholder="optional correlation id" /></label>
         <label>TRACE ID<input name="traceId" value={form.traceId} onChange={update} placeholder="optional trace id" /></label>
         <button type="submit" disabled={status === 'creating' || status === 'cancelling'}>{status === 'creating' ? 'Submitting…' : 'Create ResearchRun'}</button>
-        {error ? <p role="alert" className="live-research-error">{error}</p> : null}
+        {error ? <StatePanel state={status === 'offline' ? 'offline' : 'error'} title={status === 'offline' ? 'LIVE API OFFLINE' : 'RESEARCH RUN ERROR'} detail={error} /> : null}
       </form>
       <div className="live-research-state">
         <WitnessThread steps={thread} />
@@ -87,8 +88,8 @@ export default function LiveResearchRun() {
     </div>
     <div className="live-research-history">
       <ObservationShard eyebrow="LIVE / RESEARCH RUNS" title="Operational state, not historical evidence" meta="Runs come from moonwitness-api and never overwrite frozen repository data." />
-      {runs.length ? <div className="live-research-run-list">{runs.map(item => <button type="button" key={item.id} onClick={() => load(item.id)}><strong>{item.id}</strong><span>{item.status}</span><small>{item.createdAt || 'timestamp unavailable'}</small></button>)}</div> : <p className="live-research-empty">No live runs available. The historical observatory remains available offline.</p>}
+      {runs.length ? <div className="live-research-run-list">{runs.map(item => <button type="button" key={item.id} onClick={() => load(item.id)}><strong>{item.id}</strong><span>{item.status}</span><small>{item.createdAt || 'timestamp unavailable'}</small></button>)}</div> : <StatePanel state="empty" title="NO LIVE RUNS AVAILABLE" detail="The historical observatory remains available offline." />}
     </div>
-    {run ? <><div className="live-research-actions"><button type="button" onClick={cancel} disabled={!['queued', 'running'].includes(run.status) || status === 'cancelling'}>{status === 'cancelling' ? 'Cancelling…' : 'Cancel ResearchRun'}</button></div><InspectorRows rows={[{ label: 'RUN ID', value: run.id, tone: 'active' }, { label: 'STATUS', value: run.status, tone: run.status === 'failed' ? 'danger' : 'success' }, { label: 'CASE', value: run.caseId || 'not supplied', tone: 'neutral' }, { label: 'CORRELATION', value: run.correlationId || 'not supplied', tone: 'neutral' }]} />{eventText ? <pre className="live-research-events" aria-label="ResearchRun event stream">{eventText}</pre> : null}</> : null}
+    {run ? <><div className="live-research-actions"><ActionCluster label="ResearchRun actions" actions={[{ id: 'cancel', label: status === 'cancelling' ? 'Cancelling…' : 'Cancel ResearchRun', tone: 'danger', disabled: !['queued', 'running'].includes(run.status) || status === 'cancelling', onClick: cancel }]} /></div><InspectorRows rows={[{ label: 'RUN ID', value: run.id, tone: 'active' }, { label: 'STATUS', value: run.status, tone: run.status === 'failed' ? 'danger' : 'success' }, { label: 'CASE', value: run.caseId || 'not supplied', tone: 'neutral' }, { label: 'CORRELATION', value: run.correlationId || 'not supplied', tone: 'neutral' }]} />{eventText ? <pre className="live-research-events" aria-label="ResearchRun event stream">{eventText}</pre> : null}</> : null}
   </section>
 }
