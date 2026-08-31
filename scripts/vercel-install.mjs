@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -27,11 +27,11 @@ const userConfig = join(directory, '.npmrc')
 try {
   await writeFile(
     userConfig,
-    `@arsybelovedlabs:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=${token}\nalways-auth=true\n`,
+    `@arsybelovedlabs:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=${token}\n`,
     { mode: 0o600 },
   )
 
-  const result = spawnSync('corepack', ['pnpm', 'install', '--no-frozen-lockfile'], {
+  const result = spawnSync('corepack', ['pnpm', 'install', '--frozen-lockfile'], {
     stdio: 'inherit',
     env: {
       ...process.env,
@@ -42,17 +42,7 @@ try {
 
   if (result.error) throw result.error
   if (result.status !== 0) process.exit(result.status ?? 1)
-
-  const lock = await readFile('pnpm-lock.yaml', 'utf8')
-  const lines = lock.split('\n')
-  const hits = lines
-    .map((line, index) => line.includes('@arsybelovedlabs/moonwitness-frontend-platform') ? index : -1)
-    .filter(index => index >= 0)
-
-  console.log('Resolved canonical package lock evidence:')
-  for (const index of hits) {
-    console.log(lines.slice(Math.max(0, index - 2), Math.min(lines.length, index + 8)).join('\n'))
-  }
+  console.log('Canonical package install completed from the frozen registry lockfile.')
 } finally {
   await rm(directory, { recursive: true, force: true })
 }
