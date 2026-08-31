@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@arsybelovedlabs/moonwitness-design-system':
-        specifier: github:ArsyBelovedLabs/moonwitness-design-system#6ddf0ac
-        version: https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/6ddf0ac3863a9f0c0eb01ff4428f043a4fba40f2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: github:ArsyBelovedLabs/moonwitness-design-system#b18c637
+        version: https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/b18c637383ee521fcad0d6e78c5008c9a0638e21(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@tailwindcss/vite':
         specifier: 4.3.3
         version: 4.3.3(vite@8.2.2(jiti@2.7.0))
@@ -57,8 +57,8 @@ importers:
 
 packages:
 
-  '@arsybelovedlabs/moonwitness-design-system@https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/6ddf0ac3863a9f0c0eb01ff4428f043a4fba40f2':
-    resolution: {gitHosted: true, integrity: sha512-+OTFoyKZfkFPAgUzkG0PwrYIwKag6DIueTnJqBSsgCOY1f3OWbnswCOaTkulqd7M9SKAhjFCm9vnQLC407Hsgg==, tarball: https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/6ddf0ac3863a9f0c0eb01ff4428f043a4fba40f2}
+  '@arsybelovedlabs/moonwitness-design-system@https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/b18c637383ee521fcad0d6e78c5008c9a0638e21':
+    resolution: {gitHosted: true, integrity: sha512-hrqK1pune1EXOICug1VXHVMHcCT86SpTor5oB6yGUaT86zz9S0rpUqbjohklBeW+wAWR8HvxbNTKvn9Lr84Eqw==, tarball: https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/b18c637383ee521fcad0d6e78c5008c9a0638e21}
     version: 0.3.0
     engines: {node: 24.20.0, pnpm: 11.24.0}
     peerDependencies:
@@ -2570,7 +2570,7 @@ packages:
 
 snapshots:
 
-  '@arsybelovedlabs/moonwitness-design-system@https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/6ddf0ac3863a9f0c0eb01ff4428f043a4fba40f2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@arsybelovedlabs/moonwitness-design-system@https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/b18c637383ee521fcad0d6e78c5008c9a0638e21(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
