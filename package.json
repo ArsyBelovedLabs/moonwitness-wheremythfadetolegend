@@ -1,7 +1,7 @@
 {
   "name": "where-myth-fade-to-legend",
   "private": true,
-  "version": "2.1.0",
+  "version": "2.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,7 @@
     "check": "vite build"
   },
   "dependencies": {
+    "@arsybelovedlabs/moonwitness-design-system": "github:ArsyBelovedLabs/moonwitness-design-system#main",
     "@tailwindcss/vite": "latest",
     "@vitejs/plugin-react": "latest",
     "class-variance-authority": "latest",
