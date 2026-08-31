@@ -9,8 +9,11 @@ services:
     environment:
       NODE_ENV: production
       PORT: 8080
-    ports:
-      - "${MOONWITNESS_PORT:-8080}:8080"
+    # Coolify's reverse proxy reaches the container through the service
+    # network. Do not publish a host port here: another Coolify resource may
+    # already own 8080 on the node.
+    expose:
+      - "8080"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/api/health"]
       interval: 30s

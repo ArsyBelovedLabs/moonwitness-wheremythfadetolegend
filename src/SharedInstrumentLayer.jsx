@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import {
-  ArchiveGate,
   CausalityGuardrail,
   CausalityLattice,
   ChronologyTrack,
@@ -17,18 +16,10 @@ import {
   TruthAperture,
   WitnessThread,
 } from '@arsybelovedlabs/moonwitness-design-system'
+import { createStaticDataAdapter, describeMonthSource } from './lib/static-data-adapter.js'
 import './shared-instrument-layer.css'
 
-const base = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '')
-const read = async (path, fallback) => {
-  if (!path) return fallback
-  try {
-    const response = await fetch(`${base}/${path}`.replace(/([^:]\/)\/+/g, '$1'), { cache: 'no-store' })
-    return response.ok ? response.json() : fallback
-  } catch {
-    return fallback
-  }
-}
+const dataAdapter = createStaticDataAdapter()
 
 const NAV = [
   { id: 'report', label: 'Monthly Report', meta: 'auditable ledger' },
@@ -54,6 +45,18 @@ const PAGE = {
 
 const rootOf = route => String(route || '').split('/')[0]
 const clamp = value => Math.max(5, Math.min(95, value))
+const observationKey = item => `${item?.date || ''}|${item?.location || ''}|${item?.practice || ''}`
+const enrichObservations = (report, geography) => {
+  const geoByMatch = new Map((geography?.observations || []).map(item => [observationKey(item.match || {}), item]))
+  return (report?.observations || []).map(item => {
+    const meta = geoByMatch.get(observationKey(item))
+    return {
+      ...item,
+      _date_start: meta?.date_start || null,
+      _date_end: meta?.date_end || meta?.date_start || null,
+    }
+  })
+}
 const projectIndonesia = coordinates => {
   const lon = Number(coordinates?.lon)
   const lat = Number(coordinates?.lat)
@@ -80,6 +83,88 @@ const dateValue = value => {
   return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER
 }
 
+const workflowStages = ['DISCOVERED', 'SOURCE_CHECK', 'VERIFIED', 'ANALYZED', 'PUBLISHED']
+const stageTone = stage => ({
+  DISCOVERED: 'active',
+  SOURCE_CHECK: 'warning',
+  VERIFIED: 'success',
+  ANALYZED: 'active',
+  PUBLISHED: 'success',
+}[stage] || 'neutral')
+
+const scrollBehavior = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+
+const REPORT_SURFACES = [
+  { id: 'spread-map', code: '02', label: 'Spread Map', meta: 'repository geography', key: 'observations' },
+  { id: 'disaster-map', code: '03', label: 'Disaster Map', meta: 'independent context', key: 'disasters' },
+  { id: 'correlation', code: '04', label: 'Correlation', meta: 'proximity ≠ causation', key: 'reviewed' },
+  { id: 'review', code: '05', label: 'Tauhid Review', meta: 'practice-level flags', key: 'issues' },
+  { id: 'evidence', code: '06', label: 'Evidence', meta: 'source provenance', key: 'evidence' },
+  { id: 'revelation', code: '07', label: 'Revelation Lens', meta: 'four exact lenses', key: 'lenses' },
+  { id: 'pipeline', code: '08', label: 'Candidate Pipeline', meta: 'collect → verify', key: 'candidates' },
+]
+
+function ReportSurfaceDeck({ go, observations, disasters, reviewed, issues, evidence, revelation, candidates }) {
+  const values = {
+    observations: observations.length,
+    disasters: disasters?.events?.length || 0,
+    reviewed: reviewed.length,
+    issues: issues.length,
+    evidence: evidence.length,
+    lenses: ['Q', 'I', 'T', 'Z'].filter(key => (revelation?.traditions || []).some(item => item.key === key)).length,
+    candidates: candidates?.candidates?.length || 0,
+  }
+
+  return <section className="report-surface-deck" aria-label="Monthly report surface index">
+    <div className="report-surface-deck__heading">
+      <div>
+        <span>REPORT SURFACE INDEX</span>
+        <strong>Choose a research instrument</strong>
+      </div>
+      <small>Seven linked views · one repository state</small>
+    </div>
+    <div className="report-surface-deck__grid">
+      {REPORT_SURFACES.map(surface => <button
+        type="button"
+        className={`report-surface-card is-${surface.id}`}
+        key={surface.id}
+        onClick={() => go(surface.id)}
+        aria-label={`${surface.label}: ${surface.meta}`}
+      >
+        <span className="report-surface-card__code">{surface.code}</span>
+        <span className="report-surface-card__copy">
+          <strong>{surface.label}</strong>
+          <small>{surface.meta}</small>
+        </span>
+        <b>{values[surface.key]}</b>
+        <i aria-hidden="true">↗</i>
+      </button>)}
+    </div>
+  </section>
+}
+
+function SearchGate({ value, onChange, expanded, resultsId, trailing }) {
+  return <div className="mw-archive-gate">
+    <span className="mw-archive-gate__label">ARCHIVE GATE</span>
+    <div className="mw-archive-gate__field">
+      <span aria-hidden="true">⌁</span>
+      <input
+        type="search"
+        aria-label="ARCHIVE GATE"
+        role="combobox"
+        aria-expanded={expanded}
+        aria-controls={resultsId}
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
+        value={value}
+        placeholder="Search observation, location, actor, practice…"
+        onChange={event => onChange(event.target.value)}
+      />
+      {trailing}
+    </div>
+  </div>
+}
+
 export default function SharedInstrumentLayer() {
   const [route, setRoute] = useState(() => window.location.hash.slice(1) || 'report/2026-08')
   const [selectedMonthId, setSelectedMonthId] = useState(() => window.location.hash.match(/report\/(\d{4}-\d{2})/)?.[1] || '2026-08')
@@ -100,22 +185,13 @@ export default function SharedInstrumentLayer() {
   useEffect(() => {
     let alive = true
     ;(async () => {
-      const registry = await read('data/index.json', { months: [] })
+      const registry = await dataAdapter.readRegistry()
       const month = registry.months?.find(item => item.id === selectedMonthId)
         || registry.months?.find(item => item.id === '2026-08')
         || registry.months?.[0]
       if (!month) return
-      const [report, issues, evidence, revelation, geography, disasters, correlations, candidates] = await Promise.all([
-        read(month.path, { kpis: [], observations: [] }),
-        read(month.issues, []),
-        read(month.evidence, []),
-        read(month.revelation, { traditions: [] }),
-        read(month.geography, { observations: [] }),
-        read(month.disasters, { events: [] }),
-        read(month.correlations, { reviews: [] }),
-        read(month.candidates, { candidates: [] }),
-      ])
-      if (alive) setState({ registry, month, report, issues, evidence, revelation, geography, disasters, correlations, candidates })
+      const bundle = await dataAdapter.readMonth(month)
+      if (alive) setState({ registry, month, ...bundle })
     })()
     return () => { alive = false }
   }, [selectedMonthId])
@@ -142,8 +218,21 @@ export default function SharedInstrumentLayer() {
     if (!state) return null
     const { month, report, issues, evidence, revelation, geography, disasters, correlations, candidates } = state
     const observations = report?.observations || []
+    const chronologyObservations = enrichObservations(report, geography)
     const reviewed = correlations?.reviews || []
     const causal = kpiScore(report)
+    const observationPoints = (geography?.observations || []).map(item => {
+      const projected = item?.geography?.map_enabled ? projectIndonesia(item.geography) : null
+      return projected
+        ? {
+            id: item.id || `${item.match?.location || 'observation'}-${item.match?.practice || 'row'}`,
+            ...projected,
+            label: `${item.match?.location || 'Unknown locality'} · ${item.match?.practice || 'Observation'}`,
+            tone: 'active',
+            size: 11,
+          }
+        : null
+    }).filter(Boolean)
     const disasterPoints = (disasters?.events || []).map(event => {
       const projected = projectIndonesia(event.coordinates)
       return projected
@@ -151,7 +240,7 @@ export default function SharedInstrumentLayer() {
             id: event.id,
             ...projected,
             label: `${event.location} · ${event.label}`,
-            tone: event.causality?.score > 15 ? 'warning' : 'danger',
+            tone: event.severity === 'major' ? 'danger' : event.type === 'wildfire' ? 'warning' : 'active',
             size: event.severity === 'major' ? 16 : 11,
           }
         : null
@@ -162,8 +251,8 @@ export default function SharedInstrumentLayer() {
         <MapRift title={`${month.label.toUpperCase()} / DISASTER CONTEXT`} points={disasterPoints} />
         <div className="shared-instrument-side">
           <SignalBeacon tone="warning" label="INDEPENDENT DATASET" />
-          <ObservationShard eyebrow="MAP CONTRACT" title={`${disasterPoints.length} mapped events`} tone="warning">
-            Disaster events are independently sourced. Observation overlays are contextual only.
+          <ObservationShard eyebrow="MAP CONTRACT" title={`${disasterPoints.length} mapped events`} meta={`${disasters?.events?.length || 0} independent rows`} tone="warning">
+            Disaster events are independently sourced. Observation overlays are contextual only; no ritual-to-disaster relation is inferred by the map.
           </ObservationShard>
           <CausalityGuardrail />
         </div>
@@ -178,10 +267,11 @@ export default function SharedInstrumentLayer() {
         { id: 'review', x: 84, y: 60, label: 'REVIEWED', value: reviewed.length, tone: 'success' },
       ]
       const chronology = [
-        ...observations.map((item, index) => ({
+        ...chronologyObservations.map((item, index) => ({
           id: `obs-${index}`,
           label: item.practice || item.location || 'Observation',
           date: item.date,
+          sortDate: item._date_start || item.date,
           detail: item.location || 'Observation',
           tone: 'active',
         })),
@@ -189,10 +279,11 @@ export default function SharedInstrumentLayer() {
           id: event.id,
           label: event.label || event.type || 'Disaster context',
           date: event.date_start,
+          sortDate: event.date_start,
           detail: event.location,
           tone: 'danger',
         })),
-      ].sort((a, b) => dateValue(a.date) - dateValue(b.date)).slice(0, 9)
+      ].sort((a, b) => dateValue(a.sortDate) - dateValue(b.sortDate)).slice(0, 9)
 
       return <div className="shared-correlation-stack">
         <div className="shared-instrument-grid is-correlation">
@@ -252,21 +343,22 @@ export default function SharedInstrumentLayer() {
 
     if (root === 'pipeline') {
       const rows = candidates?.candidates || []
-      const steps = rows.slice(0, 5).map((item, index) => ({
-        id: item.id || `candidate-${index}`,
-        label: item.title || item.signal || `Candidate ${index + 1}`,
-        detail: item.status || 'DISCOVERED',
-        tone: item.status === 'VERIFIED' ? 'success' : 'active',
-        state: item.status === 'VERIFIED' ? 'complete' : 'active',
-      }))
-      const workflow = steps.length ? steps : [
-        { id: 'discover', label: 'DISCOVERED', detail: 'candidate intake', state: 'idle' },
-        { id: 'source', label: 'SOURCE_CHECK', detail: 'provenance gate', state: 'idle' },
-        { id: 'verify', label: 'VERIFIED', detail: 'evidence threshold', state: 'idle' },
-        { id: 'analyze', label: 'ANALYZED', detail: 'methodology review', state: 'idle' },
-        { id: 'publish', label: 'PUBLISHED', detail: 'public truth boundary', state: 'idle' },
-      ]
-      return <div className="shared-instrument-single"><WitnessThread steps={workflow} /></div>
+      const workflow = workflowStages.map((stage, index) => {
+        const count = rows.filter(item => item.status === stage).length
+        return {
+          id: stage,
+          label: stage,
+          detail: `${count} ${count === 1 ? 'record' : 'records'}`,
+          tone: stageTone(stage),
+          state: count > 0 ? 'complete' : index === 0 && rows.length === 0 ? 'active' : 'idle',
+        }
+      })
+      return <div className="shared-instrument-single">
+        <WitnessThread steps={workflow} />
+        <ObservationShard eyebrow="PIPELINE CONTRACT" title="DISCOVERY IS NOT PUBLICATION" meta={`${rows.length} candidate signal${rows.length === 1 ? '' : 's'} in the selected month`} tone="warning">
+          Automated monitoring may create DISCOVERED candidates only. Source checking, verification and analysis remain explicit gates before publication.
+        </ObservationShard>
+      </div>
     }
 
     if (root === 'review') {
@@ -289,14 +381,18 @@ export default function SharedInstrumentLayer() {
     }
 
     if (root === 'spread-map') {
-      const mapped = (geography?.observations || []).filter(item => item?.geography?.map_enabled).length
-      return <div className="shared-instrument-single">
-        <MetricRail items={[
-          { label: 'OBSERVATIONS', value: observations.length, detail: 'published', tone: 'active' },
-          { label: 'MAPPED', value: mapped, detail: 'repository coordinates', tone: 'success' },
-          { label: 'MODE', value: 'SPREAD', detail: 'context layer' },
-          { label: 'CAUSALITY', value: 'SEPARATE', detail: 'not inferred', tone: 'warning' },
-        ]} />
+      return <div className="shared-instrument-grid is-map">
+        <MapRift title={`${month.label.toUpperCase()} / OBSERVATION GEOGRAPHY`} points={observationPoints} />
+        <div className="shared-instrument-side">
+          <SignalBeacon tone="success" label="REPOSITORY COORDINATES" />
+          <MetricRail items={[
+            { label: 'OBSERVATIONS', value: observations.length, detail: 'published', tone: 'active' },
+            { label: 'MAPPED', value: observationPoints.length, detail: 'repository coordinates', tone: 'success' },
+            { label: 'MODE', value: 'SPREAD', detail: 'context layer' },
+            { label: 'CAUSALITY', value: 'SEPARATE', detail: 'not inferred', tone: 'warning' },
+          ]} />
+          <CausalityGuardrail />
+        </div>
       </div>
     }
 
@@ -306,6 +402,43 @@ export default function SharedInstrumentLayer() {
       detail: item.note,
       tone: toneForKpi(item.label),
     }))
+    if (root === 'report') {
+      return <div className="shared-report-stack">
+        <div className="shared-instrument-grid is-report">
+          <TruthAperture score={causal} label="CAUSAL PROOF" detail="published KPI upper bound" tone="warning" />
+          <div className="shared-instrument-report">
+            <div className="report-readout">
+              <span>MONTHLY OBSERVATORY / {month.label.toUpperCase()}</span>
+              <strong>One auditable surface for the current field register.</strong>
+              <small>Evidence, geography, disaster context and review remain separate by contract.</small>
+            </div>
+            <MetricRail items={kpis.length ? kpis : [
+              { label: 'OBSERVATIONS', value: observations.length, detail: 'published', tone: 'active' },
+              { label: 'EVIDENCE', value: evidence.length, detail: 'sources', tone: 'success' },
+              { label: 'DISASTERS', value: disasters?.events?.length || 0, detail: 'independent context', tone: 'warning' },
+              { label: 'REVIEWED', value: reviewed.length, detail: 'relations' },
+            ]} />
+            <CausalityGuardrail />
+          </div>
+        </div>
+        <ReportSurfaceDeck
+          go={go}
+          observations={observations}
+          disasters={disasters}
+          reviewed={reviewed}
+          issues={issues}
+          evidence={evidence}
+          revelation={revelation}
+          candidates={candidates}
+        />
+        <MetricRail items={[
+          { label: 'OBSERVATIONS', value: observations.length, detail: 'published rows', tone: 'active' },
+          { label: 'EVIDENCE', value: evidence.length, detail: 'source rows', tone: 'success' },
+          { label: 'DISASTERS', value: disasters?.events?.length || 0, detail: 'independent context', tone: 'warning' },
+          { label: 'REVIEWED', value: reviewed.length, detail: 'causality relations' },
+        ]} />
+      </div>
+    }
     return <div className="shared-report-stack">
       <div className="shared-instrument-grid is-report">
         <TruthAperture score={causal} label="CAUSAL PROOF" detail="published KPI upper bound" tone="warning" />
@@ -331,6 +464,7 @@ export default function SharedInstrumentLayer() {
   if (!state) return null
 
   const { registry, month, report, evidence, disasters, correlations } = state
+  const source = state.source || describeMonthSource(month)
   const observations = report?.observations || []
   const page = PAGE[root] || PAGE.report
   const title = `${month.label} — ${page[1]}`
@@ -344,7 +478,7 @@ export default function SharedInstrumentLayer() {
       </div>
       <MissionRail items={NAV} activeId={root} onSelect={go} />
       <div className="canonical-mission-foot">
-        <SignalBeacon tone={month.status === 'final' ? 'success' : 'warning'} label={month.status === 'final' ? 'ARCHIVE / FINAL' : 'DATA / COLLECTING'} />
+        <SignalBeacon tone={source.kind === 'historical' ? 'success' : 'warning'} label={source.label} />
         <small>OBSERVE • VERIFY • CLARIFY • PURIFY</small>
       </div>
     </aside>
@@ -354,16 +488,16 @@ export default function SharedInstrumentLayer() {
         code={page[0]}
         title={title}
         subtitle={page[2]}
-        status={<SignalBeacon tone={month.status === 'final' ? 'success' : 'warning'} label={month.status === 'final' ? 'REPOSITORY / GROUNDED' : 'COLLECTING'} />}
+        status={<SignalBeacon tone={source.kind === 'historical' ? 'success' : 'warning'} label={source.label} />}
       />
 
       <div className="canonical-control-grid">
         <div className="canonical-search-shell">
-          <ArchiveGate
-            label="ARCHIVE GATE"
-            placeholder="Search observation, location, actor, practice…"
+          <SearchGate
             value={query}
             onChange={setQuery}
+            expanded={searchResults.length > 0}
+            resultsId="canonical-search-results"
             trailing={
               <select
                 aria-label="Research month"
@@ -378,15 +512,16 @@ export default function SharedInstrumentLayer() {
               </select>
             }
           />
-          {searchResults.length
-            ? <div className="canonical-search-results" role="listbox" aria-label="Observation search results">
+          <div id="canonical-search-results" className="canonical-search-results" role="listbox" aria-label="Observation search results" hidden={!searchResults.length}>
                 {searchResults.map((item, index) => <button
                   type="button"
+                  role="option"
+                  aria-selected="false"
                   key={`${item.date}-${item.location}-${item.practice}-${index}`}
                   onClick={() => {
                     setQuery('')
                     window.location.hash = `report/${month.id}`
-                    setTimeout(() => document.querySelector('.observation-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120)
+                    setTimeout(() => document.querySelector('.observation-table')?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' }), 120)
                   }}
                 >
                   <span>{item.location || 'Unknown location'}</span>
@@ -394,10 +529,9 @@ export default function SharedInstrumentLayer() {
                   <small>{item.date || 'Undated'}{item.actor ? ` · ${item.actor}` : ''}</small>
                 </button>)}
               </div>
-            : null}
         </div>
 
-        <InspectorDock title="RESEARCH STATE" eyebrow="LIVE REPOSITORY READ">
+        <InspectorDock title="RESEARCH STATE" eyebrow={`${source.storage.toUpperCase()} DATA / ${source.kind.toUpperCase()}`}>
           <InspectorRows rows={[
             { label: 'MONTH', value: month.label, tone: 'active' },
             { label: 'OBSERVATIONS', value: observations.length, tone: 'active' },
@@ -411,7 +545,7 @@ export default function SharedInstrumentLayer() {
       <div className="shared-instrument-layer" aria-label="MoonWitness shared design-system instrument">
         <div className="shared-instrument-label">
           <span>CANONICAL MOONWITNESS INSTRUMENT</span>
-          <SignalBeacon tone="success" label="SHARED UI / LIVE" />
+          <SignalBeacon tone={source.kind === 'historical' ? 'success' : 'warning'} label={`SHARED UI / ${source.label}`} />
         </div>
         {view}
       </div>

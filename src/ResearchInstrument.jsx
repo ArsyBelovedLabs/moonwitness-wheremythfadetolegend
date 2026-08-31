@@ -6,17 +6,9 @@ import {
   ShieldCheck, Sparkles, Waves, X, Zap, Workflow,
 } from 'lucide-react'
 import { buildCorrelationRows, proximityBand, workflowCounts, WORKFLOW } from './lib/correlation.js'
+import { createStaticDataAdapter, describeMonthSource } from './lib/static-data-adapter.js'
 
-const base = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '')
-const get = async (path, fallback) => {
-  if (!path) return fallback
-  const response = await fetch(`${base}/${path}`.replace(/([^:]\/)\/+/g, '$1'), { cache: 'no-store' })
-  if (!response.ok) {
-    if (fallback !== undefined) return fallback
-    throw new Error(`${path}: ${response.status}`)
-  }
-  return response.json()
-}
+const dataAdapter = createStaticDataAdapter()
 
 const NAV = [
   ['report', 'Monthly Report', FileSearch],
@@ -39,12 +31,13 @@ const KPI_TONES = ['green', 'amber', 'violet', 'red', 'violet', 'blue', 'cyan', 
 const scoreBand = value => Number(value) >= 76 ? 'critical' : Number(value) >= 41 ? 'high' : Number(value) >= 26 ? 'watch' : 'low'
 const priorityBand = p => String(p || '').toUpperCase() === 'CRITICAL' ? 'critical' : String(p || '').toUpperCase() === 'HIGH' ? 'high' : String(p || '').toUpperCase() === 'MEDIUM' ? 'watch' : 'low'
 const evidenceTone = score => Number(score) >= 95 ? 'excellent' : Number(score) >= 85 ? 'strong' : Number(score) >= 70 ? 'moderate' : 'weak'
+const REVELATION_KEYS = ['Q', 'I', 'T', 'Z']
 const routeRoot = route => route.split('/')[0]
 const reportRoute = month => `report/${month?.id || '2026-08'}`
 const observationKey = item => `${item.date}|${item.location}|${item.practice}`
 
 function enrichObservations(report, geography) {
-  const geoByMatch = new Map((geography?.observations || []).map(item => [`${item.match.date}|${item.match.location}|${item.match.practice}`, item]))
+  const geoByMatch = new Map((geography?.observations || []).map(item => [observationKey(item.match || {}), item]))
   return (report?.observations || []).map(item => {
     const meta = geoByMatch.get(observationKey(item))
     return {
@@ -76,29 +69,33 @@ export default function App() {
   const [query, setQuery] = useState('')
 
   useEffect(() => {
-    const onHash = () => { setRoute(window.location.hash.slice(1) || 'report/2026-08'); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+    const onHash = () => {
+      const nextRoute = window.location.hash.slice(1) || 'report/2026-08'
+      const nextMonthId = nextRoute.match(/report\/(\d{4}-\d{2})/)?.[1]
+      const nextMonth = registry.months.find(item => item.id === nextMonthId)
+      setRoute(nextRoute)
+      setMenuOpen(false)
+      if (nextMonth) setMonth(current => current?.id === nextMonth.id ? current : nextMonth)
+      window.scrollTo({ top: 0, behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+    }
     addEventListener('hashchange', onHash)
     return () => removeEventListener('hashchange', onHash)
-  }, [])
+  }, [registry.months])
 
   useEffect(() => {
-    get('data/index.json').then(data => {
+    dataAdapter.readRegistry().then(data => {
       setRegistry(data)
       const requested = window.location.hash.match(/report\/(\d{4}-\d{2})/)?.[1]
       setMonth(data.months?.find(x => x.id === requested) || data.months?.find(x => x.id === '2026-08') || data.months?.[0] || null)
     }).catch(console.error)
-    get('data/monitor/latest.json', null).then(setMonitor)
+    dataAdapter.readMonitor(null).then(setMonitor)
   }, [])
 
   useEffect(() => {
     if (!month) return
     setReport(null)
-    Promise.all([
-      get(month.path), get(month.issues, []), get(month.evidence, []), get(month.revelation, { traditions: [] }),
-      get(month.geography, { observations: [] }), get(month.disasters, { events: [], context_signals: [] }),
-      get(month.correlations, { reviews: [] }), get(month.candidates, { candidates: [] }),
-    ]).then(([a,b,c,d,e,f,g,h]) => {
-      setReport(a); setIssues(b); setEvidence(c); setRevelation(d); setGeography(e); setDisasters(f); setCorrelations(g); setCandidates(h)
+    dataAdapter.readMonth(month).then(({ report: nextReport, issues: nextIssues, evidence: nextEvidence, revelation: nextRevelation, geography: nextGeography, disasters: nextDisasters, correlations: nextCorrelations, candidates: nextCandidates }) => {
+      setReport(nextReport); setIssues(nextIssues); setEvidence(nextEvidence); setRevelation(nextRevelation); setGeography(nextGeography); setDisasters(nextDisasters); setCorrelations(nextCorrelations); setCandidates(nextCandidates)
     }).catch(console.error)
   }, [month])
 
@@ -111,6 +108,7 @@ export default function App() {
 
   if (!report) return <div className="wm-loading"><div className="loading-orbit"><Moon size={30}/><span>Synchronizing research instrument…</span></div></div>
   const root = routeRoot(route)
+  const source = describeMonthSource(month)
 
   return <div className="wm-app research-app">
     <div className="cosmic-noise"/>
@@ -120,7 +118,7 @@ export default function App() {
       <div className="brand-rule"/>
       <nav className="wm-nav">{NAV.map(([key,label,Icon],i)=><button key={key} className={root===key?'active':''} onClick={()=>go(key==='report'?reportRoute(month):key)}><span className="nav-index">{String(i+1).padStart(2,'0')}</span><Icon size={17}/><span>{label}</span><ChevronRight className="nav-arrow" size={14}/></button>)}</nav>
       <div className="sidebar-doctrine"><Sparkles size={16}/><div><strong>COUNTER-MYTHOS MISSION</strong><span>Observe patterns. Verify claims. Clarify context. Purify unsupported certainty.</span></div></div>
-      <div className="sidebar-status"><span className="pulse-dot"/><div><strong>{month.status==='collecting'?'COLLECTING':'REPOSITORY-GROUNDED'}</strong><small>{monitor?.status || 'Git-backed monthly archive'}</small></div></div>
+      <div className="sidebar-status"><span className="pulse-dot"/><div><strong>{source.label}</strong><small>{monitor?.status || source.detail}</small></div></div>
     </aside>
 
     <main className="wm-main">
@@ -130,7 +128,7 @@ export default function App() {
         <div className="top-actions">
           <div className="wm-search"><Search size={15}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search observation…" aria-label="Search observation"/>{searchResults.length>0&&<div className="search-popover">{searchResults.map(item=><button key={item._id} onClick={()=>{setQuery('');go(reportRoute(month))}}><span>{item.location}</span><b>{item.practice}</b><small>{item.date} · Gap {item.tauhid_gap}</small></button>)}</div>}</div>
           <select value={month.id} onChange={e=>{const next=registry.months.find(x=>x.id===e.target.value);setMonth(next);go(reportRoute(next))}}>{registry.months.map(item=><option key={item.id} value={item.id}>{item.label}{item.status==='collecting'?' · Collecting':''}</option>)}</select>
-          <div className="repo-chip"><CircleDot size={13}/>{month.status==='final'?'FINAL DATASET':'COLLECTING'}</div>
+          <div className="repo-chip"><CircleDot size={13}/>{source.label}</div>
         </div>
       </header>
 
@@ -145,7 +143,7 @@ export default function App() {
         {root==='pipeline'&&<PipelinePage month={month} candidates={candidates.candidates||[]}/>} 
         {!NAV.some(([key])=>key===root)&&<UnifiedReport month={month} report={report} observations={observations} issues={issues} evidence={evidence} revelation={revelation} disasters={disasters} relationRows={relationRows}/>} 
       </div>
-      <footer className="wm-footer"><div><strong>WHERE MYTH FADE TO LEGEND</strong><span>MoonWitness submodule · counter-mythos observatory</span></div><div className="footer-doctrine">OBSERVE • VERIFY • CLARIFY • PURIFY</div><div className="footer-guardrail">Proximity ≠ causality. Practices are reviewed separately from people or communities.</div></footer>
+      <footer className="wm-footer"><div><strong>WHERE MYTH FADE TO LEGEND</strong><span>MoonWitness submodule · counter-mythos observatory</span></div><div className="footer-doctrine">OBSERVE • VERIFY • CLARIFY • PURIFY</div><div className="footer-guardrail">Temporal/geographic proximity does not establish causation. Practices are reviewed separately from people or communities.</div></footer>
     </main>
   </div>
 }
@@ -154,12 +152,13 @@ function PageTitle({code,title,subtitle,children}) { return <div className="page
 function ScoreBadge({value,compact=false}) { const band=scoreBand(value); return <span className={`score-badge ${band} ${compact?'compact':''}`}><i/>{value}{compact?'':'/100'}<small>{BAND[band].label}</small></span> }
 function EvidenceBadge({value}) { return <span className={`evidence-badge ${evidenceTone(value)}`}><ShieldCheck size={13}/>{value}</span> }
 function Empty({title='No published rows yet',text='This month is still collecting candidate signals.'}) { return <div className="research-empty"><Radio size={22}/><strong>{title}</strong><span>{text}</span></div> }
-function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'})}
+function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',block:'start'})}
 
 function UnifiedReport({month,report,observations,issues,evidence,revelation,disasters,relationRows}) {
   const sections=[['overview','Overview'],['observations','Observations'],['tauhid','Tauhid Gap'],['spread','Spread Map'],['disasters','Disasters'],['correlation-report','Correlation'],['evidence-report','Evidence'],['revelation-report','Revelation']]
+  const source = describeMonthSource(month)
   return <section>
-    <PageTitle code="PUBLIC MONTHLY REPORT" title={`${month.label} — Observatory Report`} subtitle="One auditable report surface: observations, geography, disaster context, Tauhid review, correlation, evidence and Four Revelation Lens."><div className="report-period"><CalendarDays size={18}/><span>DATA STATE</span><strong>{month.status.toUpperCase()}</strong></div></PageTitle>
+    <PageTitle code="PUBLIC MONTHLY REPORT" title={`${month.label} — Observatory Report`} subtitle="One auditable report surface: observations, geography, disaster context, Tauhid review, correlation, evidence and Four Revelation Lens."><div className="report-period"><CalendarDays size={18}/><span>DATA SOURCE</span><strong>{source.label}</strong></div></PageTitle>
     <div className="report-section-nav">{sections.map(([id,label])=><button key={id} onClick={()=>scrollToId(id)}>{label}</button>)}</div>
     <section id="overview" className="report-anchor"><Kpis report={report}/><div className="instrument-summary"><SummaryMetric label="Observations" value={observations.length}/><SummaryMetric label="Disasters" value={disasters.events?.length||0}/><SummaryMetric label="TAU issues" value={issues.length}/><SummaryMetric label="Evidence" value={evidence.length}/><SummaryMetric label="Reviewed relations" value={relationRows.filter(x=>x.kind==='reviewed').length}/></div></section>
     <section id="observations" className="report-anchor"><SectionTitle title="Observation Ledger" note={`${observations.length} published rows`}/><ObservationTable observations={observations}/></section>
@@ -195,7 +194,7 @@ function LeafletMap({observations=[],disasters=[],mode='spread'}) {
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd',attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(map)
     observations.filter(x=>x._geo?.map_enabled).forEach((item,index)=>{const color=BAND[scoreBand(item.tauhid_gap)].color;const jitter=(index%3-1)*0.025;const coords=[item._geo.lat+jitter,item._geo.lon+jitter];L.circleMarker(coords,{radius:mode==='disaster'?4:7,weight:2,color,fillColor:color,fillOpacity:mode==='disaster'?.2:.75,opacity:mode==='disaster'?.38:.95}).bindTooltip(`<strong>${item.location}</strong><br/>${item.practice}<br/>Tauhid Gap ${item.tauhid_gap}`).addTo(map)})
     disasters.filter(x=>x.coordinates).forEach(item=>{const glyph=item.type==='wildfire'?'🔥':item.type==='earthquake'?'⌁':'≋';L.marker([item.coordinates.lat,item.coordinates.lon],{icon:L.divIcon({className:`disaster-marker ${item.type}`,html:`<span>${glyph}</span>`,iconSize:[42,42],iconAnchor:[21,21]})}).bindTooltip(`<strong>${item.location}</strong><br/>${item.label}<br/>Causality ${item.causality?.score ?? '—'}/100`).addTo(map)})
-    setTimeout(()=>map.invalidateSize(),80);return()=>{map.remove();mapRef.current=null}
+    const resizeTimer=window.setTimeout(()=>{if(mapRef.current===map&&ref.current)map.invalidateSize()},80);return()=>{window.clearTimeout(resizeTimer);map.remove();mapRef.current=null}
   },[observations,disasters,mode])
   return <div ref={ref} className="leaflet-stage"/>
 }
@@ -215,7 +214,7 @@ function DisasterMapPage({month,observations,disasters}) {
 function DisasterCards({events}){if(!events.length)return <Empty title="No disaster rows yet"/>;return <div className="disaster-card-grid">{events.map(item=><article key={item.id} className={item.type}><span>{item.id}</span><strong>{item.location}</strong><b>{item.label}</b><p>{item.natural_or_human_cause}</p><a href={item.source?.url} target="_blank" rel="noreferrer">{item.source?.publisher} <ArrowUpRight size={12}/></a></article>)}</div>}
 function DisasterRegister({events}){if(!events.length)return <Empty title="No disaster events published yet"/>;return <section className="section-panel compact-table-panel"><div className="section-heading"><div><span>DISASTER REGISTER</span><strong>{events.length} independently sourced events</strong></div></div><div className="data-table-wrap"><table className="data-table"><thead><tr><th>ID</th><th>Date</th><th>Location</th><th>Type</th><th>Evidence</th><th>Causality</th><th>Cause / mechanism</th><th>Source</th></tr></thead><tbody>{events.map(item=><tr key={item.id}><td><strong>{item.id}</strong></td><td>{item.date_start?.slice(0,10)}</td><td><strong>{item.location}</strong><small>{item.admin_area}</small></td><td><span className={`disaster-chip ${item.type}`}>{item.type==='wildfire'?<Flame size={14}/>:item.type==='earthquake'?<Radio size={14}/>:<Waves size={14}/>} {item.label}</span></td><td><EvidenceBadge value={item.evidence_score}/></td><td><span className="causal-score large">{item.causality?.score}</span></td><td>{item.natural_or_human_cause}</td><td><a className="source-link cyan" href={item.source?.url} target="_blank" rel="noreferrer">{item.source?.publisher} <ArrowUpRight size={12}/></a></td></tr>)}</tbody></table></div></section>}
 
-function CorrelationPage({month,rows}) { return <section><PageTitle code="04 / 08" title={`${month.label} — Correlation / Timeline Engine`} subtitle="The engine detects temporal and geographic proximity, then keeps that score separate from reviewed causality. Automatic rows are discovery aids only."/><div className="engine-flow"><span>MYTHOS</span><i>→</i><span>RITUAL</span><i>→</i><span>MEDIA</span><i>→</i><span>DISASTER</span><i>→</i><span>ΔT + DISTANCE</span><i>→</i><strong>CAUSALITY REVIEW</strong></div><CorrelationTable rows={rows}/></section> }
+function CorrelationPage({month,rows}) { return <section><PageTitle code="04 / 08" title={`${month.label} — Correlation / Timeline Engine`} subtitle="The engine detects temporal and geographic proximity, then keeps that score separate from reviewed causality. Temporal/geographic proximity does not establish causation."/><div className="engine-flow"><span>MYTHOS</span><i>→</i><span>RITUAL</span><i>→</i><span>MEDIA</span><i>→</i><span>DISASTER</span><i>→</i><span>ΔT + DISTANCE</span><i>→</i><strong>CAUSALITY REVIEW</strong></div><CorrelationTable rows={rows}/></section> }
 function CorrelationTable({rows}){if(!rows.length)return <Empty title="No correlation rows yet" text="Reviewed relations appear only after independent observation and disaster data exist."/>;return <section className="section-panel correlation-panel"><div className="section-heading"><div><span>CORRELATION REGISTER</span><strong>{rows.length} reviewed + proximity-only rows</strong></div></div><div className="data-table-wrap"><table className="data-table correlation-table"><thead><tr><th>State</th><th>Relation</th><th>ΔT</th><th>Distance</th><th>Proximity</th><th>Causality</th><th>Finding / guardrail</th></tr></thead><tbody>{rows.map(row=><tr key={row.id} className={row.kind}><td><span className={`relation-state ${row.kind}`}>{row.kind==='reviewed'?'REVIEWED':'AUTO ONLY'}</span></td><td><strong>{row.relation}</strong><small>{row.status}</small></td><td>{row.deltaHours==null?'—':`${row.deltaHours} h`}</td><td>{row.distanceKm==null?'—':`${row.distanceKm} km`}</td><td><span className={`proximity-chip ${proximityBand(row.proximityScore)}`}>{row.proximityScore}/100</span></td><td>{row.causalityScore==null?<span className="unreviewed">UNREVIEWED</span>:<span className="causal-score large">{row.causalityScore}</span>}</td><td><strong>{row.finding}</strong><small>{row.guardrail}</small>{row.competingExplanations?.length>0&&<ul>{row.competingExplanations.slice(0,3).map(x=><li key={x}>{x}</li>)}</ul>}</td></tr>)}</tbody></table></div></section>}
 
 function ReviewPage({month,report,issues,observations}) { return <section><PageTitle code="05 / 08" title={`${month.label} — Tauhid Review`} subtitle="Color-coded practice-level review. High Tauhid Gap flags a practice for clarification; it is not a judgment on a religion, ethnicity or community."/><GapOverview report={report} observations={observations}/>{issues.length?<section className="section-panel issue-register"><div className="section-heading"><div><span>TAUHID ISSUE REGISTER</span><strong>{issues.length} rows</strong></div></div><div className="data-table-wrap"><table className="data-table review-table"><thead><tr><th>ID</th><th>Priority</th><th>Target</th><th>Issue</th><th>Status</th><th>Resolution</th></tr></thead><tbody>{issues.map(item=><tr key={item.id}><td><strong>{item.id}</strong></td><td><span className={`priority-chip ${priorityBand(item.priority)}`}><AlertTriangle size={13}/>{item.priority}</span></td><td>{item.target}</td><td className="issue-cell">{item.issue}</td><td>{item.status}</td><td className="resolution-cell">{item.resolution}</td></tr>)}</tbody></table></div></section>:<Empty title="No issues published yet"/>}</section> }
@@ -225,6 +224,11 @@ function EvidenceTable({evidence}){if(!evidence.length)return <Empty title="Evid
 function SourceTypeBadge({type}){const t=String(type||'Source').toLowerCase();const tone=t.includes('official')?'official':t.includes('video')?'video':t.includes('photo')?'photo':t.includes('radio')?'radio':t.includes('religious')?'religious':t.includes('primary')?'primary':t.includes('narrative')?'narrative':'media';return <span className={`source-type ${tone}`}><span>{tone==='official'?'⬡':tone==='video'?'▶':tone==='photo'?'▣':tone==='radio'?'◉':tone==='primary'?'▤':'◆'}</span>{type}</span>}
 
 function RevelationPage({month,revelation}) { return <section><PageTitle code="07 / 08" title={`${month.label} — Four Revelation Lens`} subtitle={revelation?.principle||'Cross-reference framework for Tawhid comparison points.'}/><RevelationBoard revelation={revelation}/></section> }
-function RevelationBoard({revelation}){const tone={Q:'quran',I:'gospel',T:'torah',Z:'psalms'};return <div className="revelation-board">{(revelation?.traditions||[]).map(item=><article className={`revelation-row ${tone[item.key]||''}`} key={item.key}><div className="revelation-key">{item.key}</div><div className="revelation-name"><span>{item.name}</span><strong>{(item.references||[]).join(' · ')}</strong></div><p>{item.focus}</p><a href={item.url} target="_blank" rel="noreferrer">Open reference <ArrowUpRight size={13}/></a></article>)}</div>}
+function RevelationBoard({revelation}){
+  const tone={Q:'quran',I:'gospel',T:'torah',Z:'psalms'}
+  const traditions=REVELATION_KEYS.map(key=>(revelation?.traditions||[]).find(item=>item.key===key))
+  if(traditions.some(item=>!item)) return <Empty title="Four Revelation Lens unavailable" text="The selected month must provide canonical Q / I / T / Z entries."/>
+  return <div className="revelation-board">{traditions.map(item=><article className={`revelation-row ${tone[item.key]}`} key={item.key}><div className="revelation-key">{item.key}</div><div className="revelation-name"><span>{item.name}</span><strong>{(item.references||[]).join(' · ')}</strong></div><p>{item.focus}</p><a href={item.url} target="_blank" rel="noreferrer">Open reference <ArrowUpRight size={13}/></a></article>)}</div>
+}
 
 function PipelinePage({month,candidates}) { const counts=workflowCounts(candidates); return <section><PageTitle code="08 / 08" title={`${month.label} — Candidate Pipeline`} subtitle="Automated monitoring may create DISCOVERED candidates only. Publication requires explicit source verification and analysis."/><div className="pipeline-flow">{WORKFLOW.map((stage,i)=><React.Fragment key={stage}><div className={`pipeline-stage stage-${stage.toLowerCase()}`}><span>{String(i+1).padStart(2,'0')}</span><strong>{stage}</strong><b>{counts.find(x=>x.stage===stage)?.count||0}</b></div>{i<WORKFLOW.length-1&&<i>→</i>}</React.Fragment>)}</div>{candidates.length?<section className="section-panel"><div className="data-table-wrap"><table className="data-table"><thead><tr><th>ID</th><th>Status</th><th>Type</th><th>Title</th><th>Source check</th><th>Verification</th><th>First seen</th></tr></thead><tbody>{candidates.map(item=><tr key={item.id}><td><strong>{item.id}</strong></td><td><span className={`candidate-status ${item.status.toLowerCase()}`}>{item.status}</span></td><td>{item.type}</td><td><a className="source-link cyan" href={item.url} target="_blank" rel="noreferrer">{item.title} <ArrowUpRight size={12}/></a></td><td>{item.sourceCheck?.status||'PENDING'}</td><td>{item.verification?.status||'NOT_VERIFIED'}</td><td>{item.firstSeen?.slice(0,10)||'—'}</td></tr>)}</tbody></table></div></section>:<Empty title="No candidate signals yet" text="The six-hour monitor will populate DISCOVERED candidates when the selected month is active."/>}</section> }

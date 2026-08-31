@@ -1,6 +1,6 @@
 .research-app .wm-content{max-width:1900px}
 .report-section-nav{position:sticky;top:64px;z-index:35;display:flex;gap:7px;overflow:auto;padding:9px;margin:-4px 0 16px;background:rgba(5,10,12,.91);backdrop-filter:blur(16px);border:1px solid rgba(215,168,93,.18);border-radius:10px}
-.report-section-nav button{flex:0 0 auto;height:31px;padding:0 12px;border:1px solid rgba(215,168,93,.2);border-radius:7px;background:rgba(215,168,93,.045);color:#aaa294;font-size:9px;font-weight:850;letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
+.report-section-nav button{flex:0 0 auto;min-height:44px;padding:0 12px;border:1px solid rgba(215,168,93,.2);border-radius:7px;background:rgba(215,168,93,.045);color:#aaa294;font-size:9px;font-weight:850;letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
 .report-section-nav button:hover{color:var(--ivory);border-color:rgba(215,168,93,.5);background:rgba(215,168,93,.1)}
 .report-anchor{scroll-margin-top:116px;margin-bottom:22px}
 .instrument-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 18px}
