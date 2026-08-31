@@ -8,12 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@arsybelovedlabs/moonwitness-design-system':
-        specifier: github:ArsyBelovedLabs/moonwitness-design-system#b18c637
-        version: https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/b18c637383ee521fcad0d6e78c5008c9a0638e21(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@arsybelovedlabs/moonwitness-frontend-platform':
-        specifier: git+https://github.com/ArsyBelovedLabs/moonwitness-frontend-platform.git#11e2a05d6684b94f48a9b4d61b3642ad1804560a
-        version: git+https://github.com/ArsyBelovedLabs/moonwitness-frontend-platform.git#11e2a05d6684b94f48a9b4d61b3642ad1804560a(react@19.2.8)
+        specifier: 0.3.2
+        version: 0.3.2(react@19.2.8)
       '@tailwindcss/vite':
         specifier: 4.3.3
         version: 4.3.3(vite@8.2.2(jiti@2.7.0))
@@ -60,17 +57,8 @@ importers:
 
 packages:
 
-  '@arsybelovedlabs/moonwitness-design-system@https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/b18c637383ee521fcad0d6e78c5008c9a0638e21':
-    resolution: {gitHosted: true, integrity: sha512-hrqK1pune1EXOICug1VXHVMHcCT86SpTor5oB6yGUaT86zz9S0rpUqbjohklBeW+wAWR8HvxbNTKvn9Lr84Eqw==, tarball: https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/b18c637383ee521fcad0d6e78c5008c9a0638e21}
-    version: 0.3.0
-    engines: {node: 24.20.0, pnpm: 11.24.0}
-    peerDependencies:
-      react: '>=19'
-      react-dom: '>=19'
-
-  '@arsybelovedlabs/moonwitness-frontend-platform@git+https://github.com/ArsyBelovedLabs/moonwitness-frontend-platform.git#11e2a05d6684b94f48a9b4d61b3642ad1804560a':
-    resolution: {commit: 11e2a05d6684b94f48a9b4d61b3642ad1804560a, repo: https://github.com/ArsyBelovedLabs/moonwitness-frontend-platform.git, type: git}
-    version: 0.2.0
+  '@arsybelovedlabs/moonwitness-frontend-platform@0.3.2':
+    resolution: {integrity: sha512-mskPBgkHiXKuHXWZqHIfiAhqWHRZuPJ7M7EYFgYBUTkrTLTpGZArbcPOzK/kXcv3H9AjYx3WD/KIrL4Ymi3q7A==, tarball: https://npm.pkg.github.com/download/@arsybelovedlabs/moonwitness-frontend-platform/0.3.2/a59a9f41ccfd80537bd9551f19a956f9f097ca1c}
     engines: {node: 24.20.0, pnpm: 11.24.0}
     peerDependencies:
       react: ^18.2.0 || ^19.0.0
@@ -2580,12 +2568,7 @@ packages:
 
 snapshots:
 
-  '@arsybelovedlabs/moonwitness-design-system@https://codeload.github.com/ArsyBelovedLabs/moonwitness-design-system/tar.gz/b18c637383ee521fcad0d6e78c5008c9a0638e21(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
-    dependencies:
-      react: 19.2.8
-      react-dom: 19.2.8(react@19.2.8)
-
-  '@arsybelovedlabs/moonwitness-frontend-platform@git+https://github.com/ArsyBelovedLabs/moonwitness-frontend-platform.git#11e2a05d6684b94f48a9b4d61b3642ad1804560a(react@19.2.8)':
+  '@arsybelovedlabs/moonwitness-frontend-platform@0.3.2(react@19.2.8)':
     dependencies:
       react: 19.2.8
 
