@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client"
 import { ApplicationShell, MoonWitnessProvider } from "@arsybelovedlabs/moonwitness-design-system"
 import "@arsybelovedlabs/moonwitness-design-system/styles.css"
 import App from "./ResearchInstrument.jsx"
+import SharedInstrumentLayer from "./SharedInstrumentLayer.jsx"
 import "./where-myth-dashboard.css"
 import "./research-instrument.css"
 import "./myth-design-system.css"
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           </div>
         }
       >
+        <SharedInstrumentLayer />
         <App />
       </ApplicationShell>
     </MoonWitnessProvider>
