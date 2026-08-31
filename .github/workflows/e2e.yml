@@ -20,27 +20,19 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 24.20.0
           registry-url: https://npm.pkg.github.com
           scope: '@arsybelovedlabs'
       - name: Enable Corepack
         run: corepack enable
       - name: Audit frozen visual contract
         run: node qa/visual-contract-audit.mjs
-      - name: Resolve canonical package and refresh lockfile
+      - name: Install frozen dependencies
         env:
           NODE_AUTH_TOKEN: ${{ secrets.MOONWITNESS_PACKAGES_TOKEN || secrets.NPM_TOKEN || secrets.GH_PACKAGES_TOKEN || secrets.PACKAGES_TOKEN || github.token }}
-        run: pnpm install --no-frozen-lockfile
-      - name: Show registry lockfile delta
-        run: git diff -- pnpm-lock.yaml
+        run: pnpm install --frozen-lockfile
       - name: Verify production build
         run: pnpm build
-      - name: Upload resolved lockfile evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: registry-lockfile
-          path: pnpm-lock.yaml
-          if-no-files-found: error
       - name: Install Playwright for CI only
         run: npm install --no-save @playwright/test@latest
       - name: Install Chromium
