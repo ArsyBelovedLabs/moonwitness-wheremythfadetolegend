@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import {
-  ArchiveGate,
   CausalityGuardrail,
   CausalityLattice,
   ChronologyTrack,
@@ -100,6 +99,30 @@ const stageTone = stage => ({
   ANALYZED: 'active',
   PUBLISHED: 'success',
 }[stage] || 'neutral')
+
+const scrollBehavior = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+
+function SearchGate({ value, onChange, expanded, resultsId, trailing }) {
+  return <div className="mw-archive-gate">
+    <span className="mw-archive-gate__label">ARCHIVE GATE</span>
+    <div className="mw-archive-gate__field">
+      <span aria-hidden="true">⌁</span>
+      <input
+        type="search"
+        aria-label="ARCHIVE GATE"
+        role="combobox"
+        aria-expanded={expanded}
+        aria-controls={resultsId}
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
+        value={value}
+        placeholder="Search observation, location, actor, practice…"
+        onChange={event => onChange(event.target.value)}
+      />
+      {trailing}
+    </div>
+  </div>
+}
 
 export default function SharedInstrumentLayer() {
   const [route, setRoute] = useState(() => window.location.hash.slice(1) || 'report/2026-08')
@@ -399,14 +422,12 @@ export default function SharedInstrumentLayer() {
       />
 
       <div className="canonical-control-grid">
-        <div className="canonical-search-shell" aria-expanded={searchResults.length > 0} aria-controls="canonical-search-results">
-          <ArchiveGate
-            label="ARCHIVE GATE"
-            placeholder="Search observation, location, actor, practice…"
+        <div className="canonical-search-shell">
+          <SearchGate
             value={query}
             onChange={setQuery}
-            aria-expanded={searchResults.length > 0}
-            aria-controls="canonical-search-results"
+            expanded={searchResults.length > 0}
+            resultsId="canonical-search-results"
             trailing={
               <select
                 aria-label="Research month"
@@ -421,8 +442,7 @@ export default function SharedInstrumentLayer() {
               </select>
             }
           />
-          {searchResults.length
-            ? <div id="canonical-search-results" className="canonical-search-results" role="listbox" aria-label="Observation search results">
+          <div id="canonical-search-results" className="canonical-search-results" role="listbox" aria-label="Observation search results" hidden={!searchResults.length}>
                 {searchResults.map((item, index) => <button
                   type="button"
                   role="option"
@@ -431,7 +451,7 @@ export default function SharedInstrumentLayer() {
                   onClick={() => {
                     setQuery('')
                     window.location.hash = `report/${month.id}`
-                    setTimeout(() => document.querySelector('.observation-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120)
+                    setTimeout(() => document.querySelector('.observation-table')?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' }), 120)
                   }}
                 >
                   <span>{item.location || 'Unknown location'}</span>
@@ -439,7 +459,6 @@ export default function SharedInstrumentLayer() {
                   <small>{item.date || 'Undated'}{item.actor ? ` · ${item.actor}` : ''}</small>
                 </button>)}
               </div>
-            : null}
         </div>
 
         <InspectorDock title="RESEARCH STATE" eyebrow="LIVE REPOSITORY READ">

@@ -84,7 +84,7 @@ export default function App() {
       setRoute(nextRoute)
       setMenuOpen(false)
       if (nextMonth) setMonth(current => current?.id === nextMonth.id ? current : nextMonth)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      window.scrollTo({ top: 0, behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
     }
     addEventListener('hashchange', onHash)
     return () => removeEventListener('hashchange', onHash)
@@ -163,7 +163,7 @@ function PageTitle({code,title,subtitle,children}) { return <div className="page
 function ScoreBadge({value,compact=false}) { const band=scoreBand(value); return <span className={`score-badge ${band} ${compact?'compact':''}`}><i/>{value}{compact?'':'/100'}<small>{BAND[band].label}</small></span> }
 function EvidenceBadge({value}) { return <span className={`evidence-badge ${evidenceTone(value)}`}><ShieldCheck size={13}/>{value}</span> }
 function Empty({title='No published rows yet',text='This month is still collecting candidate signals.'}) { return <div className="research-empty"><Radio size={22}/><strong>{title}</strong><span>{text}</span></div> }
-function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'})}
+function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',block:'start'})}
 
 function UnifiedReport({month,report,observations,issues,evidence,revelation,disasters,relationRows}) {
   const sections=[['overview','Overview'],['observations','Observations'],['tauhid','Tauhid Gap'],['spread','Spread Map'],['disasters','Disasters'],['correlation-report','Correlation'],['evidence-report','Evidence'],['revelation-report','Revelation']]
