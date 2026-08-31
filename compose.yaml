@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      secrets:
+        - npm_token
     image: moonwitness/wheremythfadetolegend:local
     init: true
     restart: unless-stopped
@@ -22,3 +24,7 @@ services:
       retries: 3
     security_opt:
       - no-new-privileges:true
+
+secrets:
+  npm_token:
+    environment: NODE_AUTH_TOKEN
