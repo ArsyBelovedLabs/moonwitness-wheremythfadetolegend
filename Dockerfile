@@ -1,17 +1,24 @@
-FROM node:24-alpine AS build
+# syntax=docker/dockerfile:1.7
+FROM node:24.20.0-alpine AS build
 WORKDIR /app
 
-RUN apk add --no-cache git openssh-client \
-  && git config --global url."https://github.com/".insteadOf ssh://git@github.com/ \
-  && git config --global url."https://github.com/".insteadOf git@github.com:
+RUN corepack enable
 
-COPY package.json ./
-RUN npm install --no-audit --no-fund
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=secret,id=npm_token \
+  set -eu; \
+  TOKEN="$(cat /run/secrets/npm_token)"; \
+  printf '%s\n' \
+    '@arsybelovedlabs:registry=https://npm.pkg.github.com' \
+    "//npm.pkg.github.com/:_authToken=${TOKEN}" \
+    'always-auth=true' > /tmp/moonwitness-npmrc; \
+  NPM_CONFIG_USERCONFIG=/tmp/moonwitness-npmrc pnpm install --no-frozen-lockfile; \
+  rm -f /tmp/moonwitness-npmrc
 
 COPY . .
-RUN npm run build
+RUN pnpm build
 
-FROM node:24-alpine AS runtime
+FROM node:24.20.0-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
