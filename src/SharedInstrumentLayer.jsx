@@ -80,6 +80,15 @@ const dateValue = value => {
   return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER
 }
 
+const workflowStages = ['DISCOVERED', 'SOURCE_CHECK', 'VERIFIED', 'ANALYZED', 'PUBLISHED']
+const stageTone = stage => ({
+  DISCOVERED: 'active',
+  SOURCE_CHECK: 'warning',
+  VERIFIED: 'success',
+  ANALYZED: 'active',
+  PUBLISHED: 'success',
+}[stage] || 'neutral')
+
 export default function SharedInstrumentLayer() {
   const [route, setRoute] = useState(() => window.location.hash.slice(1) || 'report/2026-08')
   const [selectedMonthId, setSelectedMonthId] = useState(() => window.location.hash.match(/report\/(\d{4}-\d{2})/)?.[1] || '2026-08')
@@ -144,6 +153,18 @@ export default function SharedInstrumentLayer() {
     const observations = report?.observations || []
     const reviewed = correlations?.reviews || []
     const causal = kpiScore(report)
+    const observationPoints = (geography?.observations || []).map(item => {
+      const projected = item?.geography?.map_enabled ? projectIndonesia(item.geography) : null
+      return projected
+        ? {
+            id: item.id || `${item.match?.location || 'observation'}-${item.match?.practice || 'row'}`,
+            ...projected,
+            label: `${item.match?.location || 'Unknown locality'} · ${item.match?.practice || 'Observation'}`,
+            tone: 'active',
+            size: 11,
+          }
+        : null
+    }).filter(Boolean)
     const disasterPoints = (disasters?.events || []).map(event => {
       const projected = projectIndonesia(event.coordinates)
       return projected
@@ -162,8 +183,8 @@ export default function SharedInstrumentLayer() {
         <MapRift title={`${month.label.toUpperCase()} / DISASTER CONTEXT`} points={disasterPoints} />
         <div className="shared-instrument-side">
           <SignalBeacon tone="warning" label="INDEPENDENT DATASET" />
-          <ObservationShard eyebrow="MAP CONTRACT" title={`${disasterPoints.length} mapped events`} tone="warning">
-            Disaster events are independently sourced. Observation overlays are contextual only.
+          <ObservationShard eyebrow="MAP CONTRACT" title={`${disasterPoints.length} mapped events`} meta={`${disasters?.events?.length || 0} independent rows`} tone="warning">
+            Disaster events are independently sourced. Observation overlays are contextual only; no ritual-to-disaster relation is inferred by the map.
           </ObservationShard>
           <CausalityGuardrail />
         </div>
@@ -252,21 +273,22 @@ export default function SharedInstrumentLayer() {
 
     if (root === 'pipeline') {
       const rows = candidates?.candidates || []
-      const steps = rows.slice(0, 5).map((item, index) => ({
-        id: item.id || `candidate-${index}`,
-        label: item.title || item.signal || `Candidate ${index + 1}`,
-        detail: item.status || 'DISCOVERED',
-        tone: item.status === 'VERIFIED' ? 'success' : 'active',
-        state: item.status === 'VERIFIED' ? 'complete' : 'active',
-      }))
-      const workflow = steps.length ? steps : [
-        { id: 'discover', label: 'DISCOVERED', detail: 'candidate intake', state: 'idle' },
-        { id: 'source', label: 'SOURCE_CHECK', detail: 'provenance gate', state: 'idle' },
-        { id: 'verify', label: 'VERIFIED', detail: 'evidence threshold', state: 'idle' },
-        { id: 'analyze', label: 'ANALYZED', detail: 'methodology review', state: 'idle' },
-        { id: 'publish', label: 'PUBLISHED', detail: 'public truth boundary', state: 'idle' },
-      ]
-      return <div className="shared-instrument-single"><WitnessThread steps={workflow} /></div>
+      const workflow = workflowStages.map((stage, index) => {
+        const count = rows.filter(item => item.status === stage).length
+        return {
+          id: stage,
+          label: stage,
+          detail: `${count} ${count === 1 ? 'record' : 'records'}`,
+          tone: stageTone(stage),
+          state: count > 0 ? 'complete' : index === 0 && rows.length === 0 ? 'active' : 'idle',
+        }
+      })
+      return <div className="shared-instrument-single">
+        <WitnessThread steps={workflow} />
+        <ObservationShard eyebrow="PIPELINE CONTRACT" title="DISCOVERY IS NOT PUBLICATION" meta={`${rows.length} candidate signal${rows.length === 1 ? '' : 's'} in the selected month`} tone="warning">
+          Automated monitoring may create DISCOVERED candidates only. Source checking, verification and analysis remain explicit gates before publication.
+        </ObservationShard>
+      </div>
     }
 
     if (root === 'review') {
@@ -289,14 +311,18 @@ export default function SharedInstrumentLayer() {
     }
 
     if (root === 'spread-map') {
-      const mapped = (geography?.observations || []).filter(item => item?.geography?.map_enabled).length
-      return <div className="shared-instrument-single">
-        <MetricRail items={[
-          { label: 'OBSERVATIONS', value: observations.length, detail: 'published', tone: 'active' },
-          { label: 'MAPPED', value: mapped, detail: 'repository coordinates', tone: 'success' },
-          { label: 'MODE', value: 'SPREAD', detail: 'context layer' },
-          { label: 'CAUSALITY', value: 'SEPARATE', detail: 'not inferred', tone: 'warning' },
-        ]} />
+      return <div className="shared-instrument-grid is-map">
+        <MapRift title={`${month.label.toUpperCase()} / OBSERVATION GEOGRAPHY`} points={observationPoints} />
+        <div className="shared-instrument-side">
+          <SignalBeacon tone="success" label="REPOSITORY COORDINATES" />
+          <MetricRail items={[
+            { label: 'OBSERVATIONS', value: observations.length, detail: 'published', tone: 'active' },
+            { label: 'MAPPED', value: observationPoints.length, detail: 'repository coordinates', tone: 'success' },
+            { label: 'MODE', value: 'SPREAD', detail: 'context layer' },
+            { label: 'CAUSALITY', value: 'SEPARATE', detail: 'not inferred', tone: 'warning' },
+          ]} />
+          <CausalityGuardrail />
+        </div>
       </div>
     }
 
