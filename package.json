@@ -10,7 +10,7 @@
     "check": "vite build"
   },
   "dependencies": {
-    "@arsybelovedlabs/moonwitness-design-system": "github:ArsyBelovedLabs/moonwitness-design-system#7d4219c732f99909855fd070ee301574f06e69b0",
+    "@arsybelovedlabs/moonwitness-design-system": "github:ArsyBelovedLabs/moonwitness-design-system#467ba94",
     "@tailwindcss/vite": "latest",
     "@vitejs/plugin-react": "latest",
     "class-variance-authority": "latest",

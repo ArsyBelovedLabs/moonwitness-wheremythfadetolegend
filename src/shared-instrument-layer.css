@@ -20,7 +20,8 @@
 .canonical-search-results{position:absolute;left:0;right:0;top:calc(100% + 6px);display:grid;max-height:390px;overflow:auto;border:1px solid color-mix(in srgb,var(--mw-accent-secondary) 32%,#1c252c);background:rgba(5,8,10,.985);box-shadow:0 26px 70px rgba(0,0,0,.48)}
 .canonical-search-results button{display:grid;grid-template-columns:minmax(110px,.7fr) minmax(180px,1.6fr) auto;gap:12px;align-items:center;border:0;border-bottom:1px solid color-mix(in srgb,var(--mw-accent-secondary) 12%,transparent);background:transparent;color:var(--mw-text-primary);text-align:left;padding:11px 13px;cursor:pointer}
 .canonical-search-results button:hover,.canonical-search-results button:focus-visible{background:color-mix(in srgb,var(--mw-accent-primary) 10%,transparent);outline:1px solid var(--mw-focus-ring)}
-.canonical-search-results span,.canonical-search-results small{font:700 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--mw-text-muted)}
+.canonical-search-results span,.canonical-search-results small{font:700 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:#aab5ae}
+.canonical-route-shell .mw-provenance-item em,.canonical-route-shell .mw-chronology-point time,.canonical-route-shell .mw-chronology-point small,.canonical-route-shell .mw-inspector-dock__body{color:#aab5ae}
 .canonical-search-results strong{font-size:11px}
 .shared-instrument-layer{position:relative;z-index:2;margin:0;padding:16px;border:1px solid color-mix(in srgb,var(--mw-accent-secondary) 28%,#202830);background:linear-gradient(180deg,rgba(8,11,14,.94),rgba(5,7,9,.92));box-shadow:0 20px 60px rgba(0,0,0,.28);clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))}
 .shared-instrument-layer:before{content:"";position:absolute;left:0;top:0;width:110px;height:2px;background:linear-gradient(90deg,var(--mw-accent-primary),var(--mw-accent-secondary),transparent)}

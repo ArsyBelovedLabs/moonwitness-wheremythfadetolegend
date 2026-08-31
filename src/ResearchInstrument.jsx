@@ -44,7 +44,7 @@ const reportRoute = month => `report/${month?.id || '2026-08'}`
 const observationKey = item => `${item.date}|${item.location}|${item.practice}`
 
 function enrichObservations(report, geography) {
-  const geoByMatch = new Map((geography?.observations || []).map(item => [`${item.match.date}|${item.match.location}|${item.match.practice}`, item]))
+  const geoByMatch = new Map((geography?.observations || []).map(item => [observationKey(item.match || {}), item]))
   return (report?.observations || []).map(item => {
     const meta = geoByMatch.get(observationKey(item))
     return {
@@ -76,10 +76,18 @@ export default function App() {
   const [query, setQuery] = useState('')
 
   useEffect(() => {
-    const onHash = () => { setRoute(window.location.hash.slice(1) || 'report/2026-08'); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+    const onHash = () => {
+      const nextRoute = window.location.hash.slice(1) || 'report/2026-08'
+      const nextMonthId = nextRoute.match(/report\/(\d{4}-\d{2})/)?.[1]
+      const nextMonth = registry.months.find(item => item.id === nextMonthId)
+      setRoute(nextRoute)
+      setMenuOpen(false)
+      if (nextMonth) setMonth(current => current?.id === nextMonth.id ? current : nextMonth)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
     addEventListener('hashchange', onHash)
     return () => removeEventListener('hashchange', onHash)
-  }, [])
+  }, [registry.months])
 
   useEffect(() => {
     get('data/index.json').then(data => {
@@ -145,7 +153,7 @@ export default function App() {
         {root==='pipeline'&&<PipelinePage month={month} candidates={candidates.candidates||[]}/>} 
         {!NAV.some(([key])=>key===root)&&<UnifiedReport month={month} report={report} observations={observations} issues={issues} evidence={evidence} revelation={revelation} disasters={disasters} relationRows={relationRows}/>} 
       </div>
-      <footer className="wm-footer"><div><strong>WHERE MYTH FADE TO LEGEND</strong><span>MoonWitness submodule · counter-mythos observatory</span></div><div className="footer-doctrine">OBSERVE • VERIFY • CLARIFY • PURIFY</div><div className="footer-guardrail">Proximity ≠ causality. Practices are reviewed separately from people or communities.</div></footer>
+      <footer className="wm-footer"><div><strong>WHERE MYTH FADE TO LEGEND</strong><span>MoonWitness submodule · counter-mythos observatory</span></div><div className="footer-doctrine">OBSERVE • VERIFY • CLARIFY • PURIFY</div><div className="footer-guardrail">Temporal/geographic proximity does not establish causation. Practices are reviewed separately from people or communities.</div></footer>
     </main>
   </div>
 }
@@ -215,7 +223,7 @@ function DisasterMapPage({month,observations,disasters}) {
 function DisasterCards({events}){if(!events.length)return <Empty title="No disaster rows yet"/>;return <div className="disaster-card-grid">{events.map(item=><article key={item.id} className={item.type}><span>{item.id}</span><strong>{item.location}</strong><b>{item.label}</b><p>{item.natural_or_human_cause}</p><a href={item.source?.url} target="_blank" rel="noreferrer">{item.source?.publisher} <ArrowUpRight size={12}/></a></article>)}</div>}
 function DisasterRegister({events}){if(!events.length)return <Empty title="No disaster events published yet"/>;return <section className="section-panel compact-table-panel"><div className="section-heading"><div><span>DISASTER REGISTER</span><strong>{events.length} independently sourced events</strong></div></div><div className="data-table-wrap"><table className="data-table"><thead><tr><th>ID</th><th>Date</th><th>Location</th><th>Type</th><th>Evidence</th><th>Causality</th><th>Cause / mechanism</th><th>Source</th></tr></thead><tbody>{events.map(item=><tr key={item.id}><td><strong>{item.id}</strong></td><td>{item.date_start?.slice(0,10)}</td><td><strong>{item.location}</strong><small>{item.admin_area}</small></td><td><span className={`disaster-chip ${item.type}`}>{item.type==='wildfire'?<Flame size={14}/>:item.type==='earthquake'?<Radio size={14}/>:<Waves size={14}/>} {item.label}</span></td><td><EvidenceBadge value={item.evidence_score}/></td><td><span className="causal-score large">{item.causality?.score}</span></td><td>{item.natural_or_human_cause}</td><td><a className="source-link cyan" href={item.source?.url} target="_blank" rel="noreferrer">{item.source?.publisher} <ArrowUpRight size={12}/></a></td></tr>)}</tbody></table></div></section>}
 
-function CorrelationPage({month,rows}) { return <section><PageTitle code="04 / 08" title={`${month.label} — Correlation / Timeline Engine`} subtitle="The engine detects temporal and geographic proximity, then keeps that score separate from reviewed causality. Automatic rows are discovery aids only."/><div className="engine-flow"><span>MYTHOS</span><i>→</i><span>RITUAL</span><i>→</i><span>MEDIA</span><i>→</i><span>DISASTER</span><i>→</i><span>ΔT + DISTANCE</span><i>→</i><strong>CAUSALITY REVIEW</strong></div><CorrelationTable rows={rows}/></section> }
+function CorrelationPage({month,rows}) { return <section><PageTitle code="04 / 08" title={`${month.label} — Correlation / Timeline Engine`} subtitle="The engine detects temporal and geographic proximity, then keeps that score separate from reviewed causality. Temporal/geographic proximity does not establish causation."/><div className="engine-flow"><span>MYTHOS</span><i>→</i><span>RITUAL</span><i>→</i><span>MEDIA</span><i>→</i><span>DISASTER</span><i>→</i><span>ΔT + DISTANCE</span><i>→</i><strong>CAUSALITY REVIEW</strong></div><CorrelationTable rows={rows}/></section> }
 function CorrelationTable({rows}){if(!rows.length)return <Empty title="No correlation rows yet" text="Reviewed relations appear only after independent observation and disaster data exist."/>;return <section className="section-panel correlation-panel"><div className="section-heading"><div><span>CORRELATION REGISTER</span><strong>{rows.length} reviewed + proximity-only rows</strong></div></div><div className="data-table-wrap"><table className="data-table correlation-table"><thead><tr><th>State</th><th>Relation</th><th>ΔT</th><th>Distance</th><th>Proximity</th><th>Causality</th><th>Finding / guardrail</th></tr></thead><tbody>{rows.map(row=><tr key={row.id} className={row.kind}><td><span className={`relation-state ${row.kind}`}>{row.kind==='reviewed'?'REVIEWED':'AUTO ONLY'}</span></td><td><strong>{row.relation}</strong><small>{row.status}</small></td><td>{row.deltaHours==null?'—':`${row.deltaHours} h`}</td><td>{row.distanceKm==null?'—':`${row.distanceKm} km`}</td><td><span className={`proximity-chip ${proximityBand(row.proximityScore)}`}>{row.proximityScore}/100</span></td><td>{row.causalityScore==null?<span className="unreviewed">UNREVIEWED</span>:<span className="causal-score large">{row.causalityScore}</span>}</td><td><strong>{row.finding}</strong><small>{row.guardrail}</small>{row.competingExplanations?.length>0&&<ul>{row.competingExplanations.slice(0,3).map(x=><li key={x}>{x}</li>)}</ul>}</td></tr>)}</tbody></table></div></section>}
 
 function ReviewPage({month,report,issues,observations}) { return <section><PageTitle code="05 / 08" title={`${month.label} — Tauhid Review`} subtitle="Color-coded practice-level review. High Tauhid Gap flags a practice for clarification; it is not a judgment on a religion, ethnicity or community."/><GapOverview report={report} observations={observations}/>{issues.length?<section className="section-panel issue-register"><div className="section-heading"><div><span>TAUHID ISSUE REGISTER</span><strong>{issues.length} rows</strong></div></div><div className="data-table-wrap"><table className="data-table review-table"><thead><tr><th>ID</th><th>Priority</th><th>Target</th><th>Issue</th><th>Status</th><th>Resolution</th></tr></thead><tbody>{issues.map(item=><tr key={item.id}><td><strong>{item.id}</strong></td><td><span className={`priority-chip ${priorityBand(item.priority)}`}><AlertTriangle size={13}/>{item.priority}</span></td><td>{item.target}</td><td className="issue-cell">{item.issue}</td><td>{item.status}</td><td className="resolution-cell">{item.resolution}</td></tr>)}</tbody></table></div></section>:<Empty title="No issues published yet"/>}</section> }

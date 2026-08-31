@@ -77,7 +77,7 @@ export function buildCorrelationRows(observations, disasterEvents, reviews = [])
       causalityScore: review.repository_causality_score,
       competingExplanations: review.competing_explanations || [],
       finding: review.finding,
-      guardrail: 'Reviewed repository relation. Proximity and causality remain separate scores.',
+      guardrail: 'Reviewed repository relation. Temporal/geographic proximity does not establish causation.',
     }
   })
 
@@ -105,7 +105,7 @@ export function buildCorrelationRows(observations, disasterEvents, reviews = [])
         causalityScore: null,
         competingExplanations: [],
         finding: 'Temporal/geographic proximity detected automatically. This row has not been reviewed for causality.',
-        guardrail: 'AUTO_PROXIMITY_ONLY is a discovery aid, never a causal conclusion.',
+        guardrail: 'AUTO_PROXIMITY_ONLY is a discovery aid. Temporal/geographic proximity does not establish causation.',
       })
     }
   }
