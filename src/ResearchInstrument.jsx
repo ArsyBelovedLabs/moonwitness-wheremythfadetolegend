@@ -204,7 +204,7 @@ function LeafletMap({observations=[],disasters=[],mode='spread'}) {
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd',attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(map)
     observations.filter(x=>x._geo?.map_enabled).forEach((item,index)=>{const color=BAND[scoreBand(item.tauhid_gap)].color;const jitter=(index%3-1)*0.025;const coords=[item._geo.lat+jitter,item._geo.lon+jitter];L.circleMarker(coords,{radius:mode==='disaster'?4:7,weight:2,color,fillColor:color,fillOpacity:mode==='disaster'?.2:.75,opacity:mode==='disaster'?.38:.95}).bindTooltip(`<strong>${item.location}</strong><br/>${item.practice}<br/>Tauhid Gap ${item.tauhid_gap}`).addTo(map)})
     disasters.filter(x=>x.coordinates).forEach(item=>{const glyph=item.type==='wildfire'?'🔥':item.type==='earthquake'?'⌁':'≋';L.marker([item.coordinates.lat,item.coordinates.lon],{icon:L.divIcon({className:`disaster-marker ${item.type}`,html:`<span>${glyph}</span>`,iconSize:[42,42],iconAnchor:[21,21]})}).bindTooltip(`<strong>${item.location}</strong><br/>${item.label}<br/>Causality ${item.causality?.score ?? '—'}/100`).addTo(map)})
-    setTimeout(()=>map.invalidateSize(),80);return()=>{map.remove();mapRef.current=null}
+    const resizeTimer=window.setTimeout(()=>{if(mapRef.current===map&&ref.current)map.invalidateSize()},80);return()=>{window.clearTimeout(resizeTimer);map.remove();mapRef.current=null}
   },[observations,disasters,mode])
   return <div ref={ref} className="leaflet-stage"/>
 }

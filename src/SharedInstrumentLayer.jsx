@@ -102,6 +102,55 @@ const stageTone = stage => ({
 
 const scrollBehavior = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
 
+const REPORT_SURFACES = [
+  { id: 'spread-map', code: '02', label: 'Spread Map', meta: 'repository geography', key: 'observations' },
+  { id: 'disaster-map', code: '03', label: 'Disaster Map', meta: 'independent context', key: 'disasters' },
+  { id: 'correlation', code: '04', label: 'Correlation', meta: 'proximity ≠ causation', key: 'reviewed' },
+  { id: 'review', code: '05', label: 'Tauhid Review', meta: 'practice-level flags', key: 'issues' },
+  { id: 'evidence', code: '06', label: 'Evidence', meta: 'source provenance', key: 'evidence' },
+  { id: 'revelation', code: '07', label: 'Revelation Lens', meta: 'four exact lenses', key: 'lenses' },
+  { id: 'pipeline', code: '08', label: 'Candidate Pipeline', meta: 'collect → verify', key: 'candidates' },
+]
+
+function ReportSurfaceDeck({ go, observations, disasters, reviewed, issues, evidence, revelation, candidates }) {
+  const values = {
+    observations: observations.length,
+    disasters: disasters?.events?.length || 0,
+    reviewed: reviewed.length,
+    issues: issues.length,
+    evidence: evidence.length,
+    lenses: ['Q', 'I', 'T', 'Z'].filter(key => (revelation?.traditions || []).some(item => item.key === key)).length,
+    candidates: candidates?.candidates?.length || 0,
+  }
+
+  return <section className="report-surface-deck" aria-label="Monthly report surface index">
+    <div className="report-surface-deck__heading">
+      <div>
+        <span>REPORT SURFACE INDEX</span>
+        <strong>Choose a research instrument</strong>
+      </div>
+      <small>Seven linked views · one repository state</small>
+    </div>
+    <div className="report-surface-deck__grid">
+      {REPORT_SURFACES.map(surface => <button
+        type="button"
+        className={`report-surface-card is-${surface.id}`}
+        key={surface.id}
+        onClick={() => go(surface.id)}
+        aria-label={`${surface.label}: ${surface.meta}`}
+      >
+        <span className="report-surface-card__code">{surface.code}</span>
+        <span className="report-surface-card__copy">
+          <strong>{surface.label}</strong>
+          <small>{surface.meta}</small>
+        </span>
+        <b>{values[surface.key]}</b>
+        <i aria-hidden="true">↗</i>
+      </button>)}
+    </div>
+  </section>
+}
+
 function SearchGate({ value, onChange, expanded, resultsId, trailing }) {
   return <div className="mw-archive-gate">
     <span className="mw-archive-gate__label">ARCHIVE GATE</span>
@@ -370,6 +419,43 @@ export default function SharedInstrumentLayer() {
       detail: item.note,
       tone: toneForKpi(item.label),
     }))
+    if (root === 'report') {
+      return <div className="shared-report-stack">
+        <div className="shared-instrument-grid is-report">
+          <TruthAperture score={causal} label="CAUSAL PROOF" detail="published KPI upper bound" tone="warning" />
+          <div className="shared-instrument-report">
+            <div className="report-readout">
+              <span>MONTHLY OBSERVATORY / {month.label.toUpperCase()}</span>
+              <strong>One auditable surface for the current field register.</strong>
+              <small>Evidence, geography, disaster context and review remain separate by contract.</small>
+            </div>
+            <MetricRail items={kpis.length ? kpis : [
+              { label: 'OBSERVATIONS', value: observations.length, detail: 'published', tone: 'active' },
+              { label: 'EVIDENCE', value: evidence.length, detail: 'sources', tone: 'success' },
+              { label: 'DISASTERS', value: disasters?.events?.length || 0, detail: 'independent context', tone: 'warning' },
+              { label: 'REVIEWED', value: reviewed.length, detail: 'relations' },
+            ]} />
+            <CausalityGuardrail />
+          </div>
+        </div>
+        <ReportSurfaceDeck
+          go={go}
+          observations={observations}
+          disasters={disasters}
+          reviewed={reviewed}
+          issues={issues}
+          evidence={evidence}
+          revelation={revelation}
+          candidates={candidates}
+        />
+        <MetricRail items={[
+          { label: 'OBSERVATIONS', value: observations.length, detail: 'published rows', tone: 'active' },
+          { label: 'EVIDENCE', value: evidence.length, detail: 'source rows', tone: 'success' },
+          { label: 'DISASTERS', value: disasters?.events?.length || 0, detail: 'independent context', tone: 'warning' },
+          { label: 'REVIEWED', value: reviewed.length, detail: 'causality relations' },
+        ]} />
+      </div>
+    }
     return <div className="shared-report-stack">
       <div className="shared-instrument-grid is-report">
         <TruthAperture score={causal} label="CAUSAL PROOF" detail="published KPI upper bound" tone="warning" />
