@@ -13,6 +13,17 @@ test('unified August report renders the frozen repository ledger', async ({ page
   await expect(page.locator('.report-section-nav')).toContainText('Correlation')
 })
 
+test('canonical MoonWitness chrome is the visible navigation and search surface', async ({ page }) => {
+  await page.goto('/#report/2026-08')
+  await expect(page.locator('.canonical-mission-shell')).toBeVisible()
+  await expect(page.locator('.canonical-route-shell')).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Mission navigation' })).toContainText('Correlation Engine')
+  await expect(page.getByLabel('ARCHIVE GATE')).toBeVisible()
+  await expect(page.locator('.canonical-route-shell h1')).toContainText('August 2026 — Observatory Report')
+  await expect(page.locator('.research-app > .wm-sidebar')).toBeHidden()
+  await expect(page.locator('.mw-causality-guardrail')).toContainText('Temporal/geographic proximity does not establish causation.')
+})
+
 test('observation geography comes from repository metadata', async ({ page }) => {
   await page.goto('/#spread-map')
   await expect(page.locator('.page-title')).toContainText('August 2026 — Mythos Spread Map')
@@ -43,6 +54,7 @@ test('correlation engine distinguishes proximity from reviewed causality', async
   await expect(page.locator('.correlation-table')).toContainText('Chiong Si Ku')
   await expect(page.locator('.relation-state.reviewed').first()).toBeVisible()
   await expect(page.locator('.correlation-table')).toContainText('REVIEWED_NO_CAUSAL_LINK')
+  await expect(page.locator('.mw-chronology-track')).toBeVisible()
 })
 
 test('Tauhid Gap is color coded and issue register is complete', async ({ page }) => {
@@ -52,18 +64,21 @@ test('Tauhid Gap is color coded and issue register is complete', async ({ page }
   await expect(page.locator('.review-table')).toContainText('TAU-01')
   await expect(page.locator('.review-table')).toContainText('TAU-12')
   await expect(page.locator('.priority-chip.critical')).toContainText('CRITICAL')
+  await expect(page.locator('.canonical-route-shell')).toContainText('PRACTICE-LEVEL REVIEW')
 })
 
 test('evidence and Four Revelation routes remain repository-grounded', async ({ page }) => {
   await page.goto('/#evidence')
   await expect(page.locator('.evidence-ledger tbody tr')).toHaveCount(15)
   await expect(page.locator('body')).toContainText('BMKG — Total Solar Eclipse 12 August 2026')
+  await expect(page.locator('.mw-provenance-rail')).toBeVisible()
   await page.goto('/#revelation')
   await expect(page.locator('.revelation-row')).toHaveCount(4)
   await expect(page.locator('body')).toContainText("Al-Qur'an")
   await expect(page.locator('body')).toContainText('Injil / Gospel')
   await expect(page.locator('body')).toContainText('Taurat / Torah')
   await expect(page.locator('body')).toContainText('Zabur / Psalms')
+  await expect(page.locator('.mw-revelation-lens__item')).toHaveCount(4)
 })
 
 test('September starts as an empty collecting pipeline, not published truth', async ({ page }) => {
@@ -79,11 +94,13 @@ test('September starts as an empty collecting pipeline, not published truth', as
   await expect(page.locator('.pipeline-flow')).toContainText('ANALYZED')
   await expect(page.locator('.pipeline-flow')).toContainText('PUBLISHED')
   await expect(page.locator('body')).toContainText('No candidate signals yet')
+  await expect(page.locator('.mw-witness-thread')).toContainText('PUBLISHED')
 })
 
 test('mobile layout has no horizontal page overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#report/2026-08')
+  await expect(page.locator('.canonical-mission-shell')).toBeVisible()
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2)
   expect(overflow).toBeFalsy()
 })
