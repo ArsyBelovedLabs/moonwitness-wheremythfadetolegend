@@ -1,0 +1,16 @@
+.shared-instrument-layer{position:relative;z-index:2;margin:18px 22px 0;padding:16px;border:1px solid color-mix(in srgb,var(--mw-accent-secondary) 28%,#202830);background:linear-gradient(180deg,rgba(8,11,14,.94),rgba(5,7,9,.92));box-shadow:0 20px 60px rgba(0,0,0,.28);clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))}
+.shared-instrument-layer:before{content:"";position:absolute;left:0;top:0;width:110px;height:2px;background:linear-gradient(90deg,var(--mw-accent-primary),var(--mw-accent-secondary),transparent)}
+.shared-instrument-label{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid color-mix(in srgb,var(--mw-accent-secondary) 16%,#1b232b)}
+.shared-instrument-label>span{font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;color:var(--mw-accent-secondary)}
+.shared-instrument-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,.7fr);gap:16px;align-items:stretch}
+.shared-instrument-grid.is-report{grid-template-columns:minmax(280px,.7fr) minmax(0,1.8fr);align-items:center}
+.shared-instrument-grid.is-evidence{grid-template-columns:minmax(0,1.5fr) minmax(280px,.75fr)}
+.shared-instrument-grid.is-map{grid-template-columns:minmax(0,2fr) minmax(260px,.65fr)}
+.shared-instrument-grid.is-correlation{grid-template-columns:minmax(0,1.6fr) minmax(280px,.72fr)}
+.shared-instrument-side,.shared-instrument-report{display:grid;align-content:start;gap:12px}
+.shared-instrument-single{display:grid;gap:12px}
+.shared-instrument-layer .mw-map-rift__surface{min-height:300px}
+.shared-instrument-layer .mw-causality-lattice{min-height:310px}
+.shared-instrument-layer .mw-truth-aperture{min-height:260px}
+@media(max-width:980px){.shared-instrument-grid,.shared-instrument-grid.is-report,.shared-instrument-grid.is-evidence,.shared-instrument-grid.is-map,.shared-instrument-grid.is-correlation{grid-template-columns:1fr}.shared-instrument-layer{margin:14px 14px 0}}
+@media(max-width:600px){.shared-instrument-layer{margin:10px 8px 0;padding:11px}.shared-instrument-label{align-items:flex-start;flex-direction:column}.shared-instrument-layer .mw-truth-aperture{min-height:220px}}
