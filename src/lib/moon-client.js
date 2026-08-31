@@ -1,4 +1,4 @@
-const DEFAULT_API_URL = 'https://api.moonwitness-biz.id'
+const DEFAULT_API_URL = 'https://api.moonwitness.biz.id'
 
 export class MoonClientError extends Error {
   constructor(message, details = {}) {
