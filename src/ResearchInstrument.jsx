@@ -6,17 +6,9 @@ import {
   ShieldCheck, Sparkles, Waves, X, Zap, Workflow,
 } from 'lucide-react'
 import { buildCorrelationRows, proximityBand, workflowCounts, WORKFLOW } from './lib/correlation.js'
+import { createStaticDataAdapter, describeMonthSource } from './lib/static-data-adapter.js'
 
-const base = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '')
-const get = async (path, fallback) => {
-  if (!path) return fallback
-  const response = await fetch(`${base}/${path}`.replace(/([^:]\/)\/+/g, '$1'), { cache: 'no-store' })
-  if (!response.ok) {
-    if (fallback !== undefined) return fallback
-    throw new Error(`${path}: ${response.status}`)
-  }
-  return response.json()
-}
+const dataAdapter = createStaticDataAdapter()
 
 const NAV = [
   ['report', 'Monthly Report', FileSearch],
@@ -91,23 +83,19 @@ export default function App() {
   }, [registry.months])
 
   useEffect(() => {
-    get('data/index.json').then(data => {
+    dataAdapter.readRegistry().then(data => {
       setRegistry(data)
       const requested = window.location.hash.match(/report\/(\d{4}-\d{2})/)?.[1]
       setMonth(data.months?.find(x => x.id === requested) || data.months?.find(x => x.id === '2026-08') || data.months?.[0] || null)
     }).catch(console.error)
-    get('data/monitor/latest.json', null).then(setMonitor)
+    dataAdapter.readMonitor(null).then(setMonitor)
   }, [])
 
   useEffect(() => {
     if (!month) return
     setReport(null)
-    Promise.all([
-      get(month.path), get(month.issues, []), get(month.evidence, []), get(month.revelation, { traditions: [] }),
-      get(month.geography, { observations: [] }), get(month.disasters, { events: [], context_signals: [] }),
-      get(month.correlations, { reviews: [] }), get(month.candidates, { candidates: [] }),
-    ]).then(([a,b,c,d,e,f,g,h]) => {
-      setReport(a); setIssues(b); setEvidence(c); setRevelation(d); setGeography(e); setDisasters(f); setCorrelations(g); setCandidates(h)
+    dataAdapter.readMonth(month).then(({ report: nextReport, issues: nextIssues, evidence: nextEvidence, revelation: nextRevelation, geography: nextGeography, disasters: nextDisasters, correlations: nextCorrelations, candidates: nextCandidates }) => {
+      setReport(nextReport); setIssues(nextIssues); setEvidence(nextEvidence); setRevelation(nextRevelation); setGeography(nextGeography); setDisasters(nextDisasters); setCorrelations(nextCorrelations); setCandidates(nextCandidates)
     }).catch(console.error)
   }, [month])
 
@@ -120,6 +108,7 @@ export default function App() {
 
   if (!report) return <div className="wm-loading"><div className="loading-orbit"><Moon size={30}/><span>Synchronizing research instrument…</span></div></div>
   const root = routeRoot(route)
+  const source = describeMonthSource(month)
 
   return <div className="wm-app research-app">
     <div className="cosmic-noise"/>
@@ -129,7 +118,7 @@ export default function App() {
       <div className="brand-rule"/>
       <nav className="wm-nav">{NAV.map(([key,label,Icon],i)=><button key={key} className={root===key?'active':''} onClick={()=>go(key==='report'?reportRoute(month):key)}><span className="nav-index">{String(i+1).padStart(2,'0')}</span><Icon size={17}/><span>{label}</span><ChevronRight className="nav-arrow" size={14}/></button>)}</nav>
       <div className="sidebar-doctrine"><Sparkles size={16}/><div><strong>COUNTER-MYTHOS MISSION</strong><span>Observe patterns. Verify claims. Clarify context. Purify unsupported certainty.</span></div></div>
-      <div className="sidebar-status"><span className="pulse-dot"/><div><strong>{month.status==='collecting'?'COLLECTING':'REPOSITORY-GROUNDED'}</strong><small>{monitor?.status || 'Git-backed monthly archive'}</small></div></div>
+      <div className="sidebar-status"><span className="pulse-dot"/><div><strong>{source.label}</strong><small>{monitor?.status || source.detail}</small></div></div>
     </aside>
 
     <main className="wm-main">
@@ -139,7 +128,7 @@ export default function App() {
         <div className="top-actions">
           <div className="wm-search"><Search size={15}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search observation…" aria-label="Search observation"/>{searchResults.length>0&&<div className="search-popover">{searchResults.map(item=><button key={item._id} onClick={()=>{setQuery('');go(reportRoute(month))}}><span>{item.location}</span><b>{item.practice}</b><small>{item.date} · Gap {item.tauhid_gap}</small></button>)}</div>}</div>
           <select value={month.id} onChange={e=>{const next=registry.months.find(x=>x.id===e.target.value);setMonth(next);go(reportRoute(next))}}>{registry.months.map(item=><option key={item.id} value={item.id}>{item.label}{item.status==='collecting'?' · Collecting':''}</option>)}</select>
-          <div className="repo-chip"><CircleDot size={13}/>{month.status==='final'?'FINAL DATASET':'COLLECTING'}</div>
+          <div className="repo-chip"><CircleDot size={13}/>{source.label}</div>
         </div>
       </header>
 
@@ -167,8 +156,9 @@ function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:wi
 
 function UnifiedReport({month,report,observations,issues,evidence,revelation,disasters,relationRows}) {
   const sections=[['overview','Overview'],['observations','Observations'],['tauhid','Tauhid Gap'],['spread','Spread Map'],['disasters','Disasters'],['correlation-report','Correlation'],['evidence-report','Evidence'],['revelation-report','Revelation']]
+  const source = describeMonthSource(month)
   return <section>
-    <PageTitle code="PUBLIC MONTHLY REPORT" title={`${month.label} — Observatory Report`} subtitle="One auditable report surface: observations, geography, disaster context, Tauhid review, correlation, evidence and Four Revelation Lens."><div className="report-period"><CalendarDays size={18}/><span>DATA STATE</span><strong>{month.status.toUpperCase()}</strong></div></PageTitle>
+    <PageTitle code="PUBLIC MONTHLY REPORT" title={`${month.label} — Observatory Report`} subtitle="One auditable report surface: observations, geography, disaster context, Tauhid review, correlation, evidence and Four Revelation Lens."><div className="report-period"><CalendarDays size={18}/><span>DATA SOURCE</span><strong>{source.label}</strong></div></PageTitle>
     <div className="report-section-nav">{sections.map(([id,label])=><button key={id} onClick={()=>scrollToId(id)}>{label}</button>)}</div>
     <section id="overview" className="report-anchor"><Kpis report={report}/><div className="instrument-summary"><SummaryMetric label="Observations" value={observations.length}/><SummaryMetric label="Disasters" value={disasters.events?.length||0}/><SummaryMetric label="TAU issues" value={issues.length}/><SummaryMetric label="Evidence" value={evidence.length}/><SummaryMetric label="Reviewed relations" value={relationRows.filter(x=>x.kind==='reviewed').length}/></div></section>
     <section id="observations" className="report-anchor"><SectionTitle title="Observation Ledger" note={`${observations.length} published rows`}/><ObservationTable observations={observations}/></section>

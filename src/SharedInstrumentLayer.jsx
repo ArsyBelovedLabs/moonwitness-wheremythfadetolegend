@@ -16,18 +16,10 @@ import {
   TruthAperture,
   WitnessThread,
 } from '@arsybelovedlabs/moonwitness-design-system'
+import { createStaticDataAdapter, describeMonthSource } from './lib/static-data-adapter.js'
 import './shared-instrument-layer.css'
 
-const base = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '')
-const read = async (path, fallback) => {
-  if (!path) return fallback
-  try {
-    const response = await fetch(`${base}/${path}`.replace(/([^:]\/)\/+/g, '$1'), { cache: 'no-store' })
-    return response.ok ? response.json() : fallback
-  } catch {
-    return fallback
-  }
-}
+const dataAdapter = createStaticDataAdapter()
 
 const NAV = [
   { id: 'report', label: 'Monthly Report', meta: 'auditable ledger' },
@@ -193,22 +185,13 @@ export default function SharedInstrumentLayer() {
   useEffect(() => {
     let alive = true
     ;(async () => {
-      const registry = await read('data/index.json', { months: [] })
+      const registry = await dataAdapter.readRegistry()
       const month = registry.months?.find(item => item.id === selectedMonthId)
         || registry.months?.find(item => item.id === '2026-08')
         || registry.months?.[0]
       if (!month) return
-      const [report, issues, evidence, revelation, geography, disasters, correlations, candidates] = await Promise.all([
-        read(month.path, { kpis: [], observations: [] }),
-        read(month.issues, []),
-        read(month.evidence, []),
-        read(month.revelation, { traditions: [] }),
-        read(month.geography, { observations: [] }),
-        read(month.disasters, { events: [] }),
-        read(month.correlations, { reviews: [] }),
-        read(month.candidates, { candidates: [] }),
-      ])
-      if (alive) setState({ registry, month, report, issues, evidence, revelation, geography, disasters, correlations, candidates })
+      const bundle = await dataAdapter.readMonth(month)
+      if (alive) setState({ registry, month, ...bundle })
     })()
     return () => { alive = false }
   }, [selectedMonthId])
@@ -481,6 +464,7 @@ export default function SharedInstrumentLayer() {
   if (!state) return null
 
   const { registry, month, report, evidence, disasters, correlations } = state
+  const source = state.source || describeMonthSource(month)
   const observations = report?.observations || []
   const page = PAGE[root] || PAGE.report
   const title = `${month.label} — ${page[1]}`
@@ -494,7 +478,7 @@ export default function SharedInstrumentLayer() {
       </div>
       <MissionRail items={NAV} activeId={root} onSelect={go} />
       <div className="canonical-mission-foot">
-        <SignalBeacon tone={month.status === 'final' ? 'success' : 'warning'} label={month.status === 'final' ? 'ARCHIVE / FINAL' : 'DATA / COLLECTING'} />
+        <SignalBeacon tone={source.kind === 'historical' ? 'success' : 'warning'} label={source.label} />
         <small>OBSERVE • VERIFY • CLARIFY • PURIFY</small>
       </div>
     </aside>
@@ -504,7 +488,7 @@ export default function SharedInstrumentLayer() {
         code={page[0]}
         title={title}
         subtitle={page[2]}
-        status={<SignalBeacon tone={month.status === 'final' ? 'success' : 'warning'} label={month.status === 'final' ? 'REPOSITORY / GROUNDED' : 'COLLECTING'} />}
+        status={<SignalBeacon tone={source.kind === 'historical' ? 'success' : 'warning'} label={source.label} />}
       />
 
       <div className="canonical-control-grid">
@@ -547,7 +531,7 @@ export default function SharedInstrumentLayer() {
               </div>
         </div>
 
-        <InspectorDock title="RESEARCH STATE" eyebrow="LIVE REPOSITORY READ">
+        <InspectorDock title="RESEARCH STATE" eyebrow={`${source.storage.toUpperCase()} DATA / ${source.kind.toUpperCase()}`}>
           <InspectorRows rows={[
             { label: 'MONTH', value: month.label, tone: 'active' },
             { label: 'OBSERVATIONS', value: observations.length, tone: 'active' },
@@ -561,7 +545,7 @@ export default function SharedInstrumentLayer() {
       <div className="shared-instrument-layer" aria-label="MoonWitness shared design-system instrument">
         <div className="shared-instrument-label">
           <span>CANONICAL MOONWITNESS INSTRUMENT</span>
-          <SignalBeacon tone="success" label="SHARED UI / LIVE" />
+          <SignalBeacon tone={source.kind === 'historical' ? 'success' : 'warning'} label={`SHARED UI / ${source.label}`} />
         </div>
         {view}
       </div>
