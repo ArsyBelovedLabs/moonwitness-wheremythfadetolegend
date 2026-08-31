@@ -12,39 +12,36 @@ import {
   ObservationShard,
   ProvenanceRail,
   RevelationLens,
+  SearchResultList,
   SignalBeacon,
   TruthAperture,
   WitnessThread,
-} from '@arsybelovedlabs/moonwitness-design-system'
-import { SearchResultList } from '@arsybelovedlabs/moonwitness-frontend-platform'
+} from '@arsybelovedlabs/moonwitness-frontend-platform'
 import { createStaticDataAdapter, describeMonthSource } from './lib/static-data-adapter.js'
-import LiveResearchRun from './LiveResearchRun.jsx'
 import './shared-instrument-layer.css'
 
 const dataAdapter = createStaticDataAdapter()
 
 const NAV = [
-  { id: 'report', label: 'Monthly Report', meta: 'auditable ledger' },
+  { id: 'report', label: 'Monthly Report', meta: 'observatory home' },
   { id: 'spread-map', label: 'Spread Map', meta: 'observation geography' },
   { id: 'disaster-map', label: 'Disaster Map', meta: 'independent context' },
   { id: 'correlation', label: 'Correlation Engine', meta: 'proximity ≠ cause' },
-  { id: 'review', label: 'Tauhid Review', meta: 'practice-level only' },
+  { id: 'review', label: 'Practice-Level Review', meta: 'practice-level only' },
   { id: 'evidence', label: 'Evidence', meta: 'source provenance' },
-  { id: 'revelation', label: 'Revelation Lens', meta: 'four-source lens' },
+  { id: 'revelation', label: 'Four Revelation Lens', meta: 'exactly four lenses' },
   { id: 'pipeline', label: 'Candidate Pipeline', meta: 'collect → verify' },
-  { id: 'research-run', label: 'Live ResearchRun', meta: 'operational API' },
 ]
 
 const PAGE = {
-  report: ['01 / 08', 'Observatory Report', 'One auditable surface for observations, evidence, geography, disaster context and reviewed causality.'],
-  'spread-map': ['02 / 08', 'Mythos Spread Map', 'Repository-owned locality coordinates. Geography is context, not proof of causation.'],
-  'disaster-map': ['03 / 08', 'Disaster Map', 'Independent disaster rows stay separate from ritual and mythos observations.'],
-  correlation: ['04 / 08', 'Correlation / Timeline Engine', 'Temporal and geographic proximity are discovery aids; reviewed causality remains a separate field.'],
-  review: ['05 / 08', 'Tauhid Review', 'Practice-level clarification only; no religion, ethnicity, community or person is classified.'],
+  report: ['01 / 08', 'Monthly Report', 'Default Observatory Home Experience: one auditable surface for observations, evidence, geography, disaster context and reviewed causality.'],
+  'spread-map': ['02 / 08', 'Spread Map', 'Repository-owned observation geography. Geography is context, not proof of causation.'],
+  'disaster-map': ['03 / 08', 'Disaster Map', 'Independent disaster rows stay separate from observations and reviewed causality.'],
+  correlation: ['04 / 08', 'Correlation Engine', 'Temporal and geographic proximity are discovery aids; reviewed causality remains a separate field.'],
+  review: ['05 / 08', 'Practice-Level Review', 'Practice-level clarification only; no religion, ethnicity, community or person is classified.'],
   evidence: ['06 / 08', 'Evidence Ledger', 'Publisher, provenance and the claim being documented remain independently inspectable.'],
-  revelation: ['07 / 08', 'Four Revelation Lens', 'Al-Qur’an, Injil/Gospel, Taurat/Torah and Zabur/Psalms remain four distinct comparison lenses.'],
+  revelation: ['07 / 08', 'Four Revelation Lens', 'Al-Qur’an, Injil/Gospel, Taurat/Torah and Zabur/Psalms remain exactly four distinct comparison lenses.'],
   pipeline: ['08 / 08', 'Candidate Pipeline', 'Candidate signals remain unpublished until source checks, verification and analysis are complete.'],
-  'research-run': ['LIVE / 01', 'ResearchRun Operations', 'Operational API state is separate from the frozen historical observatory.'],
 }
 
 const rootOf = route => String(route || '').split('/')[0]
@@ -99,12 +96,12 @@ const stageTone = stage => ({
 const scrollBehavior = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
 
 const REPORT_SURFACES = [
-  { id: 'spread-map', code: '02', label: 'Spread Map', meta: 'repository geography', key: 'observations' },
+  { id: 'spread-map', code: '02', label: 'Spread Map', meta: 'observation geography', key: 'observations' },
   { id: 'disaster-map', code: '03', label: 'Disaster Map', meta: 'independent context', key: 'disasters' },
-  { id: 'correlation', code: '04', label: 'Correlation', meta: 'proximity ≠ causation', key: 'reviewed' },
-  { id: 'review', code: '05', label: 'Tauhid Review', meta: 'practice-level flags', key: 'issues' },
+  { id: 'correlation', code: '04', label: 'Correlation Engine', meta: 'proximity ≠ causation', key: 'reviewed' },
+  { id: 'review', code: '05', label: 'Practice-Level Review', meta: 'practice-level flags', key: 'issues' },
   { id: 'evidence', code: '06', label: 'Evidence', meta: 'source provenance', key: 'evidence' },
-  { id: 'revelation', code: '07', label: 'Revelation Lens', meta: 'four exact lenses', key: 'lenses' },
+  { id: 'revelation', code: '07', label: 'Four Revelation Lens', meta: 'exactly four lenses', key: 'lenses' },
   { id: 'pipeline', code: '08', label: 'Candidate Pipeline', meta: 'collect → verify', key: 'candidates' },
 ]
 
@@ -125,7 +122,7 @@ function ReportSurfaceDeck({ go, observations, disasters, reviewed, issues, evid
         <span>REPORT SURFACE INDEX</span>
         <strong>Choose a research instrument</strong>
       </div>
-      <small>Seven linked views · one repository state</small>
+      <small>Seven linked views · one frozen repository state</small>
     </div>
     <div className="report-surface-deck__grid">
       {REPORT_SURFACES.map(surface => <button
@@ -200,7 +197,8 @@ export default function SharedInstrumentLayer() {
     return () => { alive = false }
   }, [selectedMonthId])
 
-  const root = rootOf(route)
+  const routeRoot = rootOf(route)
+  const root = NAV.some(item => item.id === routeRoot) ? routeRoot : 'report'
   const go = id => {
     const target = id === 'report' ? `report/${state?.month?.id || selectedMonthId}` : id
     window.location.hash = target
@@ -378,7 +376,7 @@ export default function SharedInstrumentLayer() {
           { label: 'TOTAL', value: issues.length, detail: 'review rows', tone: 'active' },
           { label: 'SCOPE', value: 'PRACTICE', detail: 'not communities', tone: 'success' },
         ]} />
-        <ObservationShard eyebrow="SCOPE GUARDRAIL" title="PRACTICE-LEVEL REVIEW" tone="warning">
+        <ObservationShard eyebrow="SCOPE GUARDRAIL" title="PRACTICE-LEVEL REVIEW ONLY" tone="warning">
           Severity flags practices for clarification. It does not classify religions, ethnicities, communities or people.
         </ObservationShard>
       </div>
@@ -465,7 +463,6 @@ export default function SharedInstrumentLayer() {
     </div>
   }, [root, state])
 
-  if (root === 'research-run') return <LiveResearchRun />
   if (!state) return null
 
   const { registry, month, report, evidence, disasters, correlations } = state
@@ -483,7 +480,7 @@ export default function SharedInstrumentLayer() {
       </div>
       <MissionRail items={NAV} activeId={root} onSelect={go} />
       <div className="canonical-mission-foot">
-        <SignalBeacon tone={source.kind === 'historical' ? 'success' : 'warning'} label={source.label} />
+        <SignalBeacon tone={source.kind === 'historical' ? 'warning' : 'success'} label={source.kind === 'historical' ? 'FROZEN BASELINE' : source.label} />
         <small>OBSERVE • VERIFY • CLARIFY • PURIFY</small>
       </div>
     </aside>
@@ -493,7 +490,7 @@ export default function SharedInstrumentLayer() {
         code={page[0]}
         title={title}
         subtitle={page[2]}
-        status={<SignalBeacon tone={source.kind === 'historical' ? 'success' : 'warning'} label={source.label} />}
+        status={<SignalBeacon tone={source.kind === 'historical' ? 'warning' : 'success'} label={source.kind === 'historical' ? 'FROZEN BASELINE' : source.label} />}
       />
 
       <div className="canonical-control-grid">
@@ -544,10 +541,10 @@ export default function SharedInstrumentLayer() {
         </InspectorDock>
       </div>
 
-      <div className="shared-instrument-layer" aria-label="MoonWitness shared design-system instrument">
+      <div className="shared-instrument-layer" aria-label="MoonWitness canonical frontend-platform instrument">
         <div className="shared-instrument-label">
           <span>CANONICAL MOONWITNESS INSTRUMENT</span>
-          <SignalBeacon tone={source.kind === 'historical' ? 'success' : 'warning'} label={`SHARED UI / ${source.label}`} />
+          <SignalBeacon tone={source.kind === 'historical' ? 'warning' : 'success'} label={`FRONTEND PLATFORM / ${source.kind === 'historical' ? 'FROZEN BASELINE' : source.label}`} />
         </div>
         {view}
       </div>
