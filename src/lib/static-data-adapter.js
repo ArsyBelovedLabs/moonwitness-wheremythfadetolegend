@@ -17,11 +17,13 @@ const EMPTY = Object.freeze({
  */
 export function describeMonthSource(month) {
   const historical = month?.status === 'final'
+  const lifecycle = historical ? 'frozen' : 'collecting'
   return Object.freeze({
     kind: historical ? 'historical' : 'live',
+    lifecycle,
     storage: 'static',
     status: month?.status || 'unknown',
-    label: historical ? 'HISTORICAL / FROZEN' : 'LIVE / COLLECTING',
+    label: `STATIC / ${lifecycle.toUpperCase()}`,
     detail: historical ? 'Git-backed frozen monthly baseline' : 'Git-backed collecting month; candidate signals remain unpublished',
   })
 }

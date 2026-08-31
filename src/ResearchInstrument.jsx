@@ -106,8 +106,9 @@ export default function App() {
     return observations.filter(x => [x.date,x.location,x.actor,x.practice,x.summary].join(' ').toLowerCase().includes(q)).slice(0,8)
   }, [query, observations])
 
-  if (!report) return <div className="wm-loading"><div className="loading-orbit"><Moon size={30}/><span>Synchronizing research instrument…</span></div></div>
   const root = routeRoot(route)
+  if (root === 'research-run') return null
+  if (!report) return <div className="wm-loading"><div className="loading-orbit"><Moon size={30}/><span>Synchronizing research instrument…</span></div></div>
   const source = describeMonthSource(month)
 
   return <div className="wm-app research-app">

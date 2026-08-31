@@ -218,7 +218,6 @@ export default function SharedInstrumentLayer() {
   }, [query, state])
 
   const view = useMemo(() => {
-    if (root === 'research-run') return <LiveResearchRun />
     if (!state) return null
     const { month, report, issues, evidence, revelation, geography, disasters, correlations, candidates } = state
     const observations = report?.observations || []
@@ -465,7 +464,7 @@ export default function SharedInstrumentLayer() {
     </div>
   }, [root, state])
 
-  if (!state && root === 'research-run') return <LiveResearchRun />
+  if (root === 'research-run') return <LiveResearchRun />
   if (!state) return null
 
   const { registry, month, report, evidence, disasters, correlations } = state
@@ -536,7 +535,7 @@ export default function SharedInstrumentLayer() {
               </div>
         </div>
 
-        <InspectorDock title="RESEARCH STATE" eyebrow={`${source.storage.toUpperCase()} DATA / ${source.kind.toUpperCase()}`}>
+        <InspectorDock title="RESEARCH STATE" eyebrow={`${source.storage.toUpperCase()} DATA / ${source.lifecycle.toUpperCase()}`}>
           <InspectorRows rows={[
             { label: 'MONTH', value: month.label, tone: 'active' },
             { label: 'OBSERVATIONS', value: observations.length, tone: 'active' },
