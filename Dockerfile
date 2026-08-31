@@ -10,9 +10,8 @@ RUN --mount=type=secret,id=npm_token \
   TOKEN="$(cat /run/secrets/npm_token)"; \
   printf '%s\n' \
     '@arsybelovedlabs:registry=https://npm.pkg.github.com' \
-    "//npm.pkg.github.com/:_authToken=${TOKEN}" \
-    'always-auth=true' > /tmp/moonwitness-npmrc; \
-  NPM_CONFIG_USERCONFIG=/tmp/moonwitness-npmrc pnpm install --no-frozen-lockfile; \
+    "//npm.pkg.github.com/:_authToken=${TOKEN}" > /tmp/moonwitness-npmrc; \
+  NPM_CONFIG_USERCONFIG=/tmp/moonwitness-npmrc pnpm install --frozen-lockfile; \
   rm -f /tmp/moonwitness-npmrc
 
 COPY . .
