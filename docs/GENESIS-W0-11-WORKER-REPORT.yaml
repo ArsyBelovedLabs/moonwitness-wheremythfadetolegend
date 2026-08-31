@@ -1,0 +1,24 @@
+version: 1
+work_item: W0-11
+repository: ArsyBelovedLabs/moonwitness-wheremythfadetolegend
+status: in_progress
+visual_track:
+  issue: 9
+  fidelity_checklist: docs/VISUAL-FIDELITY-CHECKLIST-V1.md
+  golden_screen_queue: docs/GOLDEN-SCREEN-QUEUE-V1.md
+  component_owner: ArsyBelovedLabs/moonwitness-frontend-platform
+  figma_master: pending_verification
+  result: pending
+package_distribution:
+  canonical_package: '@arsybelovedlabs/moonwitness-frontend-platform'
+  target_version: 0.3.0
+  result: pending
+docker: pending
+vercel: pending
+runtime_smoke: pending
+ci: pending
+architecture:
+  direct_database_access: forbidden
+  live_data_boundary: sdk_api_only
+  historical_baseline: frozen_versioned
+closeout: blocked_until_all_evidence_passes
