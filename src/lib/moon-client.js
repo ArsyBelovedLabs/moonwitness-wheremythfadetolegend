@@ -31,16 +31,26 @@ async function readError(response) {
   )
 }
 
-export function createMoonClient({ baseUrl = apiUrl(), fetcher = globalThis.fetch } = {}) {
+export function createMoonClient({ baseUrl = apiUrl(), fetcher = globalThis.fetch, getAccessToken, credentials } = {}) {
   const root = String(baseUrl).replace(/\/$/, '')
   if (typeof fetcher !== 'function') throw new MoonClientError('Live API is unavailable in this browser.')
+  const resolveAccessToken = async () => {
+    if (!getAccessToken) return undefined
+    const token = typeof getAccessToken === 'function' ? await getAccessToken() : getAccessToken
+    return typeof token === 'string' ? token.trim() || undefined : undefined
+  }
 
   const request = async (path, init = {}) => {
     let response
     try {
+      const token = await resolveAccessToken()
+      const headers = new Headers(init.headers)
+      headers.set('accept', headers.get('accept') || 'application/json')
+      if (token) headers.set('authorization', `Bearer ${token}`)
       response = await fetcher(`${root}${path}`, {
         ...init,
-        headers: { accept: 'application/json', ...(init.headers || {}) },
+        headers,
+        ...(credentials ? { credentials } : {}),
       })
     } catch {
       throw new MoonClientError('Live API is offline or unreachable.')
