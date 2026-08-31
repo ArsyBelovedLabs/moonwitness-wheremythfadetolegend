@@ -1,0 +1,9 @@
+state: executing
+queries:
+  - figma_pointer
+  - routes
+  - canonical_package_imports
+  - icon_imports_and_local_svg
+  - active_surface_components
+  - frozen_live_guardrails
+  - responsive_accessibility
