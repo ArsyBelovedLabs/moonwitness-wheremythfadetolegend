@@ -10,7 +10,13 @@ import "./myth-design-system.css"
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <MoonWitnessProvider theme="myth-fade">
-      <ApplicationShell label="WHERE MYTH FADE TO LEGEND" eyebrow="MOONWITNESS / COUNTER-MYTHOS OBSERVATORY">
+      <ApplicationShell
+        label="WHERE MYTH FADE TO LEGEND"
+        eyebrow="MOONWITNESS / COUNTER-MYTHOS OBSERVATORY"
+        status="REPOSITORY / GROUNDED"
+        statusTone="success"
+        topRail={<div className="myth-shared-instrument-rail"><span>EVIDENCE-FIRST</span><i>•</i><strong>Temporal/geographic proximity does not establish causation.</strong></div>}
+      >
         <App />
       </ApplicationShell>
     </MoonWitnessProvider>
