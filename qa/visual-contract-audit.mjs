@@ -4,9 +4,10 @@ const files = {
   main: fs.readFileSync(new URL('../src/main.jsx', import.meta.url), 'utf8'),
   shared: fs.readFileSync(new URL('../src/SharedInstrumentLayer.jsx', import.meta.url), 'utf8'),
   research: fs.readFileSync(new URL('../src/ResearchInstrument.jsx', import.meta.url), 'utf8'),
+  fidelity: fs.readFileSync(new URL('../e2e/visual-fidelity.spec.js', import.meta.url), 'utf8'),
 }
 
-const activeSource = Object.values(files).join('\n')
+const activeSource = [files.main, files.shared, files.research].join('\n')
 const failures = []
 const requireMatch = (condition, message) => { if (!condition) failures.push(message) }
 
@@ -30,6 +31,14 @@ requireMatch(activeSource.includes('FROZEN BASELINE'), 'August 2026 historical s
 requireMatch(files.research.includes("const REVELATION_KEYS = ['Q', 'I', 'T', 'Z']"), 'Four Revelation Lens must declare canonical Q/I/T/Z ordering.')
 requireMatch(!files.research.includes("if (root === 'research-run')"), 'Detailed public app must not special-case a hidden research-run public route.')
 
+for (const width of [1440, 1280, 1024, 768, 430, 390, 360]) {
+  requireMatch(files.fidelity.includes(String(width)), `Responsive visual-fidelity suite must cover ${width}px.`)
+}
+requireMatch(files.fidelity.includes('document.documentElement.scrollWidth > window.innerWidth + 2'), 'Responsive suite must assert no horizontal page overflow.')
+requireMatch(files.fidelity.includes("page.keyboard.press('Tab')"), 'Accessibility suite must exercise keyboard traversal.')
+requireMatch(files.fidelity.includes("toHaveCount(8)"), 'Visual-fidelity suite must verify exactly eight public mission controls.')
+requireMatch(files.fidelity.includes("toHaveCount(4)"), 'Visual-fidelity suite must verify exactly four Revelation Lens items.')
+
 if (failures.length) {
   console.error('Visual contract audit FAILED')
   for (const failure of failures) console.error(`- ${failure}`)
@@ -40,3 +49,5 @@ console.log('Visual contract audit PASS')
 console.log(`- public navigation: ${sharedNavIds.length} canonical surfaces`)
 console.log('- reusable UI owner: moonwitness-frontend-platform')
 console.log('- frozen baseline, practice scope, causality, and four-lens guardrails present')
+console.log('- responsive evidence matrix: 1440/1280/1024/768/430/390/360')
+console.log('- keyboard traversal and no-horizontal-overflow checks are gated')
