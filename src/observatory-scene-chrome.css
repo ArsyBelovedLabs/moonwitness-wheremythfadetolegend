@@ -1,0 +1,22 @@
+.observatory-scene-chrome{position:relative;min-width:0;width:100%;display:grid;grid-template-columns:minmax(150px,.72fr) minmax(190px,1fr) minmax(250px,1.35fr);align-items:stretch;border-left:1px solid color-mix(in srgb,var(--mw-accent-secondary) 28%,transparent);border-right:1px solid color-mix(in srgb,var(--mw-accent-secondary) 28%,transparent);background:linear-gradient(180deg,rgba(7,10,12,.96),rgba(4,6,8,.94));overflow:hidden}
+.observatory-scene-chrome:before,.observatory-scene-chrome:after{content:"";position:absolute;z-index:2;pointer-events:none;width:28px;height:9px;border-top:1px solid var(--mw-accent-primary)}
+.observatory-scene-chrome:before{left:0;top:0;border-left:1px solid var(--mw-accent-primary)}
+.observatory-scene-chrome:after{right:0;top:0;border-right:1px solid var(--mw-accent-primary)}
+.observatory-scene-chrome__calibration{position:absolute;left:0;right:0;top:0;height:5px;display:grid;grid-template-columns:repeat(18,1fr);pointer-events:none;opacity:.7}
+.observatory-scene-chrome__calibration i{position:relative;border-left:1px solid color-mix(in srgb,var(--mw-accent-secondary) 34%,transparent)}
+.observatory-scene-chrome__calibration i:nth-child(3n+1):before{content:"";position:absolute;left:-1px;top:0;height:5px;border-left:1px solid color-mix(in srgb,var(--mw-accent-primary) 62%,transparent)}
+.observatory-scene-chrome__cell{min-width:0;display:flex;align-items:center;gap:9px;padding:9px 13px 7px;border-right:1px solid color-mix(in srgb,var(--mw-accent-secondary) 14%,transparent);color:var(--mw-text-primary)}
+.observatory-scene-chrome__cell svg{flex:0 0 auto;color:var(--mw-accent-secondary)}
+.observatory-scene-chrome__cell.is-task svg{color:var(--mw-accent-primary)}
+.observatory-scene-chrome__cell span{min-width:0;display:grid;gap:1px}
+.observatory-scene-chrome__cell small{font:700 7px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;color:var(--mw-text-muted)}
+.observatory-scene-chrome__cell strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.07em;color:var(--mw-text-primary)}
+.observatory-scene-chrome__cell.is-state strong{color:var(--mw-state-warning)}
+.observatory-scene-chrome__guardrail{grid-column:1/-1;min-width:0;display:flex;align-items:center;justify-content:center;gap:9px;padding:5px 12px 6px;border-top:1px solid color-mix(in srgb,var(--mw-accent-secondary) 14%,transparent);background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--mw-accent-primary) 5%,transparent),transparent);font:700 8px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em;color:var(--mw-text-muted)}
+.observatory-scene-chrome__guardrail svg{flex:0 0 auto;color:var(--mw-state-success)}
+.observatory-scene-chrome__guardrail strong{color:var(--mw-accent-secondary);letter-spacing:.1em}
+.observatory-scene-chrome__guardrail i{width:22px;height:1px;background:linear-gradient(90deg,var(--mw-accent-primary),transparent)}
+.observatory-scene-chrome__guardrail span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:900px){.observatory-scene-chrome{grid-template-columns:1fr 1.35fr}.observatory-scene-chrome__cell.is-state{grid-column:1/-1;border-top:1px solid color-mix(in srgb,var(--mw-accent-secondary) 12%,transparent)}.observatory-scene-chrome__guardrail{justify-content:flex-start}}
+@media(max-width:560px){.observatory-scene-chrome{grid-template-columns:1fr}.observatory-scene-chrome__cell{padding:8px 10px}.observatory-scene-chrome__cell.is-mode,.observatory-scene-chrome__cell.is-task,.observatory-scene-chrome__cell.is-state{grid-column:auto;border-right:0;border-top:1px solid color-mix(in srgb,var(--mw-accent-secondary) 11%,transparent)}.observatory-scene-chrome__cell.is-mode{border-top:0}.observatory-scene-chrome__guardrail{gap:7px;justify-content:flex-start;padding-inline:10px}.observatory-scene-chrome__guardrail i{display:none}.observatory-scene-chrome__guardrail span{white-space:normal;line-height:1.35}}
+@media(prefers-reduced-motion:reduce){.observatory-scene-chrome *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
