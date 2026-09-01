@@ -1,0 +1,29 @@
+name: Observatory Visual Contract
+
+on:
+  push:
+    branches: [dev, main]
+    paths:
+      - 'src/**'
+      - 'qa/visual-contract-audit.mjs'
+      - 'e2e/visual-fidelity.spec.js'
+      - '.github/workflows/visual-contract.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'qa/visual-contract-audit.mjs'
+      - 'e2e/visual-fidelity.spec.js'
+      - '.github/workflows/visual-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Audit public Observatory visual contract
+        run: node qa/visual-contract-audit.mjs
