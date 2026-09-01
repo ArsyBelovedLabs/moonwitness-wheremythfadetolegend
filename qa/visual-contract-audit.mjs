@@ -4,15 +4,25 @@ const files = {
   main: fs.readFileSync(new URL('../src/main.jsx', import.meta.url), 'utf8'),
   shared: fs.readFileSync(new URL('../src/SharedInstrumentLayer.jsx', import.meta.url), 'utf8'),
   research: fs.readFileSync(new URL('../src/ResearchInstrument.jsx', import.meta.url), 'utf8'),
+  chrome: fs.readFileSync(new URL('../src/ObservatorySceneChrome.jsx', import.meta.url), 'utf8'),
+  chromeCss: fs.readFileSync(new URL('../src/observatory-scene-chrome.css', import.meta.url), 'utf8'),
   fidelity: fs.readFileSync(new URL('../e2e/visual-fidelity.spec.js', import.meta.url), 'utf8'),
 }
 
-const activeSource = [files.main, files.shared, files.research].join('\n')
+const activeSource = [files.main, files.shared, files.research, files.chrome].join('\n')
 const failures = []
 const requireMatch = (condition, message) => { if (!condition) failures.push(message) }
 
 requireMatch(!activeSource.includes('@arsybelovedlabs/moonwitness-design-system'), 'Active public Web must not consume moonwitness-design-system as reusable runtime UI.')
 requireMatch(files.main.includes('@arsybelovedlabs/moonwitness-frontend-platform'), 'Application shell/provider must come from moonwitness-frontend-platform.')
+requireMatch(files.main.includes('ObservatorySceneChrome'), 'Application shell must mount the Observatory scene chrome.')
+requireMatch(files.chrome.includes("MoonWitnessIcon"), 'Observatory scene chrome must use canonical MoonWitness icons.')
+requireMatch(files.chrome.includes("name=\"observation\""), 'Observatory scene chrome must expose canonical observation iconography.')
+requireMatch(files.chrome.includes('OPERATING MODE') && files.chrome.includes('OBSERVE'), 'Observatory scene chrome must expose the frozen OBSERVE operating mode.')
+requireMatch(files.chrome.includes('FROZEN BASELINE · AUGUST 2026'), 'Observatory scene chrome must expose the frozen August 2026 data state.')
+requireMatch(files.chromeCss.includes('observatory-scene-chrome__calibration'), 'Observatory scene chrome must include restrained calibration geometry.')
+requireMatch(files.chromeCss.includes('@media(max-width:560px)'), 'Observatory scene chrome must explicitly recompose for compact mobile.')
+requireMatch(files.chromeCss.includes('prefers-reduced-motion:reduce'), 'Observatory scene chrome must honor reduced motion.')
 
 const sharedNav = files.shared.match(/const NAV = \[([\s\S]*?)\n\]/)?.[1] || ''
 const sharedNavIds = [...sharedNav.matchAll(/id: '([^']+)'/g)].map(match => match[1])
@@ -48,6 +58,7 @@ if (failures.length) {
 console.log('Visual contract audit PASS')
 console.log(`- public navigation: ${sharedNavIds.length} canonical surfaces`)
 console.log('- reusable UI owner: moonwitness-frontend-platform')
+console.log('- application scene chrome: canonical icons + OBSERVE/frozen calibration state')
 console.log('- frozen baseline, practice scope, causality, and four-lens guardrails present')
 console.log('- responsive evidence matrix: 1440/1280/1024/768/430/390/360')
 console.log('- keyboard traversal and no-horizontal-overflow checks are gated')
