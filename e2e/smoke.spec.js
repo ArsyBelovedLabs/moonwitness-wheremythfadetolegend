@@ -4,7 +4,7 @@ test('unified August report renders the frozen repository ledger', async ({ page
   await page.goto('/#report/2026-08')
   await expect(page.locator('body')).toContainText('WHERE MYTH FADE TO LEGEND')
   await expect(page.locator('body')).toContainText('MOONWITNESS SUBMODULE')
-  await expect(page.locator('.page-title')).toContainText('August 2026 — Observatory Report')
+  await expect(page.locator('.page-title')).toContainText('August 2026 — Monthly Report')
   await expect(page.locator('.kpi-grid')).toContainText('Mythos Activity')
   await expect(page.locator('.observation-table tbody tr')).toHaveCount(17)
   await expect(page.locator('.observation-table')).toContainText('Tri Sandya + Pemujaan Dewi Sri')
@@ -19,14 +19,14 @@ test('canonical MoonWitness chrome is the visible navigation and search surface'
   await expect(page.locator('.canonical-route-shell')).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Mission navigation' })).toContainText('Correlation Engine')
   await expect(page.getByLabel('ARCHIVE GATE')).toBeVisible()
-  await expect(page.locator('.canonical-route-shell h1')).toContainText('August 2026 — Observatory Report')
+  await expect(page.locator('.canonical-route-shell h1')).toContainText('August 2026 — Monthly Report')
   await expect(page.locator('.research-app > .wm-sidebar')).toBeHidden()
   await expect(page.locator('.mw-causality-guardrail')).toContainText('Temporal/geographic proximity does not establish causation.')
 })
 
 test('observation geography comes from repository metadata', async ({ page }) => {
   await page.goto('/#spread-map')
-  await expect(page.locator('.page-title')).toContainText('August 2026 — Mythos Spread Map')
+  await expect(page.locator('.page-title')).toContainText('August 2026 — Spread Map')
   await expect(page.locator('.leaflet-stage')).toBeVisible()
   await expect(page.locator('.severity-legend')).toContainText('TAUHID-GAP SEVERITY')
   await expect(page.locator('body')).toContainText('Repository coordinates')
@@ -43,23 +43,24 @@ test('Disaster Map uses dedicated disaster rows and keeps causality separate', a
   await expect(page.locator('body')).toContainText('Mempawah')
   await expect(page.locator('body')).toContainText('Flores')
   await expect(page.locator('body')).toContainText('Aceh Barat Daya')
-  await expect(page.locator('body')).toContainText('Temporal proximity is not proof of causation')
+  await expect(page.locator('body')).toContainText('Temporal/geographic proximity does not establish causation.')
 })
 
 test('correlation engine distinguishes proximity from reviewed causality', async ({ page }) => {
   await page.goto('/#correlation')
-  await expect(page.locator('.page-title')).toContainText('Correlation / Timeline Engine')
+  await expect(page.locator('.page-title')).toContainText('August 2026 — Correlation Engine')
   await expect(page.locator('.engine-flow')).toContainText('ΔT + DISTANCE')
   await expect(page.locator('.correlation-table')).toContainText('Chit Ngiat Pan / Sembahyang Rebut')
   await expect(page.locator('.correlation-table')).toContainText('Chiong Si Ku')
   await expect(page.locator('.relation-state.reviewed').first()).toBeVisible()
   await expect(page.locator('.correlation-table')).toContainText('REVIEWED_NO_CAUSAL_LINK')
   await expect(page.locator('.mw-chronology-track')).toBeVisible()
+  await expect(page.locator('.mw-causality-guardrail')).toContainText('Temporal/geographic proximity does not establish causation.')
 })
 
-test('Tauhid Gap is color coded and issue register is complete', async ({ page }) => {
+test('Tauhid Gap is color coded and practice-level issue register is complete', async ({ page }) => {
   await page.goto('/#review')
-  await expect(page.locator('.page-title')).toContainText('August 2026 — Tauhid Review')
+  await expect(page.locator('.page-title')).toContainText('August 2026 — Practice-Level Review')
   await expect(page.locator('.review-table tbody tr')).toHaveCount(12)
   await expect(page.locator('.review-table')).toContainText('TAU-01')
   await expect(page.locator('.review-table')).toContainText('TAU-12')
@@ -83,7 +84,7 @@ test('evidence and Four Revelation routes remain repository-grounded', async ({ 
 
 test('September starts as an empty collecting pipeline, not published truth', async ({ page }) => {
   await page.goto('/#report/2026-09')
-  await expect(page.locator('.page-title')).toContainText('September 2026 — Observatory Report')
+  await expect(page.locator('.page-title')).toContainText('September 2026 — Monthly Report')
   const mission = page.getByRole('navigation', { name: 'Mission navigation' })
   await mission.getByRole('button', { name: /Candidate Pipeline/i }).click()
   await expect(page.locator('.page-title')).toContainText('September 2026 — Candidate Pipeline')
